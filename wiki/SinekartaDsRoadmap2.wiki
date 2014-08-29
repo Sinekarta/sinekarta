@@ -129,6 +129,6 @@
 ||personalizzazione timestamp||4||17/09||||||
 ||  -> analisi pattern ASN1 prodotti da Dike||1||12/09||||||
 ||  -> JUnit sulla produzione marche nei vari formati||1||15/09||||||
-||  -> JUnit sul funzionamento webscript marche lato server||16||10/09||||||
+||  -> JUnit sul funzionamento webscript marche lato server||1||16/09||||||
 ||  -> funzionamento completo marche tramite browser||1||17/09||||||
 ||verifiche, ricerca, soluzioni problemi noti, ecc.||2||19/09||||||
