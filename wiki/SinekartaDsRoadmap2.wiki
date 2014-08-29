@@ -1,0 +1,133 @@
+#summary RoadMap per la seconda milestone di sinekarta-ds
+
+= Obiettivi =
+
+== Obbiettivi primari ==
+  * firma digitale con smartcard ed applet
+  * firma digitale in formato CMS accettato dalla PA 
+  * firma digitale in formato PDF accettato dalla PA
+  * firma digitale in formato XML accettato dalla PA
+  * integrazione dei requisiti di sopra nella struttura generale dei webscript
+
+== Obbiettivi secondari ==
+  * prevedere il supporto per la firma digitale via webservice
+  * per i tre tipi di firma supportare le diverse disposizioni
+  * prevedere il supporto per diverse disposizioni per il timestamp
+  * rendere il core personalizzabile in termini di algoritmi e formati
+
+== Linee guida generali sul risultato finale atteso ==
+  * alta personalizzabilità da parte dall'utente (opzioni avanzate)
+  * produzione immediata e diretta di firme digitali riconosciute dalla PA (opzioni di default)
+  * possibilità per l'utente di salvare le impostazioni usate, ad esempio accesso ai keystore usati, per recuperarle rapidamente in un secondo momento
+  * possibilità per gli sviluppatori di far fronte agevolmente a cambiamenti della normativa intervenendo sulle configurazioni
+  * profilazione in base al contesto nazionale: possibilità di cambiare le opzioni di default in base alle normative usate in un diverso Paese
+  * opzioni avanzate: indicare "real-time" il contesto di riferimento con cui dovrà esser compatibile la firma che si sta generando
+  * la verifica dovrà indicare se una firma è generalmente valida ed avvisare con delle warning se non verrebbe riconosciuta dal contesto di riferimento (di default, PA)
+  * verifica della validità delle firme generate: verificate da Dike (e viceversa nella verifica)
+
+
+
+= Situazione iniziale (29/08/2014) =
+
+== Servizi di firma e marca ==
+
+=== Firma digitale in formato CMS ===
+  * procedura di base (firma digitale EMBEDDED da keystore verificata da Dike) completamente operativa
+  * struttura del core quasi definitiva, supporto di base a quasi tutte le linee guida di sopra
+  * ogni volta che il service genera una firma vi applica tutte le verifiche note prima di restituirla
+  * Dike verifica le firme di Sinekarta, Sinekarta verifica le firme di Dike
+  * la disposizione DETACHED presenta dei problemi nella verifica su JUnit
+  * algoritmi di digest, firma digitale e cipher sono codificati da opportune enum che agevolano il riconoscimento degli algoritmi usati
+  * è già virtualmente possibile indicare diversi algoritmi di digest, l'implementazione con external sign tramite un provider proxato tuttavia al momento supporta solamente SHA256
+
+=== Firma digitale in formato PDF ===
+  * diponibili gli esempi dalla precedente versione di Sinekarta
+
+=== Firma digitale in formato XML ===
+  * disponibili gli esempi estratti da EID
+
+=== TimeStamp ===
+  * procedura di base (aggiunta di un timestamp generato da infocert e riconosciuto da Dike) completamente operativa
+  * ottenere un formato equivalente a quello di Dike (teoricamente CAdES-T) ha richiesto un nuovo generico componente TimeStampedData per il riconoscimento e la generazione di specifici pattern ASN1, gestito da un service apposito
+  * la disposizione del timestamp ENVELOPED come unsignedAttribute nelle firme digitali viene riconosciuta e verificata da Dike, ma visualizzata nell'interfaccia come fosse una seconda firma
+  * JUnit test hanno prodotto marcature DETACHED (TSR) verificate con successo da Dike, ma tale funzionalità deve esser ancora integrata nel core
+  * altre analisi sui patten ottenuti dalla marcatura apposta da Dike saranno necessari per identificare e riprodurre i formati TSD ed M7M
+
+
+== Client di firma digitale ==
+
+=== KeyStore ===
+  * firma con certificato ricavato da keystore locale completamente operativa
+
+=== WebService ===
+  * funzionalità da implementare, ma già supportata nel processo di firma
+
+=== SmartCard ===
+  * firma digitale con SHA256 tramite SmartCard completamente operativa su JUnit
+  * applet di firma pronta, ma ancora non è stato possibile testarla sul browser con successo
+  * autodetect del driver tra le librerie di sistema
+  * analisi e riconoscimento dei meccanismi supportati (e possibilità "virtuale" di applicare o meno un dato tipo di firma)
+  * attualmente i pattern dei comandi iaik noti producono solo firme SHA256withRSA
+
+
+== Architettura ed integrazione ==
+  * sinekarta-ds: il progetto parent dichiara tutte le dipendenze ed i plugin necessari perché i rispettivi moduli li possano utilizzare
+    * sinekarta-ds-commons: modello dati comune, utility e dipendenze comuni, usate in tutto il progetto
+    * sinekarta-ds-core
+    * sinekarta-ds-dto: protocolli per i dto che già tengono conto dell'internazionalizzazione dei formati, conversione a stringa delle entità model
+    * sinekarta-ds-client: implementazione lato client dei provider di firma e della gestione smartcard
+    * sinekarta-ds-alfresco
+    * sinekarta-ds-share
+    * sinekarta-ds-applet: jar dalle dipendenze minimali che include i sorgenti di cui ha bisogno, estratti dagli altri progetti, testato per girare su JDK1.5
+  * usata la libreria bctsp_jdk16_146 di bouncycastle, facente a sua volta riferimento bcmail e bcprov per evitare che possano insorgere i precedenti problemi legati alla duplicazione dei package nei due jar
+  * i progetti alfresco e share sono da aggiornare ai nuovi protocolli introdotti negli ultimi rilasci
+  * la documentazione javadoc verrà applicata dopo che le varie problematiche saranno risolte e la struttura attuale si rivelerà stabile
+
+== Interfaccia grafica ==
+  * attualmente supporta il procedimento di base (keystore, DETACHED, timestamp)
+  * grafica senza decorator
+  * mancanza della scelta manuale del file keystore
+  * la navigazione del wizard viene implementata con metodi javascript richiamati nel onload del body, in caso di step completeti con successo. Tale implementazione funziona ma è sicuramente da ristrutturare
+
+
+
+= Situazione attesa (19/09/2014) =
+
+== Servizi di firma e marca ==
+  * funzionamento completo della firma XML almeno con disposition ENVELOPING
+  * funzionamento completo della firma PDF 
+  * generazione delle marche nei formati a scelta dell'utente: TSR, TSD, M7M, CAdES-T
+
+== Client di firma digitale ==
+  * ottenere il funzionamento completo della smartcard via applet
+
+== Interfaccia grafica ==
+  * funzionamento completo di tutti i tipi di firma e timestamp tramite browser
+
+
+
+= Roadmap =
+||*OBIETTIVO*||*TEMPO STIMATO*||*SCADENZA STIMATA*||*TEMPO EFFETTIVO*||*SCADENZA EFFETTIVA*||
+||funzionamento applet smartcard||2||02/09||||||
+||  -> certificato di firma||1||29/08||||||
+||  -> esecuzione con successo di un'HelloWorld applet||1||01/08||||||
+||  -> esecuzione con successo dell'applet di firma||1/2||02/08||||||
+||  -> integrazione dell'applet di firma nei jsp||1/2||02/08||||||
+||funzionamento firma PDF||3||05/09||||||
+||  -> JUnit a partire dal vecchio service in Sinekarta||1/2||03/09||||||
+||  -> customizzazione formati, algoritmi ecc.||1/2||03/09||||||
+||  -> JUnit sul funzionamento webscript firma PDF lato server||1/2||04/09||||||
+||  -> introduzione della signature disposition nelle opzioni utente, refactoring||1||05/09||||||
+||  -> funzionamento completo firma PDF tramite browser||1/2||05/09||||||
+||funzionamento firma XML||4||11/09||||||
+||  -> analisi e studio esempi EID||1||08/09||||||
+||  -> JUnit per produrre e verificare firme XML accettate dalla PA||1/2||09/09||||||
+||  -> sviluppo altre disposition, se fattibile in tempi brevi||1/2||09/09||||||
+||  -> JUnit sul funzionamento webscript firma XML lato server||1||10/09||||||
+||  -> funzionamento completo firma XML tramite browser||1||11/09||||||
+||personalizzazione timestamp||4||17/09||||||
+||  -> analisi pattern ASN1 prodotti da Dike||1||12/09||||||
+||  -> JUnit sulla produzione marche nei vari formati||1||15/09||||||
+||  -> JUnit sul funzionamento webscript marche lato server||16||10/09||||||
+||  -> funzionamento completo marche tramite browser||1||17/09||||||
+||verifiche, ricerca, soluzioni problemi noti, ecc.||2||19/09||||||
