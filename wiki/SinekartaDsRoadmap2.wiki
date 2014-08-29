@@ -1,4 +1,5 @@
 #summary RoadMap per la seconda milestone di sinekarta-ds
+#labels smartcard,applet,marche,CMS,PDF,XML
 
 = Obiettivi =
 
