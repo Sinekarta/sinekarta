@@ -108,27 +108,27 @@
 
 
 = Roadmap =
-||*OBIETTIVO*||*TEMPO STIMATO*||*SCADENZA STIMATA*||*TEMPO EFFETTIVO*||*SCADENZA EFFETTIVA*||
-||funzionamento applet smartcard||2||02/09||||||
-||  -> certificato di firma||1||29/08||||||
-||  -> esecuzione con successo di un'HelloWorld applet||1||01/08||||||
-||  -> esecuzione con successo dell'applet di firma||1/2||02/08||||||
-||  -> integrazione dell'applet di firma nei jsp||1/2||02/08||||||
-||funzionamento firma PDF||3||05/09||||||
-||  -> JUnit a partire dal vecchio service in Sinekarta||1/2||03/09||||||
-||  -> customizzazione formati, algoritmi ecc.||1/2||03/09||||||
-||  -> JUnit sul funzionamento webscript firma PDF lato server||1/2||04/09||||||
-||  -> introduzione della signature disposition nelle opzioni utente, refactoring||1||05/09||||||
-||  -> funzionamento completo firma PDF tramite browser||1/2||05/09||||||
-||funzionamento firma XML||4||11/09||||||
-||  -> analisi e studio esempi EID||1||08/09||||||
-||  -> JUnit per produrre e verificare firme XML accettate dalla PA||1/2||09/09||||||
-||  -> sviluppo altre disposition, se fattibile in tempi brevi||1/2||09/09||||||
-||  -> JUnit sul funzionamento webscript firma XML lato server||1||10/09||||||
-||  -> funzionamento completo firma XML tramite browser||1||11/09||||||
-||personalizzazione timestamp||4||17/09||||||
-||  -> analisi pattern ASN1 prodotti da Dike||1||12/09||||||
-||  -> JUnit sulla produzione marche nei vari formati||1||15/09||||||
-||  -> JUnit sul funzionamento webscript marche lato server||1||16/09||||||
-||  -> funzionamento completo marche tramite browser||1||17/09||||||
-||verifiche, ricerca, soluzioni problemi noti, ecc.||2||19/09||||||
+||*OBIETTIVO*||*TEMPO STIMATO*||*SCADENZA STIMATA*||*NOTE*||*TEMPO EFFETTIVO*||*SCADENZA EFFETTIVA*||
+||funzionamento applet smartcard||2||02/09||in attesa del certificato||||||
+||  -> certificato di firma||1||29/08||||||||
+||  -> esecuzione con successo di un'HelloWorld applet||1||01/08||||||||
+||  -> esecuzione con successo dell'applet di firma||1/2||02/08||||||||
+||  -> integrazione dell'applet di firma nei jsp||1/2||02/08||||||||
+||funzionamento firma PDF||3||05/09||||||||
+||  -> JUnit a partire dal vecchio service in Sinekarta||1/2||03/09||||||||
+||  -> customizzazione formati, algoritmi ecc.||1/2||03/09||||||||
+||  -> JUnit sul funzionamento webscript firma PDF lato server||1/2||04/09||||||||
+||  -> introduzione della signature disposition nelle opzioni utente, refactoring||1||05/09||||||||
+||  -> funzionamento completo firma PDF tramite browser||1/2||05/09||||||||
+||funzionamento firma XML||4||11/09||||||||
+||  -> analisi e studio esempi EID||1||08/09||||||||
+||  -> JUnit per produrre e verificare firme XML accettate dalla PA||1/2||09/09||||||||
+||  -> sviluppo altre disposition, se fattibile in tempi brevi||1/2||09/09||||||||
+||  -> JUnit sul funzionamento webscript firma XML lato server||1||10/09||||||||
+||  -> funzionamento completo firma XML tramite browser||1||11/09||||||||
+||personalizzazione timestamp||4||17/09||||||||
+||  -> analisi pattern ASN1 prodotti da Dike||1||12/09||||||||
+||  -> JUnit sulla produzione marche nei vari formati||1||15/09||||||||
+||  -> JUnit sul funzionamento webscript marche lato server||1||16/09||||||||
+||  -> funzionamento completo marche tramite browser||1||17/09||||||||
+||verifiche, ricerca, soluzioni problemi noti, ecc.||2||19/09||||||||
