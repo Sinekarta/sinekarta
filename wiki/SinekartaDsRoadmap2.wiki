@@ -132,3 +132,16 @@
 ||  -> JUnit sul funzionamento webscript marche lato server||1||16/09||||||||
 ||  -> funzionamento completo marche tramite browser||1||17/09||||||||
 ||verifiche, ricerca, soluzioni problemi noti, ecc.||2||19/09||||||||
+
+= Problematiche riscontrate =
+== Ancora bouncycastle ==
+Nuovi ritardi dovuti all'anomalia di bouncycastle, che presenza gli stessi package e classi su jar differenti, ma con differenti protocolli.
+Il problema sembrava risolto nei bugfix precedenti in quanto non si avevano più errori di compilazione, ma integrando i progetti tra loro sono emersi errori runtime riguardanti chiamate a metodi e campi inesistenti.
+Ripulendo la cartella bouncycastle dentro a maven si nota che al successivo install vengono rigenerati i jar riguardanti non solo jdk16 ma anche jdk15 e jdk14. Gli alberi dipendenze ottenuto con mvn dependency:tree risultano vuoti, non si riesce, a partire da essi, a lavorare sul problema.
+La reintroduzione ed aggiornamento di bcmixx_jdk16
+  * _java.io.IOException: error constructing MAC: java.lang.SecurityException: JCE cannot authenticate the provider BC_
+
+||*PROBLEMATICA*||*DATA*||*TEMPO*||*INTERVENTO*||*ESITO*||
+||errori runtime con BC||29/08||3||analisi e correzione dipendenze||nessuno||
+||errori runtime con BC||01/09||2||reintroduzione bcmixx||nessuno||
+||error constructing MAC||01/09||3||studio del problema, ricerca alternative||sospeso||
