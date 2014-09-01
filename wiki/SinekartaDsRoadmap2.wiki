@@ -19,7 +19,7 @@
 == Linee guida generali sul risultato finale atteso ==
   * alta personalizzabilità da parte dall'utente (opzioni avanzate)
   * produzione immediata e diretta di firme digitali riconosciute dalla PA (opzioni di default)
-  * possibilità per l'utente di salvare le impostazioni usate, ad esempio accesso ai keystore usati, per recuperarle rapidamente in un secondo momento
+  * possibilità per l'utente di salvare le impostazioni, ad esempio accesso ai keystore usati, per recuperarle rapidamente in un secondo momento
   * possibilità per gli sviluppatori di far fronte agevolmente a cambiamenti della normativa intervenendo sulle configurazioni
   * profilazione in base al contesto nazionale: possibilità di cambiare le opzioni di default in base alle normative usate in un diverso Paese
   * opzioni avanzate: indicare "real-time" il contesto di riferimento con cui dovrà esser compatibile la firma che si sta generando
