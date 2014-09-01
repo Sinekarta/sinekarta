@@ -138,8 +138,9 @@
 Nuovi ritardi dovuti all'anomalia di bouncycastle, che presenza gli stessi package e classi su jar differenti, ma con differenti protocolli.
 Il problema sembrava risolto nei bugfix precedenti in quanto non si avevano più errori di compilazione, ma integrando i progetti tra loro sono emersi errori runtime riguardanti chiamate a metodi e campi inesistenti.
 Ripulendo la cartella bouncycastle dentro a maven si nota che al successivo install vengono rigenerati i jar riguardanti non solo jdk16 ma anche jdk15 e jdk14. Gli alberi dipendenze ottenuto con mvn dependency:tree risultano vuoti, non si riesce, a partire da essi, a lavorare sul problema.
-La reintroduzione ed aggiornamento di bcmixx_jdk16
+Si prova quindi a reintrodurre il progetto bcmixx-jdk15, esperimento in precedenti bugfix che raggruppava tutti i progetti bcXXXX in un unico jar senza errori, cambiando totalmente il nome del package per prevenire ogni possibilità di collisione. Il risultato, in sede di esecuzione, è un errore runtime:
   * _java.io.IOException: error constructing MAC: java.lang.SecurityException: JCE cannot authenticate the provider BC_
+Sembra che java.security.Security tenti di validare la firma digitale apposta sul jar da cui caricare i SecurityProvider e non trovandola in bcmixx esploda. Si sospende questo bugfix in attesa di ricevere il certificato per la firma sul jar.
 
 ||*PROBLEMATICA*||*DATA*||*TEMPO*||*INTERVENTO*||*ESITO*||
 ||errori runtime con BC||29/08||3||analisi e correzione dipendenze||nessuno||
