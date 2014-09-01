@@ -114,7 +114,7 @@
 ||  -> esecuzione con successo di un'HelloWorld applet||1||01/08||||||||
 ||  -> esecuzione con successo dell'applet di firma||1/2||02/08||||||||
 ||  -> integrazione dell'applet di firma nei jsp||1/2||02/08||||||||
-||funzionamento firma PDF||3||05/09||||||||
+||funzionamento firma PDF||3||05/09||anticipato in attesa di poter tornare sulla smartcard||||||
 ||  -> JUnit a partire dal vecchio service in Sinekarta||1/2||03/09||||||||
 ||  -> customizzazione formati, algoritmi ecc.||1/2||03/09||||||||
 ||  -> JUnit sul funzionamento webscript firma PDF lato server||1/2||04/09||||||||
@@ -140,7 +140,8 @@ Il problema sembrava risolto nei bugfix precedenti in quanto non si avevano più
 Ripulendo la cartella bouncycastle dentro a maven si nota che al successivo install vengono rigenerati i jar riguardanti non solo jdk16 ma anche jdk15 e jdk14. Gli alberi dipendenze ottenuto con _mvn dependency:tree_ risultano vuoti, non si riesce, a partire da essi, a lavorare sul problema.
 Si prova quindi a reintrodurre il progetto bcmixx-jdk15, esperimento in precedenti bugfix che raggruppava tutti i progetti bcXXXX in un unico jar senza errori, cambiando totalmente il nome del package per prevenire ogni possibilità di collisione. Il risultato, in sede di esecuzione, è un errore runtime:
   * _java.io.IOException: error constructing MAC: java.lang.SecurityException: JCE cannot authenticate the provider BC_
-Sembra che java.security.Security tenti di validare la firma digitale apposta sul jar da cui caricare i SecurityProvider e non trovandola in bcmixx esploda. Si sospende questo bugfix in attesa di ricevere il certificato per la firma sul jar.
+Sembra che java.security.Security tenti di validare la firma digitale apposta sul jar da cui caricare i SecurityProvider e non trovandola in bcmixx esploda. 
+Si sospende questo bugfix in attesa di ricevere il certificato per la firma sul jar.
 
 ||*PROBLEMATICA*||*DATA*||*TEMPO*||*INTERVENTO*||*ESITO*||
 ||errori runtime con BC||29/08||3||analisi e correzione dipendenze||nessuno||
