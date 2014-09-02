@@ -117,7 +117,7 @@
 ||  -> esecuzione con successo dell'applet di firma||1/2||02/08||||||||
 ||  -> integrazione dell'applet di firma nei jsp||1/2||02/08||||||||
 ||funzionamento firma PDF||3||05/09||anticipato in attesa di poter tornare sulla smartcard||||||
-||  -> JUnit a partire dal vecchio service in Sinekarta||1/2||03/09||||||||
+||  -> JUnit a partire dal vecchio service in Sinekarta||1/2||03/09||meccanismi deprecati, si cercano alternative||||||
 ||  -> customizzazione formati, algoritmi ecc.||1/2||03/09||||||||
 ||  -> JUnit sul funzionamento webscript firma PDF lato server||1/2||04/09||||||||
 ||  -> introduzione della signature disposition nelle opzioni utente, refactoring||1||05/09||||||||
