@@ -24,6 +24,7 @@
   * profilazione in base al contesto nazionale: possibilità di cambiare le opzioni di default in base alle normative usate in un diverso Paese
   * opzioni avanzate: indicare "real-time" il contesto di riferimento con cui dovrà esser compatibile la firma che si sta generando
   * la verifica dovrà indicare se una firma è generalmente valida ed avvisare con delle warning se non verrebbe riconosciuta dal contesto di riferimento (di default, PA)
+  * public keyring: insieme di keystore locali o condivisi col server stesso da cui verranno recuperate le CA note (comprese quelle del keytool del jre) e tutti i certificati che, previa validazione della certification chain od esplicita accettazione dell'utente finale, riconosciuti da Sinekarta; delle warning notificheranno quando il certificato non risulta verificabile dal keyring attuale
   * verifica della validità delle firme generate: verificate da Dike (e viceversa nella verifica)
 
 
