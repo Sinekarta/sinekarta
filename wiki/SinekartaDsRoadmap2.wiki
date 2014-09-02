@@ -163,7 +163,7 @@ Applicando la firma PDF usata dalla precedente versione di SineKarta, la validaz
 {{{
 firma non valida in quanto apposta dopo il 30 giugno 2011
 }}}
-Cercando sui forum si trova che la procedura finora utilizzata è ora superata, inoltre la [http://itextpdf.com/book/digitalsignatures20130304.pdf guida] scritta da Bruno Lowage di iText cita:
+Cercando sui forum si trova che la procedura finora utilizzata è ora superata, inoltre la [http://itextpdf.com/book/digitalsignatures20130304.pdf guida] scritta da Bruno Lowagie di iText cita:
 {{{
 In versions predating iText 5.3.0, you’d sign a PDF document choosing one of the following parameters for the setCrypto() method:
   * PdfSignatureAppearance.WINCER_SIGNED— this created a signature with the subfilter /adbe.pkcs7.sha1.
