@@ -112,8 +112,8 @@
 = Roadmap =
 ||*OBIETTIVO*||*TEMPO STIMATO*||*SCADENZA STIMATA*||*NOTE*||*TEMPO EFFETTIVO*||*SCADENZA EFFETTIVA*||
 ||supercazzola di bouncycastle|| ||19/09||in attesa del certificato||||||
-||  -> sostituire completamente BC con bcmixx|| || ||impossibile validare il provider||4||01/09||
-||  -> firmare bcmixx|| || ||in attesa del certificato||||||
+||  -> sostituire completamente BC con bcmixx|| ||19/09||impossibile validare il provider||4||01/09||
+||  -> firmare bcmixx|| ||19/09||in attesa del certificato||||||
 ||funzionamento applet smartcard||2||02/09||in attesa del certificato||||||
 ||  -> certificato di firma||1||29/08||||||||
 ||  -> esecuzione con successo di un'HelloWorld applet||1||01/09||||||||
