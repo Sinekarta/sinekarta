@@ -37,6 +37,7 @@
 === Firma digitale in formato CMS ===
   * procedura di base (firma digitale EMBEDDED da keystore verificata da Dike) completamente operativa
   * struttura del core quasi definitiva, supporto di base a quasi tutte le linee guida di sopra
+  * a quanto risulta dai test, BouncyCastle di default firma e verifica i CMSSignedData tramite rsaEncryption ("RSA/ECB/PKCS1Padding"), valido per Dike ma non sufficiente per verificare firme create con altri algoritmi
   * ogni volta che il service genera una firma vi applica tutte le verifiche note prima di restituirla
   * Dike verifica le firme di Sinekarta, Sinekarta verifica le firme di Dike
   * la disposizione DETACHED presenta dei problemi nella verifica su JUnit
@@ -44,7 +45,7 @@
   * è già virtualmente possibile indicare diversi algoritmi di digest, l'implementazione con external sign tramite un provider proxato tuttavia al momento supporta solamente SHA256
 
 === Firma digitale in formato PDF ===
-  * diponibili gli esempi dalla precedente versione di Sinekarta
+  * diponibili gli esempi dalla precedente versione di SineKarta
 
 === Firma digitale in formato XML ===
   * disponibili gli esempi estratti da EID
@@ -181,4 +182,7 @@ Questa sezione di brainstorming raccoglierà informazioni e spunti interessanti 
   * quando possibile studiare approfonditamente la [http://itextpdf.com/book/digitalsignatures20130304.pdf guida] di Bruno Lowagie
   * prendere spunto da _com.itextpdf.text.pdf.security.BouncyCastleDigest_ per rimpiazzare l'obbrobrioso _ProxySecurityProvider_ usato per l'external signature del core
   * l'idea di _ExternalDigest_ ed _ExternalSignature_ può esser applicata sia per rifare il provider di firma del core che quello usato dal client; potrebbero esser legati direttamente tramite composizione
-  * utilizzare in seguito CrlClient e OcspClient per il controllo sulla sospensione e la validità dei certificati, usare simili accorgimenti anche per gli altri tipi di firma
+  * utilizzare in seguito _CrlClient_ e _OcspClient_ per il controllo sulla sospensione e la validità dei certificati, usare simili accorgimenti anche per gli altri tipi di firma
+  * riportare parte della sua struttura di _TSAClientBouncyCastle_ sui service di SineKarta ed eventualmente integrarlo al posto di _TimeStampUtils_
+  * _NOTE: If you need to sign a PDF/A file, you should use the createSignature() method available in the PdfAStamper stamper class. This class can be found in a separate itext-pdfa.jar starting with iText 5.3.4._
+  * _We can use Bouncy Castle as security provider for the digest by choosing an instance of the BouncyCastleDigest class. If you want another provider, use the ProviderDigest class._
