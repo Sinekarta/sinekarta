@@ -25,7 +25,7 @@
   * opzioni avanzate: indicare "real-time" il contesto di riferimento con cui dovrà esser compatibile la firma che si sta generando
   * la verifica dovrà indicare se una firma è generalmente valida ed avvisare con delle warning se non verrebbe riconosciuta dal contesto di riferimento (di default, PA)
   * public keyring: insieme di keystore locali o condivisi col server stesso da cui verranno recuperate le CA note (comprese quelle del keytool del jre) e tutti i certificati che, previa validazione della certification chain od esplicita accettazione dell'utente finale, riconosciuti da Sinekarta; delle warning notificheranno quando il certificato non risulta verificabile dal keyring attuale
-  * predisposizioni per gli usi futuri (es. l'algoritmo ECDSA sarà supportato solo da PDF 2.0, ma è bene che venga già previsto in SineKarta)
+  * predisposizione per gli usi futuri (es. l'algoritmo ECDSA sarà supportato solo a partire da PDF 2.0, ma è bene che venga già previsto in SineKarta)
   * verifica della validità delle firme generate: verificate da Dike (e viceversa nella verifica)
 
 
