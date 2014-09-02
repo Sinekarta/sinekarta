@@ -25,6 +25,7 @@
   * opzioni avanzate: indicare "real-time" il contesto di riferimento con cui dovrà esser compatibile la firma che si sta generando
   * la verifica dovrà indicare se una firma è generalmente valida ed avvisare con delle warning se non verrebbe riconosciuta dal contesto di riferimento (di default, PA)
   * public keyring: insieme di keystore locali o condivisi col server stesso da cui verranno recuperate le CA note (comprese quelle del keytool del jre) e tutti i certificati che, previa validazione della certification chain od esplicita accettazione dell'utente finale, riconosciuti da Sinekarta; delle warning notificheranno quando il certificato non risulta verificabile dal keyring attuale
+  * predisposizioni per gli usi futuri (es. l'algoritmo ECDSA sarà supportato solo da PDF 2.0, ma è bene che venga già previsto in SineKarta)
   * verifica della validità delle firme generate: verificate da Dike (e viceversa nella verifica)
 
 
@@ -164,5 +165,10 @@ Cercando sui forum si trova che la procedura finora utilizzata è ora superata, 
 In versions predating iText 5.3.0, you’d sign a PDF document choosing one of the following parameters for the setCrypto() method:
   * PdfSignatureAppearance.WINCER_SIGNED— this created a signature with the subfilter /adbe.pkcs7.sha1.
   * PdfSignatureAppearance.SELF_SIGNED— this created a signature with the subfilter /adbe.x509.rsa_sha1.
+These options have been removed in 5.3.0 for very specific reasons.
 }}}
-È immediatamente chiaro, quindi, che la PA rigetterà firme applicate in questo modo in quanto basate su algoritmo SHA-1.
+In realtà /adbe.x509.rsa_sha1 non supporta solamente SHA-1 ma anche SHA-2, ciononostante tali metodologie sono deprecate e bisognerà trovare delle alternative più recenti.
+
+||*PROBLEMATICA*||*DATA*||*TEMPO*||*INTERVENTO*||*ESITO*||
+||firma PDF non valida||01/09||2||ricerca delle possibili ragioni||metodologia di firma deprecata||
+||produzione di una firma valida||02/09||X||passaggio ad iText 5.5.2, studio della guida||XXXXX||
