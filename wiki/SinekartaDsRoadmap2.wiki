@@ -179,5 +179,5 @@ In realtà /adbe.x509.rsa_sha1 non supporta solamente SHA-1 ma anche SHA-2, cion
 = Memorandum =
 Questa sezione di brainstorming raccoglierà informazioni e spunti interessanti scoperti durante la soluzione dei problemi che non si ha potuto approfondire da subito ma su cui val la pena di tornare in un secondo momento
   * quando possibile studiare approfonditamente la [http://itextpdf.com/book/digitalsignatures20130304.pdf guida] di Bruno Lowagie
-  * prendere spunto da _com.itextpdf.text.pdf.security.BouncyCastleDigest_ per rimpiazzare l'obbrobrioso ProxySecurityProvider usato per l'external signature del core
+  * prendere spunto da _com.itextpdf.text.pdf.security.BouncyCastleDigest_ per rimpiazzare l'obbrobrioso _ProxySecurityProvider_ usato per l'external signature del core
   * l'idea di _ExternalDigest_ ed _ExternalSignature_ può esser applicata sia per rifare il provider di firma del core che quello usato dal client; potrebbero esser legati direttamente tramite composizione
