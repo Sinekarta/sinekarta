@@ -193,4 +193,4 @@ Questa sezione di brainstorming raccoglierà informazioni e spunti interessanti 
   * riportare parte della sua struttura di _TSAClientBouncyCastle_ sui service di SineKarta ed eventualmente integrarlo al posto di _TimeStampUtils_
   * _NOTE: If you need to sign a PDF/A file, you should use the createSignature() method available in the PdfAStamper stamper class. This class can be found in a separate itext-pdfa.jar starting with iText 5.3.4._
   * _We can use Bouncy Castle as security provider for the digest by choosing an instance of the BouncyCastleDigest class. If you want another provider, use the ProviderDigest class._
-  * quando possibile studiare l'interessantissimo articolo su [https://github.com/jscep/jscep/blob/master/README.md github.com]
+  * quando possibile studiare l'interessantissimo articolo [https://github.com/jscep/jscep/blob/master/README.md jscep] su github.com
