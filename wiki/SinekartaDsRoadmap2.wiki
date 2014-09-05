@@ -148,17 +148,17 @@
 
 = Problematiche riscontrate =
 
-== Ancora bouncycastle ==
-
-Il problema sembrava risolto nei bugfix precedenti in quanto non si avevano più errori di compilazione, ma integrando i progetti tra loro sono emersi errori runtime riguardanti chiamate a metodi e campi inesistenti.
-Ripulendo la cartella bouncycastle dentro a maven si nota che al successivo install vengono rigenerati i jar riguardanti non solo jdk16 ma anche jdk15 e jdk14. Gli alberi dipendenze ottenuto con _mvn dependency:tree_ risultano vuoti, non si riesce, a partire da essi, a lavorare sul problema.
-
+== Errori nel classpath di bouncycastle ==
+Test su sinekarta-ds-core generano errori runtime quando la JRE tenta utilizzare alcune classi di BouncyCastle. Dalle verifiche è emerso che:
+  * bouncycastle non è retrocompatibile e la coesistenza di jar di versioni diverse all'interno del classpath genererà errori runtime; il bugfix prevede di rimuovere dai pom ogni riferimento a versioni di bouncycastle diverse dalla _-jdk16_.
+  * bcprov-jdk16 e bcmail-jdk16 presentano duplicazioni nei package e nelle classi cui afferiscono diversi protocolli, il che induce la JRE a sbagliare riferimenti; bctsp_jdk16 integra entrambe le dipendenze in maniera consistente
+  * a seconda che si desideri minimizzare l'utilizzo delle dipendenze nel progetto, è necessario includere nel pom alternativamente bctsp-jdk16 oppure bcprov_jdk16
+  * itext è stato scritto per supportare bouncycastle-jdk15on, perché funzioni nel nuovo ambiente sarà necessario patcharlo
+  * la stessa problematica si ripeterà nell'integrazione di SineKarta con Alfresco, in quanto anche esso si riferisce a bouncycastle-jdk15on
 
 ||*PROBLEMATICA*||*TEMPO*||*DATA FIX*||*INTERVENTO*||*ESITO*||
-||errori runtime con BC||3||29/08||analisi e correzione dipendenze||nessuno||
-||errori runtime con BC||2||01/09||reintroduzione bcmixx||nessuno||
-||error constructing MAC||3||01/09||studio del problema, ricerca alternative||sospeso||
-||errori runtime con BC||2||02/09||rimosse le dipendenze di BC da iText||BC adesso funziona, itext no||
+||collisioni tra bcprov e bcmail||4||29/08||analisi e correzione dipendenze||utilizzo alternativo di bcprov o bctsp||
+||collisioni tra diverse versioni di bouncycastle||8||01/09||analisi e correzione dipendenze||rimozione di ogni riferimento a versioni diverse dalla _-jdk16_||
 
 == Introduzione della ExternalSignature per la firma PDF ==
 La procedura di fima PDF nella precedente versione di SineKarta si basa su una patch di PDFStamper che consente di introdurvi una firma digitale generata esternamente. Le ultime versioni di _itext_ forniscono due nuove interfacce  ExternalDigest ed ExternalSignature che supportano nativamente la firma esterna, l'intento sarà pertanto quello di sfruttarle per ottenere lo stesso risultato senza alterare la normale logica del framework.
