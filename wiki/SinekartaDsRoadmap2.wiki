@@ -1,5 +1,5 @@
 #summary RoadMap per la seconda milestone di sinekarta-ds
-#labels smartcard,applet,marche,CMS,PDF,XML
+#labels smartcard,applet,marche,CMS,PDF,XML,bouncycastle,itext,external-signature
 
 = Obiettivi =
 
@@ -117,8 +117,8 @@
 
 = Roadmap =
 ||*OBIETTIVO*||*TEMPO STIMATO*||*SCADENZA STIMATA*||*NOTE*||*TEMPO EFFETTIVO*||*SCADENZA EFFETTIVA*||
-||supercazzola di bouncycastle|| ||19/09||bouncycastle adesso funziona, itext no||8||02/09||
-||  -> far funzionare iText...|| ||19/09||????||||||
+||errori nel classpath con bouncycastle||?||??/??||utilizzo del solo bouncycastle-jdk16||8||02/09||
+||  -> itext scritto per bouncycastle-jdk15on||?||??/??||generato progetto itext-jdk16||?||??/??||
 ||funzionamento applet smartcard||16||02/09||in attesa del certificato||||||
 ||  -> certificato di firma||8||29/08||||||||
 ||  -> esecuzione con successo di un'HelloWorld applet||8||01/09||||||||
@@ -149,39 +149,32 @@
 = Problematiche riscontrate =
 
 == Ancora bouncycastle ==
-Nuovi ritardi dovuti all'anomalia di bouncycastle, che presenza gli stessi package e classi su jar differenti, ma con differenti protocolli.
+
 Il problema sembrava risolto nei bugfix precedenti in quanto non si avevano più errori di compilazione, ma integrando i progetti tra loro sono emersi errori runtime riguardanti chiamate a metodi e campi inesistenti.
 Ripulendo la cartella bouncycastle dentro a maven si nota che al successivo install vengono rigenerati i jar riguardanti non solo jdk16 ma anche jdk15 e jdk14. Gli alberi dipendenze ottenuto con _mvn dependency:tree_ risultano vuoti, non si riesce, a partire da essi, a lavorare sul problema.
-Si prova quindi a reintrodurre il progetto bcmixx-jdk15, esperimento in precedenti bugfix che raggruppava tutti i progetti bcXXXX in un unico jar senza errori, cambiando totalmente il nome del package per prevenire ogni possibilità di collisione. Il risultato, in sede di esecuzione, è un errore runtime:
-{{{
-java.io.IOException: error constructing MAC: java.lang.SecurityException: JCE cannot authenticate the provider BC
-}}}
-Sembra che java.security.Security tenti di validare la firma digitale apposta sul jar da cui caricare i SecurityProvider e non trovandola in bcmixx esploda. 
-Si sospende questo bugfix in attesa di ricevere il certificato per la firma sul jar.
 
-||*PROBLEMATICA*||*DATA*||*TEMPO*||*INTERVENTO*||*ESITO*||
-||errori runtime con BC||29/08||3||analisi e correzione dipendenze||nessuno||
-||errori runtime con BC||01/09||2||reintroduzione bcmixx||nessuno||
-||error constructing MAC||01/09||3||studio del problema, ricerca alternative||sospeso||
-||errori runtime con BC||02/09||2||rimosse le dipendenze di BC da iText||BC adesso funziona, itext no||
 
-== Meccanismo firma PDF deprecato ==
-Applicando la firma PDF usata dalla precedente versione di SineKarta, la validazione con Dike fallisce notificando:
-{{{
-firma non valida in quanto apposta dopo il 30 giugno 2011
-}}}
-Cercando sui forum si trova che la procedura finora utilizzata è ora superata, inoltre la [http://itextpdf.com/book/digitalsignatures20130304.pdf guida] scritta da Bruno Lowagie di iText cita:
-{{{
-In versions predating iText 5.3.0, you’d sign a PDF document choosing one of the following parameters for the setCrypto() method:
-  * PdfSignatureAppearance.WINCER_SIGNED— this created a signature with the subfilter /adbe.pkcs7.sha1.
-  * PdfSignatureAppearance.SELF_SIGNED— this created a signature with the subfilter /adbe.x509.rsa_sha1.
-These options have been removed in 5.3.0 for very specific reasons.
-}}}
-In realtà /adbe.x509.rsa_sha1 non supporta solamente SHA-1 ma anche SHA-2, ciononostante tali metodologie sono deprecate e bisognerà trovare delle alternative più recenti.
+||*PROBLEMATICA*||*TEMPO*||*DATA FIX*||*INTERVENTO*||*ESITO*||
+||errori runtime con BC||3||29/08||analisi e correzione dipendenze||nessuno||
+||errori runtime con BC||2||01/09||reintroduzione bcmixx||nessuno||
+||error constructing MAC||3||01/09||studio del problema, ricerca alternative||sospeso||
+||errori runtime con BC||2||02/09||rimosse le dipendenze di BC da iText||BC adesso funziona, itext no||
 
-||*PROBLEMATICA*||*DATA*||*TEMPO*||*INTERVENTO*||*ESITO*||
-||firma PDF non valida||01/09||2||ricerca delle possibili ragioni||metodologia di firma deprecata||
-||produzione di una firma valida||02/09||X||passaggio ad iText 5.5.2, studio della guida||XXXXX||
+== Introduzione della ExternalSignature per la firma PDF ==
+La procedura di fima PDF nella precedente versione di SineKarta si basa su una patch di PDFStamper che consente di introdurvi una firma digitale generata esternamente. Le ultime versioni di _itext_ forniscono due nuove interfacce  ExternalDigest ed ExternalSignature che supportano nativamente la firma esterna, l'intento sarà pertanto quello di sfruttarle per ottenere lo stesso risultato senza alterare la normale logica del framework.
+Applicare una patch a _itext_ si rivela però necessario in quanto questo è stato strutturato per lavorare con bouncycastle-jdk15on e la jdk15. Il progetto itext-jdk16 ora integrato in sinekarta è stato ottenuto le modifiche necessarie ad adattare il sorgente originale di itext al nuovo ambiente operativo.
+
+||*PROBLEMATICA*||*TEMPO*||*DATA FIX*||*INTERVENTO*||*ESITO*||
+||firma PDF ottenuta patchando il PDFStamper||?||??/??||ricerca su [http://itextpdf.com/book/digitalsignatures20130304.pdf itext]||utilizzo di ExternalDigest ed ExternalSignature con iText 5.5.2||
+||iText non compatibile con bouncycastle-jdk16||?||??/??||sviluppo di una patch||itext-jdk16||
+
+== Duplicazione di bouncycastle in Alfresco ==
+L'installazione di Alfresco contiene già una versione di bouncycastle-jdk15on ed è fatto noto che la coesistenza di due versioni differenti di bouncycastle causerà problematiche di classpath. Il processo di installazione di SineKarta dovrà esser in grado di rimuovere da Alfresco le librerie datate. Tale operazione dovrà esser automaticamente compatibile con ciascuna installazione di Alfresco.
+
+||*PROBLEMATICA*||*TEMPO*||*DATA FIX*||*INTERVENTO*||*ESITO*||
+||duplicazione di bouncycastle nel classpath di Alfresco||X||XX/XX||aggiunta del controllo all'amp||||
+||retrocompatibilità patch||X||XX/XX||||||
+
 
 
 = Memorandum =
