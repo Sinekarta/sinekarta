@@ -18,16 +18,20 @@
   * rendere il core personalizzabile in termini di algoritmi e formati
 
 == Linee guida generali sul risultato finale atteso ==
-  * alta personalizzabilità da parte dall'utente (opzioni avanzate)
-  * produzione immediata e diretta di firme digitali riconosciute dalla PA (opzioni di default)
-  * possibilità per l'utente di salvare le impostazioni, ad esempio accesso ai keystore usati, per recuperarle rapidamente in un secondo momento
-  * possibilità per gli sviluppatori di far fronte agevolmente a cambiamenti della normativa intervenendo sulle configurazioni
-  * profilazione in base al contesto nazionale: possibilità di cambiare le opzioni di default in base alle normative usate in un diverso Paese
-  * opzioni avanzate: indicare "real-time" il contesto di riferimento con cui dovrà esser compatibile la firma che si sta generando
-  * la verifica dovrà indicare se una firma è generalmente valida ed avvisare con delle warning se non verrebbe riconosciuta dal contesto di riferimento (di default, PA)
-  * public keyring: insieme di keystore locali o condivisi col server stesso da cui verranno recuperate le CA note (comprese quelle del keytool del jre) e tutti i certificati che, previa validazione della certification chain od esplicita accettazione dell'utente finale, riconosciuti da Sinekarta; delle warning notificheranno quando il certificato non risulta verificabile dal keyring attuale
-  * predisposizione per gli usi futuri (es. l'algoritmo ECDSA sarà supportato a partire da PDF 2.0 o in alcune Nazioni le chiavi RSA sono richieste a 2024 bit, ecc.; è bene che SineKarta ne tenga già conto)
-  * verifica della validità delle firme generate: verificate da Dike (e viceversa nella verifica)
+  * opzioni di default
+    * produzione immediata e diretta di firme digitali riconosciute dalla PA locale 
+    * possibilità per gli sviluppatori di far fronte agevolmente a cambiamenti della normativa intervenendo sulle configurazioni
+    * profilazione della PA locale: facoltà di switchare tra le impostazioni delle PA locali salvate
+  * opzioni avanzate
+    * indicare "real-time" il contesto di riferimento con cui dovrà esser compatibile la firma che si sta generando
+    * possibilità per l'utente di salvare le impostazioni (es. accesso ai keystore), per recuperarle rapidamente in un secondo momento
+  * parametri sulla firma
+    * verifica della validità delle firme generate: verificate da Dike (e viceversa nella verifica)
+    * la verifica dovrà indicare se una firma è generalmente valida ed avvisare con delle warning se non verrebbe riconosciuta dal contesto di riferimento (di default, PA)
+    * public keyring: insieme di keystore locali o condivisi col server stesso da cui verranno recuperate le CA note (comprese quelle del keytool del jre) e tutti i certificati che, previa validazione della certification chain od esplicita accettazione dell'utente finale, riconosciuti da Sinekarta; delle warning notificheranno quando il certificato non risulta verificabile dal keyring attuale
+  * altro
+    * internazionalizzazione nativa di messaggi e formati
+    * predisposizione per gli usi futuri (es. l'algoritmo ECDSA sarà supportato a partire da PDF 2.0 o in alcune Nazioni le chiavi RSA sono richieste a 2024 bit, ecc.; è bene che SineKarta ne tenga già conto)
 
 
 
@@ -188,3 +192,4 @@ Questa sezione di brainstorming raccoglierà informazioni e spunti interessanti 
   * _We can use Bouncy Castle as security provider for the digest by choosing an instance of the BouncyCastleDigest class. If you want another provider, use the ProviderDigest class._
   * l'attuale implementazione di RemoteDigest si basa su BouncyCastle, si potrebbe personalizzare invece _ProviderDigest(conf.getProviderName())_ per renderle configurabile al 100%
   * quando possibile studiare l'interessantissimo articolo [https://github.com/jscep/jscep/blob/master/README.md jscep] su github.com
+  * studiare Formatter per re-implementare l'internazionalizzazione
