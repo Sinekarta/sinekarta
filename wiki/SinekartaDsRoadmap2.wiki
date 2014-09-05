@@ -13,8 +13,8 @@
 
 == Obbiettivi secondari ==
   * prevedere il supporto per la firma digitale via webservice
-  * per i tre tipi di firma supportare le diverse disposizioni
-  * prevedere il supporto per diverse disposizioni per il timestamp
+  * supportare  diverse disposizioni per i tipi di firma 
+  * supportare diverse disposizioni per il timestamp
   * rendere il core personalizzabile in termini di algoritmi e formati
 
 == Linee guida generali sul risultato finale atteso ==
