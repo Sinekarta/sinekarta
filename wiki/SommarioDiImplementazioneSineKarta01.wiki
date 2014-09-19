@@ -17,6 +17,7 @@ Il pesante refactoring che ne è seguito ha portato alla luce la necessità di u
   * SignatureType: tipi di firma supportati
   * SignatureDisposition: posizioni in cui è possibile inserire la firma 
   * CertificateInfo: estensione di X509Certificate recante le informazioni di validazione, si veda di seguito
+  * CertificateId: identifica univocamente un certificato in base ai dati disponibili: subjectUniqueID, signature oppure subjectPrincipal ed issuerPrincipal; usato come ID nelle mappature e nel riconoscimento dei certificati
   * CertificationSource: protocollo di reperimento di certificati verificati
   * SignatureInfo: firma digitale, algoritmo usato, certificato ed accesso alla relativa catena, dettagli della firma, altri attributi
     * CMSSignatureInfo
@@ -38,8 +39,8 @@ Il pesante refactoring che ne è seguito ha portato alla luce la necessità di u
   * CertificateInfoComparator: supporta diversi ordinamenti per i certificati (es alfabetico, attendibilità per verifica, si veda di seguito
   * AbstractCertificationSource: implementazione di CertificationSource, generico fornitore dei certificati presenti in una qualunque fonte
     * TrustedKeyStore unità di immagazzinamento dei certificati, può esser usata per contenere quelli presenti in altri supporti (es. accedere ai (soli) certificati nelle smartcard anche quando queste non sono fisicamente disponibili)
-      * FileSystemKeyStore: solo per amministratore sinekarta
-      * AlfrescoKeyStore: per qualsiasi utente autenticato
+      * FileSystemKeyStore
+      * AlfrescoKeyStore
     * FakeCertificationSource base comune per le fonti non implementati ma il cui supporto è previsto dall'architettura
       * JavaKeytool: CA universamente accettate dalla JVM
       * SmartCardReader
@@ -49,6 +50,32 @@ Il pesante refactoring che ne è seguito ha portato alla luce la necessità di u
   * CertificationTree: struttura ad albero il mantenimento delle relazioni di firma tra i certificati
   * CertificationRepository: unità centrale di immagazzinamento dei certificati e controllo delle altre fonti, singleton
   * X509Provider: utility suite per la conversione e la verifica dei certificati
+<b>Nota:</b> Alcune funzionalità di sicurezza, quale la gestione dei PENDING (si veda di seguito) certificate sono lasciate da implementare successivamente in quanto l'obbiettivo era quello di render operativa la firma il prima possibile. L'intento è stato comunque quello di far subito le dovute osservazioni di sicurezza per evitare di incorrere in ulteriori modifiche ai protocolli.
+
+== Inserimento dei certificati ==
+Qualunque utente autenticato può inserire un certificato, dopodiché
+  * se non self-signed e la catena viene ricostruita con successo viene inserito nel sistema immediatamente
+  * se self-signed lo si considera relativo ad CA; servono permessi speciali (amministratore o RCS) per l'inserimento diretto, diversamente verranno marcate come PENDING, assieme a tutti i certificati intermedi che ne derivano, in attesa di approvazione
+  * se la validazione fallisce (non sono noti tutti i certificati della catena) il certificato viene inserito in una partizione UNTRUSTED
+  * in qualunque momento viene fatta una verifica lo stato di validità di un certificato può cambiare in base alle disponibilità corrente, e quelli da esso derivato di conseguenza
+
+== Attendibilità delle fonti ==
+Allo startup dell'applicazione vengono caricati i certificati immediatamente disponibili. Per loro stessa natura, le fonti da cui estrarre i certificati (specialmente le CA) hanno diversi livelli di attendibilità:
+  # JAVA_KEYTOOL
+  # PHYSICAL_DEVICE
+  # WEBSERVICE
+  # FILE_SYSTEM_KEYSTORE
+  # ALFRESCO_KEYSTORE
+L'accesso al file system sarà consentito solamente all'amministratore, gli altri utenti avranno la possibilità di generare i propri keystore su Alfresco. Questo scenario può portare alla creazione di duplicati per cui il processo di validazione accederà prima ai certificati salvati nelle fonti più attendibili, ignorando le copie successive.
 
 
-= Conclusioni = 
+= Esiti della re-ingegnerizzazione = 
+  * il model ha assunto ora una struttura definitiva e flessibile
+  * è possibile effettuare un refactoring del core e dei DTO con Alfresco con una ragionevole sicurezza che sia l'ultimo
+  * l'aggiunta della firma XML può avvenire senza timore di incontrare altre difficoltà dal punto di vista dei protocolli, in quanto tutto viene ora pilotato dal model 
+  * in una fase successiva di sviluppo si può aggiungere a Sinekarta la gestione dei certificati solamente implementando i metodi astratti e costruendone i lati Alfresco
+  * Sinekarta sarà ora abilitato a verificare non solo l'integrità delle firme digitali ma anche l'identità dei firmatari
+  * le firme generate ora da Sinekarta conterranno l'intera catena di certificazione, questo implica che anche un tool di verifica esterno quale Dike, che non possiede tutti quelli intermedi sarà in grado di riconoscere la validità e l'identità della firma
+
+
+= Roadmap per la delivery successiva = 
