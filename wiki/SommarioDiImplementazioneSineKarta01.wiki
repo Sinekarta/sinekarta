@@ -1,0 +1,13 @@
+#summary 19/09/14 - Sommario di implementazione SineKarta
+
+= Introduzione =
+
+Nel corso dello sviluppo per la delivery odierna, vedi [SinekartaDsRoadmap2 https://code.google.com/p/sinekarta/wiki/SinekartaDsRoadmap2], è stata implementata la firma PDF e si è presentato il problema della sua integrazione nel sistema attuale.
+
+
+
+= Architettura =
+
+= Verifiche e Certificazione =
+
+= Conclusioni = 
