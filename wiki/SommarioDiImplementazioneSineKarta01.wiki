@@ -79,3 +79,11 @@ L'accesso al file system sarà consentito solamente all'amministratore, gli altr
 
 
 = Roadmap per la delivery successiva = 
+||*OBIETTIVO*||*TEMPO STIMATO*||*SCADENZA STIMATA*||*NOTE*||*TEMPO EFFETTIVO*||*SCADENZA EFFETTIVA*||
+||refactoring delle firme CMS e PDF||16||??/??||||*||**/**||
+||protocollo unificato di timestamp||12||??/??||||*||**/**||
+||firma XML||16||??/??||||*||**/**||
+||adeguamento della GUI alle nuove funzionalità, es. pdf, disposizione firma/marca||8||??/??||||*||**/**||
+||accesso ai keystore su Alfresco da GUI||16||??/??||||*||**/**||
+||funzionamento della smartcard da applet||16||??/??||||*||**/**||
+||installer tramite amp||8-16||??/??||||*||**/**||
