@@ -2,12 +2,37 @@
 
 = Introduzione =
 
-Nel corso dello sviluppo per la delivery odierna, vedi SinekartaDsRoadmap2, è stata implementata la firma PDF e si è presentato il problema della sua integrazione nel sistema attuale.
+Nel corso dello sviluppo per la delivery odierna, vedi SinekartaDsRoadmap2, è stata implementata la firma PDF e si è presentato il problema della sua integrazione nel sistema attuale, questo ha portato ad un lavoro di refactoring nell'architettura del progetto.
+Seguono alcuni esempi delle problematiche che hanno portato a rivedere l'implementazione:
+  * le classi di dominio inizialmente sviluppate per la validazione della firma CMS potevano esser ora adattate alla gestione degli altri tipi di firma per limitare la ridondanze del codice
+  * l'aggiornamento del model ha portato alla luce che diversi moduli del progetto potevano quindi esser riorganizzati semplificati per ottenere un unico protocollo generale di firma e verifica, pilotato dalle classi stesse di dominio
+  * da una maggior comprensione delle firme CMS e PDF è emerso un modo più corretto per gestire l'applicazione e la verifica delle marche temporali
+  * i processi di verifica finora implementati erano incompleti in quanto garantivano l'integrità delle firme, non l'attendibilità del firmatario
+  * durante la ristrutturazione del model, non era completamente come sarebbe dovuta esser gestita la catena di certificazione nei service di firma e verifica per consentire (e non si può più rischiare di investire altro tempo in ulteriori ristrutturazioni)
+Il pesante refactoring che ne è seguito ha portato alla luce la necessità di un'ultima analisi generale del lavoro svolto, al fine di stabilizzare le interfacce dei moduli di modo che non emerga più la necessità di metterci mano, nemmeno negli sviluppi futuri.
 
+
+= Dominio = 
+  * DigestInfo: impronta ed algoritmo usato
+  * CertificateInfo: estensione di X509Certificate recante le informazioni di validazione, si veda di seguito
+  * CertificationSource: protocollo di reperimento di certificati verificati
+  * SignatureInfo: firma digitale, algoritmo usato, certificato ed accesso alla relativa catena, dettagli della firma; usata sia come input per la firma che come output nella validazione
+    * CMSSignatureInfo
+    * PDFSignatureInfo: estensione per la firma PDF
+    * XMLSignatureInfo: estensione per la firma XML
+    * TimeStampInfo: estensione per i timestamp, output per la verifica della marca
+  * TsRequestInfo: input per le richieste ai servizi di marca temporale
 
 
 = Architettura =
 
+= Utility suites =
+
 = Verifiche e Certificazione =
 
 = Conclusioni = 
+
+
+Problematiche tecniche risolte:
+  * itext scritto per funzionare con bouncycastle-jdk15, patchato per la jdk16
+  * problemi con le dipendenze da bouncycastle, finalmente risolti a seguito di prove ripetute
