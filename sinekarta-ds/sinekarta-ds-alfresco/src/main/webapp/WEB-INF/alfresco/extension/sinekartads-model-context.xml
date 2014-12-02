@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
+<!-- 
+/*
+ * Copyright (C) 2010 - 2012 Jenia Software.
+ *
+ * This file is part of Sinekarta
+ *
+ * Sinekarta is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Sinekarta is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ */
+ -->
+<beans>
+	<!-- 
+	sinekarta model definition 
+	-->
+	<bean id="sinekarta.dictionaryBootstrap" parent="dictionaryModelBootstrap"
+		depends-on="dictionaryBootstrap">
+		<property name="models">
+			<list>
+				<value>alfresco/extension/sinekarta-ds-alfresco/skds-model.xml</value>
+			</list>
+		</property>
+		<property name="labels">
+			<list>
+				<value>alfresco/extension/sinekarta-ds-alfresco/skds-model</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- 
+	sinekarta permissions 
+	-->
+	<bean id="sinekarta.permissionBootstrap" parent="permissionModelBootstrap">
+		<property name="model" value="alfresco/extension/sinekarta-ds-alfresco/skds-permissions.xml"/> 
+	</bean> 
+</beans>

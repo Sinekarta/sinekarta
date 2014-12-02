@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+/*
+ * Copyright (C) 2010 - 2012 Jenia Software.
+ *
+ * This file is part of Sinekarta
+ *
+ * Sinekarta is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Sinekarta is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ */
+ -->
+<model name="sinekartads:model" xmlns="http://www.alfresco.org/model/dictionary/1.0">
+	<description>sinekartads Model</description>
+	<author>Sinekarta - Jenia Software</author>
+	<version>1.0</version>
+	<imports>
+		<import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d" />
+		<import uri="http://www.alfresco.org/model/content/1.0" prefix="cm" />
+		<import uri="http://www.alfresco.org/model/system/1.0" prefix="sys" />
+		<import uri="http://www.alfresco.org/model/application/1.0" prefix="app" />
+		<import uri="http://www.alfresco.org/system/registry/1.0" prefix="reg" />
+		<import uri="http://www.alfresco.org/system/modules/1.0" prefix="module" />
+	</imports>
+	<namespaces>
+		<namespace uri="http://www.sinekarta.org/alfresco/model/content/1.0"
+			prefix="sinekartads" />
+	</namespaces>
+	
+
+
+	<aspects>
+		<!-- 
+		digitally signed document
+		 -->
+		<aspect name="sinekartads:signedDocument">
+			<title>sinekarta signed documents</title>
+			<properties>
+				<property name="sinekartads:signatureType">
+					<type>d:text</type>
+					<mandatory>true</mandatory>
+				</property>
+				<!-- TODO: sign date, possibilmente per ogni signer -->
+				<property name="sinekartads:signatureDisposition">
+					<type>d:text</type>
+					<mandatory>false</mandatory>
+				</property>
+				<property name="sinekartads:dataFile">
+					<type>d:text</type>
+					<mandatory>false</mandatory>
+				</property>				
+			</properties>
+		</aspect>
+		
+		<!-- 
+		timestamp mark aspect, see specification document for details
+		 -->
+		<aspect name="sinekartads:timestampMark">
+			<title>sinekarta timestamp mark</title>
+			<properties>
+				<property name="sinekartads:markDocumentDescription">
+					<type>d:text</type>
+					<mandatory>true</mandatory>
+					<index enabled="true">
+						<atomic>true</atomic>
+						<stored>true</stored>
+						<tokenised>true</tokenised>
+					</index>timestamp mark aspect, see specification document for details
+				</property>
+				<property name="sinekartads:markDocumentReferenceId">
+					<type>d:text</type>
+					<mandatory>true</mandatory>
+				</property>
+				<property name="sinekartads:markTimestampRCSSignature">
+					<type>d:datetime</type>
+					<mandatory>true</mandatory>
+					<index enabled="true">
+						<atomic>true</atomic>
+						<stored>true</stored>
+						<tokenised>false</tokenised>
+					</index>
+				</property>
+				<property name="sinekartads:markDocumentType">
+					<type>d:text</type>
+					<mandatory>false</mandatory>
+					<index enabled="true">
+						<atomic>true</atomic>
+						<stored>true</stored>
+						<tokenised>false</tokenised>
+					</index>
+					<!--constraints>
+						<constraint ref="sinekartads:documentTypes" />
+					</constraints-->
+				</property>
+				<property name="sinekartads:markFingerPrint">
+					<type>d:text</type>
+					<mandatory>true</mandatory>
+				</property>
+				<property name="sinekartads:markTimestampToken">
+					<type>d:text</type>
+					<mandatory>true</mandatory>
+					<index enabled="true">
+						<atomic>true</atomic>
+						<stored>true</stored>
+						<tokenised>false</tokenised>
+					</index>
+				</property>
+			</properties>
+			<associations>
+				<association name="sinekartads:markedDocumentList">
+					<title>list of documents that this document marks</title>
+					<source>
+						<mandatory>false</mandatory>
+						<many>true</many>
+					</source>
+					<target>
+						<class>cm:content</class>
+						<mandatory>false</mandatory>
+						<many>true</many>
+					</target>
+				</association>
+			</associations>
+		</aspect>
+		
+		<!-- 
+		documents that have been extracted from some signed documents
+		 -->
+		<aspect name="sinekartads:extractedDocument">
+			<title>sinekarta extracted documents</title>
+			<properties>
+				<property name="sinekartads:extractionDate">
+					<type>d:text</type>
+					<mandatory>false</mandatory>
+				</property>
+			</properties>
+		</aspect>
+				
+		<!-- 
+		temporary file
+		 -->
+		<aspect name="sinekartads:temporaryFile">
+			<title>sinekarta temporary file</title>
+			<properties>
+				<property name="sinekartads:creationDate">
+					<type>d:datetime</type>
+					<mandatory>false</mandatory>
+				</property>
+				<property name="sinekartads:timeToLive">
+					<type>d:text</type>
+					<mandatory>false</mandatory>
+				</property>
+				<property name="sinekartads:expiringDate">
+					<type>d:datetime</type>
+					<mandatory>true</mandatory>
+				</property>
+			</properties>
+		</aspect>
+		
+		
+	</aspects>
+</model>

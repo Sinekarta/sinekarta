@@ -1,0 +1,5 @@
+<webscript>
+  <shortname>Sinekarta Title</shortname>
+  <description>Simple generic title component that displays the sinekarta title</description>
+  <url>/components/sinekartaTitle</url>
+</webscript>

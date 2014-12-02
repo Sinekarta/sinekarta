@@ -1,0 +1,137 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- 
+/** Copyright (C) 2010 - 2012 Jenia Software. 
+ *
+ * This file is part of Sinekarta 
+ * 
+ * Sinekarta is free software: you can redistribute it and/or modify 
+ * it under the terms of the GNU General Public License as published by 
+ * the Free Software Foundation, either version 3 of the License, or 
+ * (at your option) any later version. 
+ * 
+ * Sinekarta is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+ * GNU General Public License for more details. 
+ * 
+ */
+ -->
+ 
+<alfresco-config>
+	
+	<!-- DocLib customization: action css (icons) and client-js -->
+	<config evaluator="string-compare" condition="DocLibCustom">
+	
+		<dependencies>
+			<!-- skds js -->
+			<js  src="scripts/skds-documentlibrary.js" />
+			
+			<!-- skds css -->
+			<css src="skds-documentlibrary.css" />
+		</dependencies>
+	</config>
+
+	<!-- Document Library Actions config section -->
+	<config evaluator="string-compare" condition="DocLibActions">
+
+		<!-- Action definitions -->
+		<actions>
+			
+	         <action id="skdsHelloGianni" type="javascript" label="actions.document.skdsHelloGianni">
+				<param name="function">onActionSkdsHelloGianni</param>
+				<permissions>
+					<permission allow="true">Write</permission>
+				</permissions>
+			 </action>
+			 
+			 <action id="skdsHelloGiovanni" type="javascript" label="actions.document.skdsHelloGiovanni">
+				<param name="function">onActionSkdsHelloGiovanni</param>
+				<permissions>
+					<permission allow="true">Write</permission>
+				</permissions>
+			 </action>
+			 
+			 <action id="skdsHelloWorld" type="javascript" label="actions.document.skdsHelloWorld">
+				<param name="function">onActionSkdsHelloWorld</param>
+				<permissions>
+					<permission allow="true">Write</permission>
+				</permissions>
+			 </action>
+			 
+			 <action id="skdsSign" type="javascript" label="actions.document.skdsSign">
+				<param name="function">onActionSkdsSign</param>
+				<permissions>
+					<permission allow="true">Write</permission>
+				</permissions>
+			 </action>
+			 
+ 			 <action id="skdsSignAndMark" type="javascript" label="actions.document.skdsSignAndMark">
+				<param name="function">onActionSkdsSignAndMark</param>
+				<permissions>
+					<permission allow="true">Write</permission>
+				</permissions>
+			 </action>
+	  		
+	  		<action id="skdsVerify" type="javascript" label="actions.document.skdsVerify">
+				<param name="function">onActionSkdsVerify</param>
+				<permissions>
+					<permission allow="true">Write</permission>
+				</permissions>
+			 </action>
+			 	 
+		</actions>
+
+		<!-- Action Group definitions -->
+		<actionGroups>
+			<actionGroup id="empty" />
+
+			<actionGroup id="document-browse">
+				<action index="501" id="skdsHelloGianni" />
+				<action index="502" id="skdsHelloGiovanni" />
+				<action index="503" id="skdsHelloWorld" />
+				<action index="1" id="skdsSign" />
+				<action index="2" id="skdsSignAndMark" />
+				<action index="3" id="skdsVerify" />
+			</actionGroup>
+
+			<actionGroup id="document-details">
+				<action index="501" id="skdsHelloGianni" />
+				<action index="502" id="skdsHelloGiovanni" />
+				<action index="503" id="skdsHelloWorld" />
+				<action index="1" id="skdsSign" />
+				<action index="2" id="skdsSignAndMark" />
+				<action index="3" id="skdsVerify" />
+			</actionGroup>
+
+			<actionGroup id="folder-browse">
+				<action index="501" id="skdsHelloGianni" />
+				<action index="502" id="skdsHelloGiovanni" />
+				<action index="503" id="skdsHelloWorld" />
+			</actionGroup>
+
+			<actionGroup id="folder-details">
+				<action index="501" id="skdsHelloGianni" />
+				<action index="502" id="skdsHelloGiovanni" />
+				<action index="503" id="skdsHelloWorld" />
+			</actionGroup>
+
+			<actionGroup id="document-link-browse">
+
+			</actionGroup>
+
+			<actionGroup id="document-link-details">
+
+			</actionGroup>
+
+			<actionGroup id="folder-link-browse">
+
+			</actionGroup>
+
+			<actionGroup id="folder-link-details">
+
+			</actionGroup>
+
+		</actionGroups>
+	</config>
+
+</alfresco-config>
