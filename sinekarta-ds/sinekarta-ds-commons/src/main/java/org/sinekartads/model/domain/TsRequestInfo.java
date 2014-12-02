@@ -167,7 +167,7 @@ public class TsRequestInfo implements Serializable {
     		// never thrown, algorithm validity granted by DigestAlgorithm
     		throw new RuntimeException(e);
     	}
-    	TsRequestInfo digestInstance = TemplateUtils.Serialization.clone ( this );
+    	TsRequestInfo digestInstance = TemplateUtils.Instantiation.clone ( this );
 		digestInstance.messageImprintDigest = messageImprintDigest;
 		return digestInstance;    	
     }

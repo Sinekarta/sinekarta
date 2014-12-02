@@ -111,7 +111,7 @@ public class TimeStampInfo
 	@Override
 	public UntrustedTimeStamp startValidation ( ) {
 		
-		TimeStampInfo untrustedInstance = TemplateUtils.Serialization.clone ( this );
+		TimeStampInfo untrustedInstance = TemplateUtils.Instantiation.clone ( this );
 		return untrustedInstance;
 	}
 	
@@ -126,7 +126,7 @@ public class TimeStampInfo
 		
 		Assert.notNull( verifyResult );
 		
-		TimeStampInfo verifiedInstance = TemplateUtils.Serialization.clone ( this );
+		TimeStampInfo verifiedInstance = TemplateUtils.Instantiation.clone ( this );
 		verifiedInstance.verifyResult = verifyResult;
 		return verifiedInstance;
 	}
@@ -147,7 +147,7 @@ public class TimeStampInfo
 		
 		Assert.notNull ( disposition );
 		
-		TimeStampInfo verifiedInstance = TemplateUtils.Serialization.clone ( this );
+		TimeStampInfo verifiedInstance = TemplateUtils.Instantiation.clone ( this );
 		verifiedInstance.disposition = disposition;
 		return verifiedInstance;
 	}

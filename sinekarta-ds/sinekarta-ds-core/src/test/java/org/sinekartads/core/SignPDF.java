@@ -32,7 +32,6 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.junit.Test;
-import org.sinekartads.SinekartaDsTestCase;
 import org.sinekartads.core.service.PDFSignatureService;
 import org.sinekartads.core.service.TimeStampService;
 import org.sinekartads.model.domain.DigestInfo;
@@ -48,10 +47,11 @@ import org.sinekartads.model.domain.Transitions.FinalizedSignature;
 import org.sinekartads.model.domain.Transitions.SignedSignature;
 import org.sinekartads.model.domain.TsRequestInfo;
 import org.sinekartads.model.oid.DigestAlgorithm;
+import org.sinekartads.test.SkdsTestCase;
 import org.sinekartads.util.TemplateUtils;
 import org.springframework.util.Assert;
 
-public class SignPDF extends SinekartaDsTestCase {
+public class SignPDF extends SkdsTestCase {
 
 	public static final String KEYSTORE_FILE	= "JENIA.p12";
 	public static final String KEYSTORE_PIN 	= "skdscip";

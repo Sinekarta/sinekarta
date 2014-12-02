@@ -124,7 +124,7 @@ public class SkdsSignInitWS extends SignController {
 			
 			// Create a default signature
 			dto.getSignature().signCategoryToString(signCategory);
-			signature.digestAlgorithmToString ( conf.getDigestAlgorithm() );
+			signature.digestAlgorithmToName ( conf.getDigestAlgorithm() );
 			signature.signAlgorithmToString ( conf.getSignatureAlgorithm() );
 			signature.signingTimeToString(new Date());
 			signature.setLocation(getMessage("signature.location"));

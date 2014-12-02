@@ -22,6 +22,6 @@ public class NoFilterSelector implements CertSelector, Selector, Serializable {
 	}
 
 	public Selector clone() {
-		return TemplateUtils.Serialization.clone(this);
+		return TemplateUtils.Instantiation.clone(this);
 	}
 }
