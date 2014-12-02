@@ -1,5 +1,5 @@
 /*
- * $Id: Document.java 6410 2014-05-29 13:05:23Z rafhens $
+ * $Id: PdfDocument.java 6410 2014-05-29 13:05:23Z rafhens $
  *
  * This file is part of the iText (R) project.
  * Copyright (c) 1998-2014 iText Group NV
@@ -59,10 +59,10 @@ import java.text.DecimalFormat;
 import java.util.*;
 
 /**
- * <CODE>Document</CODE> is the class that is used by <CODE>PdfWriter</CODE>
+ * <CODE>PdfDocument</CODE> is the class that is used by <CODE>PdfWriter</CODE>
  * to translate a <CODE>Document</CODE> into a PDF with different pages.
  * <P>
- * A <CODE>Document</CODE> always listens to a <CODE>Document</CODE>
+ * A <CODE>PdfDocument</CODE> always listens to a <CODE>Document</CODE>
  * and adds the Pdf representation of every <CODE>Element</CODE> that is
  * added to the <CODE>Document</CODE>.
  *
@@ -72,7 +72,7 @@ import java.util.*;
  * @since	2.0.8 (class was package-private before)
  */
 
-public class Document extends Document {
+public class PdfDocument extends Document {
 
     /**
      * <CODE>PdfInfo</CODE> is the PDF InfoDictionary.
@@ -82,7 +82,7 @@ public class Document extends Document {
      * should be strings.<BR>
      * This object is described in the 'Portable Document Format Reference Manual version 1.3'
      * section 6.10 (page 120-121)
-     * @since	2.0.8 (Document was package-private before)
+     * @since	2.0.8 (PdfDocument was package-private before)
      */
 
     public static class PdfInfo extends PdfDictionary {
@@ -285,12 +285,12 @@ public class Document extends Document {
         }
     }
 
-// CONSTRUCTING A Document/PdfWriter INSTANCE
+// CONSTRUCTING A PdfDocument/PdfWriter INSTANCE
 
     /**
      * Constructs a new PDF document.
      */
-    public Document() {
+    public PdfDocument() {
         super();
         addProducer();
         addCreationDate();
@@ -308,7 +308,7 @@ public class Document extends Document {
     protected HashMap<Object, Integer> markPoints = new HashMap<Object, Integer>();
 
     /**
-     * Adds a <CODE>PdfWriter</CODE> to the <CODE>Document</CODE>.
+     * Adds a <CODE>PdfWriter</CODE> to the <CODE>PdfDocument</CODE>.
      *
      * @param writer the <CODE>PdfWriter</CODE> that writes everything
      *                     what is added to this document to an outputstream.
@@ -320,7 +320,7 @@ public class Document extends Document {
             annotationsImp = new PdfAnnotationsImp(writer);
             return;
         }
-        throw new DocumentException(MessageLocalization.getComposedMessage("you.can.only.add.a.writer.to.a.Document.once"));
+        throw new DocumentException(MessageLocalization.getComposedMessage("you.can.only.add.a.writer.to.a.pdfdocument.once"));
     }
 
 // LISTENER METHODS START
@@ -1805,7 +1805,7 @@ public class Document extends Document {
     protected Indentation indentation = new Indentation();
 
     /**
-     * @since	2.0.8 (Document was package-private before)
+     * @since	2.0.8 (PdfDocument was package-private before)
      */
     public static class Indentation {
 
@@ -2316,7 +2316,7 @@ public class Document extends Document {
 
     /**
      * Gets the AcroForm object.
-     * @return the PdfAcroform object of the Document
+     * @return the PdfAcroform object of the PdfDocument
      */
     PdfAcroForm getAcroForm() {
         return annotationsImp.getAcroForm();
@@ -2699,7 +2699,7 @@ public class Document extends Document {
     }
 
     /**
-     * Checks if a <CODE>PdfPTable</CODE> fits the current page of the <CODE>Document</CODE>.
+     * Checks if a <CODE>PdfPTable</CODE> fits the current page of the <CODE>PdfDocument</CODE>.
      *
      * @param	table	the table that has to be checked
      * @param	margin	a certain margin

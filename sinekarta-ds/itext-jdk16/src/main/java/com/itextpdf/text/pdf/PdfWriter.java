@@ -89,7 +89,7 @@ import java.util.TreeSet;
  * A <CODE>DocWriter</CODE> class for PDF.
  * <P>
  * When this <CODE>PdfWriter</CODE> is added
- * to a certain <CODE>Document</CODE>, the PDF representation of every Element
+ * to a certain <CODE>PdfDocument</CODE>, the PDF representation of every Element
  * added to this Document will be written to the outputstream.</P>
  */
 
@@ -97,7 +97,7 @@ public class PdfWriter extends DocWriter implements
 	PdfViewerPreferences,
 	PdfEncryptionSettings,
 	PdfVersion,
-	DocumentActions,
+	PdfDocumentActions,
 	PdfPageActions,
 	PdfRunDirection,
 	PdfAnnotations {
@@ -616,11 +616,11 @@ public class PdfWriter extends DocWriter implements
      * Remark: a PdfWriter can only be constructed by calling the method
      * <CODE>getInstance(Document document, OutputStream os)</CODE>.
      *
-     * @param	document	The <CODE>Document</CODE> that has to be written
+     * @param	document	The <CODE>PdfDocument</CODE> that has to be written
      * @param	os			The <CODE>OutputStream</CODE> the writer has to write to.
      */
 
-    protected PdfWriter(final Document document, final OutputStream os) {
+    protected PdfWriter(final PdfDocument document, final OutputStream os) {
         super(document, os);
         pdf = document;
         directContentUnder = new PdfContentByte(this);
@@ -639,7 +639,7 @@ public class PdfWriter extends DocWriter implements
 
     public static PdfWriter getInstance(final Document document, final OutputStream os)
     throws DocumentException {
-        Document pdf = new Document();
+        PdfDocument pdf = new PdfDocument();
         document.addDocListener(pdf);
         PdfWriter writer = new PdfWriter(pdf, os);
         pdf.addWriter(writer);
@@ -652,13 +652,13 @@ public class PdfWriter extends DocWriter implements
      * @return a new <CODE>PdfWriter</CODE>
      * @param document The <CODE>Document</CODE> that has to be written
      * @param os The <CODE>OutputStream</CODE> the writer has to write to.
-     * @param listener A <CODE>DocListener</CODE> to pass to the Document.
+     * @param listener A <CODE>DocListener</CODE> to pass to the PdfDocument.
      * @throws DocumentException on error
      */
 
     public static PdfWriter getInstance(final Document document, final OutputStream os, final DocListener listener)
     throws DocumentException {
-        Document pdf = new Document();
+        PdfDocument pdf = new PdfDocument();
         pdf.addDocListener(listener);
         document.addDocListener(pdf);
         PdfWriter writer = new PdfWriter(pdf, os);
@@ -666,17 +666,17 @@ public class PdfWriter extends DocWriter implements
         return writer;
     }
 
-//	the Document instance
+//	the PdfDocument instance
 
-    /** the Document object. */
-    protected Document pdf;
+    /** the pdfdocument object. */
+    protected PdfDocument pdf;
 
     /**
-     * Gets the <CODE>Document</CODE> associated with this writer.
-     * @return the <CODE>Document</CODE>
+     * Gets the <CODE>PdfDocument</CODE> associated with this writer.
+     * @return the <CODE>PdfDocument</CODE>
      */
 
-    Document getDocument() {
+    PdfDocument getPdfDocument() {
         return pdf;
     }
 
@@ -790,10 +790,10 @@ public class PdfWriter extends DocWriter implements
      * @throws IOException on error
      */
 
-    void addLocalDestinations(final TreeMap<String, Document.Destination> desto) throws IOException {
-        for (Map.Entry<String, Document.Destination> entry : desto.entrySet()) {
+    void addLocalDestinations(final TreeMap<String, PdfDocument.Destination> desto) throws IOException {
+        for (Map.Entry<String, PdfDocument.Destination> entry : desto.entrySet()) {
             String name = entry.getKey();
-            Document.Destination dest = entry.getValue();
+            PdfDocument.Destination dest = entry.getValue();
             PdfDestination destination = dest.destination;
             if (dest.reference == null)
                 dest.reference = getPdfIndirectReference();
@@ -1744,17 +1744,17 @@ public class PdfWriter extends DocWriter implements
      /** action value */
      public static final PdfName DID_PRINT = PdfName.DP;
 
-    /** @see com.itextpdf.text.pdf.interfaces.DocumentActions#setOpenAction(java.lang.String) */
+    /** @see com.itextpdf.text.pdf.interfaces.PdfDocumentActions#setOpenAction(java.lang.String) */
     public void setOpenAction(final String name) {
          pdf.setOpenAction(name);
      }
 
-    /** @see com.itextpdf.text.pdf.interfaces.DocumentActions#setOpenAction(com.itextpdf.text.pdf.PdfAction) */
+    /** @see com.itextpdf.text.pdf.interfaces.PdfDocumentActions#setOpenAction(com.itextpdf.text.pdf.PdfAction) */
     public void setOpenAction(final PdfAction action) {
          pdf.setOpenAction(action);
      }
 
-    /** @see com.itextpdf.text.pdf.interfaces.DocumentActions#setAdditionalAction(com.itextpdf.text.pdf.PdfName, com.itextpdf.text.pdf.PdfAction) */
+    /** @see com.itextpdf.text.pdf.interfaces.PdfDocumentActions#setAdditionalAction(com.itextpdf.text.pdf.PdfName, com.itextpdf.text.pdf.PdfAction) */
     public void setAdditionalAction(final PdfName actionType, final PdfAction action) throws DocumentException {
          if (!(actionType.equals(DOCUMENT_CLOSE) ||
          actionType.equals(WILL_SAVE) ||
@@ -1842,7 +1842,7 @@ public class PdfWriter extends DocWriter implements
 
     /**
      * Use this method to creates XMP Metadata based
-     * on the metadata in the Document.
+     * on the metadata in the PdfDocument.
      * @since 5.4.4 just creates XmpWriter instance which will be serialized in close.
      */
     public void createXmpMetadata() {

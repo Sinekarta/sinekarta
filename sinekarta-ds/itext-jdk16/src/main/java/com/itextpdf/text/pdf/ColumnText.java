@@ -899,7 +899,7 @@ public class ColumnText {
         PdfFont currentFont = null;
         Float lastBaseFactor = new Float(0);
         currentValues[1] = lastBaseFactor;
-        Document pdf = null;
+        PdfDocument pdf = null;
         PdfContentByte graphics = null;
         PdfContentByte text = null;
         firstLineY = Float.NaN;
@@ -908,7 +908,7 @@ public class ColumnText {
             localRunDirection = runDirection;
         if (canvas != null) {
             graphics = canvas;
-            pdf = canvas.getDocument();
+            pdf = canvas.getPdfDocument();
             if (!isTagged(canvas))
                 text = canvas.getDuplicate(inheritGraphicState);
             else
@@ -1327,7 +1327,7 @@ public class ColumnText {
     
     
     protected int goComposite(final boolean simulate) throws DocumentException {
-    	Document pdf = null;
+    	PdfDocument pdf = null;
         if (canvas != null)
             pdf = canvas.pdf;
         if (!rectangularMode)

@@ -52,6 +52,11 @@ import java.io.OutputStream;
 import java.math.BigInteger;
 import java.net.URL;
 import java.net.URLConnection;
+
+import com.itextpdf.text.error_messages.MessageLocalization;
+import com.itextpdf.text.log.Logger;
+import com.itextpdf.text.log.LoggerFactory;
+import com.itextpdf.text.pdf.codec.Base64;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 
@@ -63,11 +68,6 @@ import org.bouncycastle.tsp.TimeStampRequestGenerator;
 import org.bouncycastle.tsp.TimeStampResponse;
 import org.bouncycastle.tsp.TimeStampToken;
 import org.bouncycastle.tsp.TimeStampTokenInfo;
-
-import com.itextpdf.text.error_messages.MessageLocalization;
-import com.itextpdf.text.log.Logger;
-import com.itextpdf.text.log.LoggerFactory;
-import com.itextpdf.text.pdf.codec.Base64;
 
 /**
  * Time Stamp Authority Client interface implementation using Bouncy Castle

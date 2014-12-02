@@ -58,7 +58,7 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Hashtable;
 
-import org.bouncycastle.asn1.DERObjectIdentifier;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers;
 import org.bouncycastle.asn1.x509.X509Extension;
@@ -120,7 +120,7 @@ public class OcspClientBouncyCastle implements OcspClient {
         // FIXME verificare
 //        Extension ext = new Extension(OCSPObjectIdentifiers.id_pkix_ocsp_nonce, false, new DEROctetString(new DEROctetString(PdfEncryption.createDocumentId()).getEncoded()));
 //        gen.setRequestExtensions(new X509Extensions(new Extension[]{ext}));
-        Hashtable<DERObjectIdentifier, X509Extension> table = new Hashtable<DERObjectIdentifier, X509Extension>();
+        Hashtable<ASN1ObjectIdentifier, X509Extension> table = new Hashtable<ASN1ObjectIdentifier, X509Extension>();
         table.put(OCSPObjectIdentifiers.id_pkix_ocsp_nonce, ext);
         gen.setRequestExtensions(new X509Extensions(table));
 

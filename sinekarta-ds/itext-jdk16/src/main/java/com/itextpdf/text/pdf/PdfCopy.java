@@ -172,7 +172,7 @@ public class PdfCopy extends PdfWriter {
      * @param os outputstream
      */
     public PdfCopy(Document document, OutputStream os) throws DocumentException {
-        super(new Document(), os);
+        super(new PdfDocument(), os);
         document.addDocListener(pdf);
         pdf.addWriter(this);
         indirectMap = new HashMap<PdfReader, HashMap<RefKey, IndirectReferences>>();

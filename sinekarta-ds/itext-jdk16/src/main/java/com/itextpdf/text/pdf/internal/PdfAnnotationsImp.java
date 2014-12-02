@@ -98,7 +98,7 @@ public class PdfAnnotationsImp {
 
     /**
      * Gets the AcroForm object.
-     * @return the PdfAcroform object of the Document
+     * @return the PdfAcroform object of the PdfDocument
      */
     public PdfAcroForm getAcroForm() {
         return acroForm;

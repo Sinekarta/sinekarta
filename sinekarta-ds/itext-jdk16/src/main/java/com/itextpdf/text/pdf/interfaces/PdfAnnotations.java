@@ -53,7 +53,7 @@ public interface PdfAnnotations {
     /**
      * Use this methods to get the AcroForm object.
      * Use this method only if you know what you're doing
-     * @return the PdfAcroform object of the Document
+     * @return the PdfAcroform object of the PdfDocument
      */
     public PdfAcroForm getAcroForm();
     

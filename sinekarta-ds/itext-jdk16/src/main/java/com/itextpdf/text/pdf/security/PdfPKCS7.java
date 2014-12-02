@@ -76,7 +76,7 @@ import org.bouncycastle.asn1.ASN1EncodableVector;
 import org.bouncycastle.asn1.ASN1Enumerated;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1Integer;
-import org.bouncycastle.asn1.DERObjectIdentifier;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.ASN1OutputStream;
 import org.bouncycastle.asn1.ASN1Sequence;
@@ -249,7 +249,7 @@ public class PdfPKCS7 {
                 throw new IllegalArgumentException(MessageLocalization.getComposedMessage("not.a.valid.pkcs.7.object.not.a.sequence"));
             }
             ASN1Sequence signedData = (ASN1Sequence)pkcs;
-            DERObjectIdentifier objId = (DERObjectIdentifier)signedData.getObjectAt(0);
+            ASN1ObjectIdentifier objId = (ASN1ObjectIdentifier)signedData.getObjectAt(0);
             if (!objId.getId().equals(SecurityIDs.ID_PKCS7_SIGNED_DATA))
                 throw new IllegalArgumentException(MessageLocalization.getComposedMessage("not.a.valid.pkcs.7.object.not.signed.data"));
             ASN1Sequence content = (ASN1Sequence)((ASN1TaggedObject)signedData.getObjectAt(1)).getObject();
@@ -268,7 +268,7 @@ public class PdfPKCS7 {
 			Enumeration<ASN1Sequence> e = ((ASN1Set)content.getObjectAt(1)).getObjects();
             while (e.hasMoreElements()) {
                 ASN1Sequence s = e.nextElement();
-                DERObjectIdentifier o = (DERObjectIdentifier)s.getObjectAt(0);
+                ASN1ObjectIdentifier o = (ASN1ObjectIdentifier)s.getObjectAt(0);
                 digestalgos.add(o.getId());
             }
 
@@ -352,7 +352,7 @@ public class PdfPKCS7 {
                     issuer.getName() + " / " + serialNumber.toString(16)));
             }
             signCertificateChain();
-            digestAlgorithmOid = ((DERObjectIdentifier)((ASN1Sequence)signerInfo.getObjectAt(2)).getObjectAt(0)).getId();
+            digestAlgorithmOid = ((ASN1ObjectIdentifier)((ASN1Sequence)signerInfo.getObjectAt(2)).getObjectAt(0)).getId();
             next = 3;
             boolean foundCades = false;
             if (signerInfo.getObjectAt(next) instanceof ASN1TaggedObject) {
@@ -364,7 +364,7 @@ public class PdfPKCS7 {
 
                 for (int k = 0; k < sseq.size(); ++k) {
                     ASN1Sequence seq2 = (ASN1Sequence)sseq.getObjectAt(k);
-                    String idSeq2 = ((DERObjectIdentifier)seq2.getObjectAt(0)).getId();
+                    String idSeq2 = ((ASN1ObjectIdentifier)seq2.getObjectAt(0)).getId();
                     if (idSeq2.equals(SecurityIDs.ID_MESSAGE_DIGEST)) {
                         ASN1Set set = (ASN1Set)seq2.getObjectAt(1);
                         digestAttr = ((ASN1OctetString)set.getObjectAt(0)).getOctets();
@@ -420,7 +420,7 @@ public class PdfPKCS7 {
             }
             if (isCades && !foundCades)
                 throw new IllegalArgumentException("CAdES ESS information missing.");
-            digestEncryptionAlgorithmOid = ((DERObjectIdentifier)((ASN1Sequence)signerInfo.getObjectAt(next++)).getObjectAt(0)).getId();
+            digestEncryptionAlgorithmOid = ((ASN1ObjectIdentifier)((ASN1Sequence)signerInfo.getObjectAt(next++)).getObjectAt(0)).getId();
             digest = ((ASN1OctetString)signerInfo.getObjectAt(next++)).getOctets();
             if (next < signerInfo.size() && signerInfo.getObjectAt(next) instanceof ASN1TaggedObject) {
                 ASN1TaggedObject taggedObject = (ASN1TaggedObject) signerInfo.getObjectAt(next);
@@ -792,14 +792,14 @@ public class PdfPKCS7 {
             ASN1EncodableVector digestAlgorithms = new ASN1EncodableVector();
             for (Object element : digestalgos) {
                 ASN1EncodableVector algos = new ASN1EncodableVector();
-                algos.add(new DERObjectIdentifier((String)element));
+                algos.add(new ASN1ObjectIdentifier((String)element));
                 algos.add(DERNull.INSTANCE);
                 digestAlgorithms.add(new DERSequence(algos));
             }
 
             // Create the contentInfo.
             ASN1EncodableVector v = new ASN1EncodableVector();
-            v.add(new DERObjectIdentifier(SecurityIDs.ID_PKCS7_DATA));
+            v.add(new ASN1ObjectIdentifier(SecurityIDs.ID_PKCS7_DATA));
             if (RSAdata != null)
                 v.add(new DERTaggedObject(0, new DEROctetString(RSAdata)));
             DERSequence contentinfo = new DERSequence(v);
@@ -830,7 +830,7 @@ public class PdfPKCS7 {
 
             // Add the digestAlgorithm
             v = new ASN1EncodableVector();
-            v.add(new DERObjectIdentifier(digestAlgorithmOid));
+            v.add(new ASN1ObjectIdentifier(digestAlgorithmOid));
             v.add(new DERNull());
             signerinfo.add(new DERSequence(v));
 
@@ -840,7 +840,7 @@ public class PdfPKCS7 {
             }
             // Add the digestEncryptionAlgorithm
             v = new ASN1EncodableVector();
-            v.add(new DERObjectIdentifier(digestEncryptionAlgorithmOid));
+            v.add(new ASN1ObjectIdentifier(digestEncryptionAlgorithmOid));
             v.add(new DERNull());
             signerinfo.add(new DERSequence(v));
 
@@ -875,7 +875,7 @@ public class PdfPKCS7 {
             // and return it
             //
             ASN1EncodableVector whole = new ASN1EncodableVector();
-            whole.add(new DERObjectIdentifier(SecurityIDs.ID_PKCS7_SIGNED_DATA));
+            whole.add(new ASN1ObjectIdentifier(SecurityIDs.ID_PKCS7_SIGNED_DATA));
             whole.add(new DERTaggedObject(0, new DERSequence(body)));
 
             ByteArrayOutputStream   bOut = new ByteArrayOutputStream();
@@ -911,7 +911,7 @@ public class PdfPKCS7 {
         ASN1EncodableVector unauthAttributes = new ASN1EncodableVector();
         tempstream.close();
         ASN1EncodableVector v = new ASN1EncodableVector();
-        v.add(new DERObjectIdentifier(ID_TIME_STAMP_TOKEN)); // id-aa-timeStampToken
+        v.add(new ASN1ObjectIdentifier(ID_TIME_STAMP_TOKEN)); // id-aa-timeStampToken
         ASN1Sequence seq = (ASN1Sequence) tempstream.readObject();
         v.add(new DERSet(seq));
 
@@ -969,15 +969,15 @@ public class PdfPKCS7 {
         try {
             ASN1EncodableVector attribute = new ASN1EncodableVector();
             ASN1EncodableVector v = new ASN1EncodableVector();
-            v.add(new DERObjectIdentifier(SecurityIDs.ID_CONTENT_TYPE));
-            v.add(new DERSet(new DERObjectIdentifier(SecurityIDs.ID_PKCS7_DATA)));
+            v.add(new ASN1ObjectIdentifier(SecurityIDs.ID_CONTENT_TYPE));
+            v.add(new DERSet(new ASN1ObjectIdentifier(SecurityIDs.ID_PKCS7_DATA)));
             attribute.add(new DERSequence(v));
             v = new ASN1EncodableVector();
-            v.add(new DERObjectIdentifier(SecurityIDs.ID_SIGNING_TIME));
+            v.add(new ASN1ObjectIdentifier(SecurityIDs.ID_SIGNING_TIME));
             v.add(new DERSet(new DERUTCTime(signingTime.getTime())));
             attribute.add(new DERSequence(v));
             v = new ASN1EncodableVector();
-            v.add(new DERObjectIdentifier(SecurityIDs.ID_MESSAGE_DIGEST));
+            v.add(new ASN1ObjectIdentifier(SecurityIDs.ID_MESSAGE_DIGEST));
             v.add(new DERSet(new DEROctetString(secondDigest)));
             attribute.add(new DERSequence(v));
             boolean haveCrl = false;
@@ -991,7 +991,7 @@ public class PdfPKCS7 {
             }
             if (ocsp != null || haveCrl) {
                 v = new ASN1EncodableVector();
-                v.add(new DERObjectIdentifier(SecurityIDs.ID_ADBE_REVOCATION));
+                v.add(new ASN1ObjectIdentifier(SecurityIDs.ID_ADBE_REVOCATION));
 
                 ASN1EncodableVector revocationV = new ASN1EncodableVector();
 
@@ -1026,10 +1026,10 @@ public class PdfPKCS7 {
             }
             if (sigtype == CryptoStandard.CADES) {
                 v = new ASN1EncodableVector();
-                v.add(new DERObjectIdentifier(SecurityIDs.ID_AA_SIGNING_CERTIFICATE_V2));
+                v.add(new ASN1ObjectIdentifier(SecurityIDs.ID_AA_SIGNING_CERTIFICATE_V2));
 
                 ASN1EncodableVector aaV2 = new ASN1EncodableVector();
-                AlgorithmIdentifier algoId = new AlgorithmIdentifier(new DERObjectIdentifier(digestAlgorithmOid), null);
+                AlgorithmIdentifier algoId = new AlgorithmIdentifier(new ASN1ObjectIdentifier(digestAlgorithmOid), null);
                 aaV2.add(algoId);
                 MessageDigest md = interfaceDigest.getMessageDigest(getHashAlgorithm());
                 byte[] dig = md.digest(signCert.getEncoded());
@@ -1292,8 +1292,8 @@ public class PdfPKCS7 {
         basicResp = null;
         boolean ret = false;
         while (true) {
-            if (seq.getObjectAt(0) instanceof DERObjectIdentifier
-                && ((DERObjectIdentifier)seq.getObjectAt(0)).getId().equals(OCSPObjectIdentifiers.id_pkix_ocsp_basic.getId())) {
+            if (seq.getObjectAt(0) instanceof ASN1ObjectIdentifier
+                && ((ASN1ObjectIdentifier)seq.getObjectAt(0)).getId().equals(OCSPObjectIdentifiers.id_pkix_ocsp_basic.getId())) {
                 break;
             }
             ret = true;

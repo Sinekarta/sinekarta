@@ -55,7 +55,7 @@ import java.util.Map;
 
 import org.bouncycastle.asn1.DEREncodable;
 import org.bouncycastle.asn1.ASN1InputStream;
-import org.bouncycastle.asn1.DERObjectIdentifier;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.ASN1Set;
 import org.bouncycastle.asn1.ASN1String;
@@ -79,63 +79,63 @@ public class CertificateInfo {
 	 */
 	public static class X500Name {
 	    /** country code - StringType(SIZE(2)) */
-	    public static final DERObjectIdentifier C = new DERObjectIdentifier("2.5.4.6");
+	    public static final ASN1ObjectIdentifier C = new ASN1ObjectIdentifier("2.5.4.6");
 	
 	    /** organization - StringType(SIZE(1..64)) */
-	    public static final DERObjectIdentifier O = new DERObjectIdentifier("2.5.4.10");
+	    public static final ASN1ObjectIdentifier O = new ASN1ObjectIdentifier("2.5.4.10");
 	
 	    /** organizational unit name - StringType(SIZE(1..64)) */
-	    public static final DERObjectIdentifier OU = new DERObjectIdentifier("2.5.4.11");
+	    public static final ASN1ObjectIdentifier OU = new ASN1ObjectIdentifier("2.5.4.11");
 	
 	    /** Title */
-	    public static final DERObjectIdentifier T = new DERObjectIdentifier("2.5.4.12");
+	    public static final ASN1ObjectIdentifier T = new ASN1ObjectIdentifier("2.5.4.12");
 	
 	    /** common name - StringType(SIZE(1..64)) */
-	    public static final DERObjectIdentifier CN = new DERObjectIdentifier("2.5.4.3");
+	    public static final ASN1ObjectIdentifier CN = new ASN1ObjectIdentifier("2.5.4.3");
 	
 	    /** device serial number name - StringType(SIZE(1..64)) */
-	    public static final DERObjectIdentifier SN = new DERObjectIdentifier("2.5.4.5");
+	    public static final ASN1ObjectIdentifier SN = new ASN1ObjectIdentifier("2.5.4.5");
 	
 	    /** locality name - StringType(SIZE(1..64)) */
-	    public static final DERObjectIdentifier L = new DERObjectIdentifier("2.5.4.7");
+	    public static final ASN1ObjectIdentifier L = new ASN1ObjectIdentifier("2.5.4.7");
 	
 	    /** state, or province name - StringType(SIZE(1..64)) */
-	    public static final DERObjectIdentifier ST = new DERObjectIdentifier("2.5.4.8");
+	    public static final ASN1ObjectIdentifier ST = new ASN1ObjectIdentifier("2.5.4.8");
 	
 	    /** Naming attribute of type X520name */
-	    public static final DERObjectIdentifier SURNAME = new DERObjectIdentifier("2.5.4.4");
+	    public static final ASN1ObjectIdentifier SURNAME = new ASN1ObjectIdentifier("2.5.4.4");
 	    
 	    /** Naming attribute of type X520name */
-	    public static final DERObjectIdentifier GIVENNAME = new DERObjectIdentifier("2.5.4.42");
+	    public static final ASN1ObjectIdentifier GIVENNAME = new ASN1ObjectIdentifier("2.5.4.42");
 	    
 	    /** Naming attribute of type X520name */
-	    public static final DERObjectIdentifier INITIALS = new DERObjectIdentifier("2.5.4.43");
+	    public static final ASN1ObjectIdentifier INITIALS = new ASN1ObjectIdentifier("2.5.4.43");
 	    
 	    /** Naming attribute of type X520name */
-	    public static final DERObjectIdentifier GENERATION = new DERObjectIdentifier("2.5.4.44");
+	    public static final ASN1ObjectIdentifier GENERATION = new ASN1ObjectIdentifier("2.5.4.44");
 	    
 	    /** Naming attribute of type X520name */
-	    public static final DERObjectIdentifier UNIQUE_IDENTIFIER = new DERObjectIdentifier("2.5.4.45");
+	    public static final ASN1ObjectIdentifier UNIQUE_IDENTIFIER = new ASN1ObjectIdentifier("2.5.4.45");
 	
 	    /**
 	     * Email address (RSA PKCS#9 extension) - IA5String.
 	     * <p>Note: if you're trying to be ultra orthodox, don't use this! It shouldn't be in here.</p>
 	     */
-	    public static final DERObjectIdentifier EmailAddress = new DERObjectIdentifier("1.2.840.113549.1.9.1");
+	    public static final ASN1ObjectIdentifier EmailAddress = new ASN1ObjectIdentifier("1.2.840.113549.1.9.1");
 	
 	    /**
 	     * email address in Verisign certificates
 	     */
-	    public static final DERObjectIdentifier E = EmailAddress;
+	    public static final ASN1ObjectIdentifier E = EmailAddress;
 	
 	    /** object identifier */
-	    public static final DERObjectIdentifier DC = new DERObjectIdentifier("0.9.2342.19200300.100.1.25");
+	    public static final ASN1ObjectIdentifier DC = new ASN1ObjectIdentifier("0.9.2342.19200300.100.1.25");
 	
 	    /** LDAP User id. */
-	    public static final DERObjectIdentifier UID = new DERObjectIdentifier("0.9.2342.19200300.100.1.1");
+	    public static final ASN1ObjectIdentifier UID = new ASN1ObjectIdentifier("0.9.2342.19200300.100.1.1");
 	
 	    /** A Map with default symbols */
-	    public static final Map<DERObjectIdentifier, String> DefaultSymbols = new HashMap<DERObjectIdentifier, String>();
+	    public static final Map<ASN1ObjectIdentifier, String> DefaultSymbols = new HashMap<ASN1ObjectIdentifier, String>();
 	
 	    static {
 	        DefaultSymbols.put(C, "C");

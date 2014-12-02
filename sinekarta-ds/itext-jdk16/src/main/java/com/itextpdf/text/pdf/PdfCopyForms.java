@@ -111,7 +111,7 @@ public class PdfCopyForms
     }
 
     /**
-     *Copies the form fields of this Document onto the PDF-Document which was added
+     *Copies the form fields of this PDFDocument onto the PDF-Document which was added
      * @param reader the PDF document
      * @throws DocumentException on error
      */
