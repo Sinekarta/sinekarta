@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Envelope><ds:Object xmlns:ds="http://www.w3.org/2000/09/xmldsig#" Encoding="UTF-8" Id="ToBeSigned1417090266345" MimeType="text/xml"><project default="backup" name="backup">
+
+	<property environment="env"></property>
+
+	<property name="inDir" value="${env.SVN}"></property>
+	<property name="suffix" value="svn"></property>
+	<property name="outFile" value="svn.dump"></property>
+	<property name="outDir" value="svn"></property>
+ 	<property name="tmpDir" value="${env.TMP_DIR}"></property>
+	<property name="dest" value="${tmpDir}"></property>
+	<property name="logs" value="${tmpDir}/logs"></property>
+	<property name="logName" value="backup-svn"></property>
+	<property name="ext" value="${env.REMOTE_DIR}"></property>
+	<property name="ftpHost" value="${env.FTP_HOST}"></property>
+	<property name="ftpUser" value="${env.FTP_USER}"></property>
+	<property name="ftpPassword" value="${env.FTP_PASSWORD}"></property>
+	
+	<!-- impostazione task aggiuntivi e variabili di ambiente -->
+	<property environment="env"></property>
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties"></taskdef>
+	<taskdef resource="org/sinekarta/ant/sinekartaAnt.properties"></taskdef>
+
+	<target name="backupDo">
+		
+	   <trycatch property="exception">
+	     <try>
+
+			<property name="out" value="${dest}/${outDir}"></property>
+			<delete dir="${out}"></delete>
+			<mkdir dir="${out}"></mkdir>
+	
+		    <exec executable="svnadmin" failonerror="true" output="${out}/${outFile}">   
+				<arg value="dump"></arg>   
+				<arg value="${inDir}"></arg>   
+			</exec>   
+	
+		    <zip destfile="${dest}/backupGiornaliero_${suffix}_1.zip">
+		    	<fileset dir="${out}"></fileset>
+		    </zip>
+	     	
+	     	<delete dir="${out}"></delete>
+		     	
+	     	<copy file="${dest}/backupGiornaliero_${suffix}_1.zip" tofile="${dest}/backup_${suffix}_${LY}_${MON}_${DOM}.zip"></copy>
+			<echo>sending file ${dest}/backup_${suffix}_${LY}_${MON}_${DOM}.zip to nas : ${ftpHost} using ${ftpUser}/${ftpPassword} remote dir is ${ext}</echo>
+	        <ftp action="send" binary="true" password="${ftpPassword}" remotedir="${ext}/${outDir}" server="${ftpHost}" userid="${ftpUser}">
+	            <fileset file="${dest}/backup_${suffix}_${LY}_${MON}_${DOM}.zip"></fileset>
+	        </ftp>
+	        <delete file="${dest}/backup_${suffix}_${LY}_${MON}_${DOM}.zip"></delete>
+	
+	     </try>
+
+		<catch>
+                <mail mailhost="mail.jenia.it" mailport="25" subject="*** ERROR - JENIASRV004 *** Il backup di ${suffix} ha avuto dei problemi">
+            	  <from address="info@jenia.it"></from>
+    	          <to address="info@jenia.it"></to>
+                  <message>Errore : ${exception}</message>
+            	</mail>
+		</catch>
+
+	   </trycatch>
+
+	</target>
+
+	<target depends="init,backupPrepare,backupDo" name="backup">
+
+		<record action="stop" name="${logs}/log_${logName}_${logSuffix}.txt"></record>
+		
+	</target>
+	
+	<target name="init">
+		<mkdir dir="${dest}"></mkdir>
+		
+		<mkdir dir="${logs}"></mkdir>
+		
+		<tstamp>
+			<format locale="it_IT" pattern="yyyy-MM-dd" property="logSuffix" timezone="CET"></format>
+		</tstamp>
+
+		<record action="start" name="${logs}/log_${logName}_${logSuffix}.txt"></record>
+		
+		<!-- calcolo giorno della settimana, giorno del mese e giorno dell'anno e anno passato-->
+		<tstamp>
+			<format locale="it_IT" pattern="EEEEEEEE" property="DOW" timezone="CET"></format>
+		</tstamp>
+		<echo message="day of week = ${DOW}"></echo>
+		<tstamp>
+			<format locale="it_IT" pattern="d" property="DOM" timezone="CET"></format>
+		</tstamp>
+		<echo message="day = ${DOM}"></echo>
+		<tstamp>
+			<format locale="it_IT" pattern="M" property="MON" timezone="CET"></format>
+		</tstamp>
+		<echo message="month = ${MON}"></echo>
+		<tstamp>
+			<format locale="it_IT" pattern="yyyy" property="LY" timezone="CET" unit="year"></format>
+		</tstamp>
+		<echo message="year = ${LY}"></echo>
+		<tstamp>
+			<format locale="it_IT" offset="-1" pattern="yyyy" property="LYPREC" timezone="CET" unit="year"></format>
+		</tstamp>
+		<echo message="last year = ${LYPREC}"></echo>
+		<tstamp>
+			<format locale="it_IT" pattern="D" property="DOY" timezone="CET"></format>
+		</tstamp>
+		<echo message="day of year = ${DOY}"></echo>
+
+		<!-- 	
+			se e' il primo dell'anno il backupMensile_12 deve essere rinominato come backupAnnuale_${LYPREC}
+			se e' il primo del mese ...
+				cancello backupMensile_12
+				rinomino backupMensile_11 in backupMensile_12
+				rinomino backupMensile_10 in backupMensile_11
+				rinomino backupMensile_9 in backupMensile_10
+				rinomino backupMensile_8 in backupMensile_9
+				rinomino backupMensile_7 in backupMensile_8
+				rinomino backupMensile_6 in backupMensile_7
+				rinomino backupMensile_5 in backupMensile_6
+				rinomino backupMensile_4 in backupMensile_5
+				rinomino backupMensile_3 in backupMensile_4
+				rinomino backupMensile_2 in backupMensile_3
+				rinomino backupMensile_1 in backupMensile_2
+				rinomino backupSettimanale_4 in backupMensile_1
+			se e' domenica ...
+				cancello backupSettimanale_4
+				rinomino backupSettimanale_3 in backupSettimanale_4
+				rinomino backupSettimanale_2 in backupSettimanale_3
+				rinomino backupSettimanale_1 in backupSettimanale_2
+				rinomino backupGiornaliero__7 in backupSettimanale_1
+			comunque
+				cancello backupGiornaliero__7
+				rinomino backupGiornaliero__6 in backupGiornaliero_7
+				rinomino backupGiornaliero__5 in backupGiornaliero_6
+				rinomino backupGiornaliero__4 in backupGiornaliero_5
+				rinomino backupGiornaliero__3 in backupGiornaliero_4
+				rinomino backupGiornaliero__2 in backupGiornaliero_3
+				rinomino backupGiornaliero__1 in backupGiornaliero_2
+			faccio il backup giornaliero
+		-->
+		<!-- mi preparo per fare il backup annuale -->
+		<condition property="backupAnnualeDaFare">
+			<equals arg1="${DOY}" arg2="1" casesensitive="false" trim="true"></equals>
+		</condition>
+		<antcall target="backupAnnuale"></antcall>
+		<!-- mi preparo per fare il backup mensile -->
+		<condition property="backupMensileDaFare">
+			<equals arg1="${DOM}" arg2="1" casesensitive="false" trim="true"></equals>
+		</condition>
+		<antcall target="backupMensile"></antcall>
+		<!-- mi preparo per fare il backup settimanale -->
+		<condition property="backupSettimanaleDaFare">
+		    <or>
+		      <equals arg1="${DOW}" arg2="domenica" casesensitive="false" trim="true"></equals>
+		      <equals arg1="${DOW}" arg2="sunday" casesensitive="false" trim="true"></equals>
+		    </or>
+		</condition>
+	</target>
+		
+	<target depends="backupSettimanale,backupGiornaliero" name="backupPrepare">
+		<echo message="Backup environment prepared"></echo>
+	</target>
+	
+	<target name="backupGiornaliero">
+		<!-- 
+			comunque
+				cancello backupGiornaliero__7
+				rinomino backupGiornaliero__6 in backupGiornaliero_7
+				rinomino backupGiornaliero__5 in backupGiornaliero_6
+				rinomino backupGiornaliero__4 in backupGiornaliero_5
+				rinomino backupGiornaliero__3 in backupGiornaliero_4
+				rinomino backupGiornaliero__2 in backupGiornaliero_3
+				rinomino backupGiornaliero__1 in backupGiornaliero_2
+		-->
+		<delete failonerror="false" file="${dest}/backupGiornaliero_${suffix}_7.zip"></delete>
+		<move failonerror="false" file="${dest}/backupGiornaliero_${suffix}_6.zip" preservelastmodified="true" tofile="${dest}/backupGiornaliero_${suffix}_7.zip"></move>
+		<move failonerror="false" file="${dest}/backupGiornaliero_${suffix}_5.zip" preservelastmodified="true" tofile="${dest}/backupGiornaliero_${suffix}_6.zip"></move>
+		<move failonerror="false" file="${dest}/backupGiornaliero_${suffix}_4.zip" preservelastmodified="true" tofile="${dest}/backupGiornaliero_${suffix}_5.zip"></move>
+		<move failonerror="false" file="${dest}/backupGiornaliero_${suffix}_3.zip" preservelastmodified="true" tofile="${dest}/backupGiornaliero_${suffix}_4.zip"></move>
+		<move failonerror="false" file="${dest}/backupGiornaliero_${suffix}_2.zip" preservelastmodified="true" tofile="${dest}/backupGiornaliero_${suffix}_3.zip"></move>
+		<move failonerror="false" file="${dest}/backupGiornaliero_${suffix}_1.zip" preservelastmodified="true" tofile="${dest}/backupGiornaliero_${suffix}_2.zip"></move>
+	</target>
+	
+	<target if="backupSettimanaleDaFare" name="backupSettimanale">
+		<echo message="backupSettimanale"></echo>
+		<!--
+			se e' domenica ...
+				cancello backupSettimanale_4
+				rinomino backupSettimanale_3 in backupSettimanale_4
+				rinomino backupSettimanale_2 in backupSettimanale_3
+				rinomino backupSettimanale_1 in backupSettimanale_2
+				rinomino backupGiornaliero__7 in backupSettimanale_1
+		-->
+		<delete failonerror="false" file="${dest}/backupSettimanale_${suffix}_4.zip"></delete>
+		<move failonerror="false" file="${dest}/backupSettimanale_${suffix}_3.zip" preservelastmodified="true" tofile="${dest}/backupSettimanale_${suffix}_4.zip"></move>
+		<move failonerror="false" file="${dest}/backupSettimanale_${suffix}_2.zip" preservelastmodified="true" tofile="${dest}/backupSettimanale_${suffix}_3.zip"></move>
+		<move failonerror="false" file="${dest}/backupSettimanale_${suffix}_1.zip" preservelastmodified="true" tofile="${dest}/backupSettimanale_${suffix}_2.zip"></move>
+		<script language="beanshell">
+			dest = project.getProperty("dest");
+			suffix = project.getProperty("suffix");
+			test = dest+"/backupGiornaliero_"+suffix+"_7.zip";
+			java.io.File f = new java.io.File(test);
+			if (f.exists()) {
+				project.setProperty("lastFile",test);
+				return;
+			}
+			test = dest+"/backupGiornaliero_"+suffix+"_6.zip";
+			java.io.File f = new java.io.File(test);
+			if (f.exists()) { 
+				project.setProperty("lastFile",test);
+				return;
+			}
+			test = dest+"/backupGiornaliero_"+suffix+"_5.zip";
+			java.io.File f = new java.io.File(test);
+			if (f.exists()) {
+				project.setProperty("lastFile",test);
+				return;
+			}
+			test = dest+"/backupGiornaliero_"+suffix+"_4.zip";
+			java.io.File f = new java.io.File(test);
+			if (f.exists()) {
+				project.setProperty("lastFile",test);
+				return;
+			}
+			test = dest+"/backupGiornaliero_"+suffix+"_3.zip";
+			java.io.File f = new java.io.File(test);
+			if (f.exists()) {
+				project.setProperty("lastFile",test);
+				return;
+			}
+			test = dest+"/backupGiornaliero_"+suffix+"_2.zip";
+			java.io.File f = new java.io.File(test);
+			if (f.exists()) {
+				project.setProperty("lastFile",test);
+				return;
+			}
+			test = dest+"/backupGiornaliero_"+suffix+"_1.zip";
+			java.io.File f = new java.io.File(test);
+			if (f.exists()) {
+				project.setProperty("lastFile",test);
+				return;
+			}
+			test = dest+"/dummy.zip";
+			project.setProperty("lastFile",test);			
+		</script>
+		<move failonerror="false" file="${lastFile}" preservelastmodified="true" tofile="${dest}/backupSettimanale_${suffix}_1.zip"></move>
+	</target>
+	
+	<target if="backupMensileDaFare" name="backupMensile">
+		<echo message="backupMensile"></echo>
+		<!-- 
+			se e' il primo del mese ...
+				cancello backupMensile_12
+				rinomino backupMensile_11 in backupMensile_12
+				rinomino backupMensile_10 in backupMensile_11
+				rinomino backupMensile_9 in backupMensile_10
+				rinomino backupMensile_8 in backupMensile_9
+				rinomino backupMensile_7 in backupMensile_8
+				rinomino backupMensile_6 in backupMensile_7
+				rinomino backupMensile_5 in backupMensile_6
+				rinomino backupMensile_4 in backupMensile_5
+				rinomino backupMensile_3 in backupMensile_4
+				rinomino backupMensile_2 in backupMensile_3
+				rinomino backupMensile_1 in backupMensile_2
+				rinomino backupSettimanale_4 in backupMensile_1
+		-->
+		<delete failonerror="false" file="${dest}/backupMensile_${suffix}_12.zip"></delete>
+		<move failonerror="false" file="${dest}/backupMensile_${suffix}_11.zip" preservelastmodified="true" tofile="${dest}/backupMensile_${suffix}_12.zip"></move>
+		<move failonerror="false" file="${dest}/backupMensile_${suffix}_10.zip" preservelastmodified="true" tofile="${dest}/backupMensile_${suffix}_11.zip"></move>
+		<move failonerror="false" file="${dest}/backupMensile_${suffix}_9.zip" preservelastmodified="true" tofile="${dest}/backupMensile_${suffix}_10.zip"></move>
+		<move failonerror="false" file="${dest}/backupMensile_${suffix}_8.zip" preservelastmodified="true" tofile="${dest}/backupMensile_${suffix}_9.zip"></move>
+		<move failonerror="false" file="${dest}/backupMensile_${suffix}_7.zip" preservelastmodified="true" tofile="${dest}/backupMensile_${suffix}_8.zip"></move>
+		<move failonerror="false" file="${dest}/backupMensile_${suffix}_6.zip" preservelastmodified="true" tofile="${dest}/backupMensile_${suffix}_7.zip"></move>
+		<move failonerror="false" file="${dest}/backupMensile_${suffix}_5.zip" preservelastmodified="true" tofile="${dest}/backupMensile_${suffix}_6.zip"></move>
+		<move failonerror="false" file="${dest}/backupMensile_${suffix}_4.zip" preservelastmodified="true" tofile="${dest}/backupMensile_${suffix}_5.zip"></move>
+		<move failonerror="false" file="${dest}/backupMensile_${suffix}_3.zip" preservelastmodified="true" tofile="${dest}/backupMensile_${suffix}_4.zip"></move>
+		<move failonerror="false" file="${dest}/backupMensile_${suffix}_2.zip" preservelastmodified="true" tofile="${dest}/backupMensile_${suffix}_3.zip"></move>
+		<move failonerror="false" file="${dest}/backupMensile_${suffix}_1.zip" preservelastmodified="true" tofile="${dest}/backupMensile_${suffix}_2.zip"></move>
+		<script language="beanshell">
+			dest = project.getProperty("dest");
+			suffix = project.getProperty("suffix");
+			test = dest+"/backupSettimanale_"+suffix+"_4.zip";
+			java.io.File f = new java.io.File(test);
+			if (f.exists()) {
+				project.setProperty("lastFile",test);
+				return;
+			}
+			test = dest+"/backupSettimanale_"+suffix+"_3.zip";
+			java.io.File f = new java.io.File(test);
+			if (f.exists()) {
+				project.setProperty("lastFile",test);
+				return;
+			}
+			test = dest+"/backupSettimanale_"+suffix+"_2.zip";
+			java.io.File f = new java.io.File(test);
+			if (f.exists()) {
+				project.setProperty("lastFile",test);
+				return;
+			}
+			test = dest+"/backupSettimanale_"+suffix+"_1.zip";
+			java.io.File f = new java.io.File(test);
+			if (f.exists()) {
+				project.setProperty("lastFile",test);
+				return;
+			}
+			test = dest+"/dummy.zip";
+			project.setProperty("lastFile",test);			
+		</script>
+		<move failonerror="false" file="${lastFile}" preservelastmodified="true" tofile="${dest}/backupMensile_${suffix}_1.zip"></move>
+	</target>
+	
+	<target if="backupAnnualeDaFare" name="backupAnnuale">
+		<echo message="backupAnnuale"></echo>
+		<!-- 	
+			se e' il primo dell'anno il backupMensile_12 deve essere rinominato come backupAnnuale_${LYPREC}
+		-->
+		<script language="beanshell">
+			dest = project.getProperty("dest");
+			suffix = project.getProperty("suffix");
+			test = dest+"/backupMensile_"+suffix+"_12.zip";
+			java.io.File f = new java.io.File(test);
+			if (f.exists()) {
+				project.setProperty("lastFile",test);
+				return;
+			}
+			test = dest+"/backupMensile_"+suffix+"_11.zip";
+			java.io.File f = new java.io.File(test);
+			if (f.exists()) {
+				project.setProperty("lastFile",test);
+				return;
+			}
+			test = dest+"/backupMensile_"+suffix+"_10.zip";
+			java.io.File f = new java.io.File(test);
+			if (f.exists()) {
+				project.setProperty("lastFile",test);
+				return;
+			}
+			test = dest+"/backupMensile_"+suffix+"_9.zip";
+			java.io.File f = new java.io.File(test);
+			if (f.exists()) {
+				project.setProperty("lastFile",test);
+				return;
+			}
+			test = dest+"/backupMensile_"+suffix+"_8.zip";
+			java.io.File f = new java.io.File(test);
+			if (f.exists()) {
+				project.setProperty("lastFile",test);
+				return;
+			}
+			test = dest+"/backupMensile_"+suffix+"_7.zip";
+			java.io.File f = new java.io.File(test);
+			if (f.exists()) {
+				project.setProperty("lastFile",test);
+				return;
+			}
+			test = dest+"/backupMensile_"+suffix+"_6.zip";
+			java.io.File f = new java.io.File(test);
+			if (f.exists()) {
+				project.setProperty("lastFile",test);
+				return;
+			}
+			test = dest+"/backupMensile_"+suffix+"_5.zip";
+			java.io.File f = new java.io.File(test);
+			if (f.exists()) {
+				project.setProperty("lastFile",test);
+				return;
+			}
+			test = dest+"/backupMensile_"+suffix+"_4.zip";
+			java.io.File f = new java.io.File(test);
+			if (f.exists()) {
+				project.setProperty("lastFile",test);
+				return;
+			}
+			test = dest+"/backupMensile_"+suffix+"_3.zip";
+			java.io.File f = new java.io.File(test);
+			if (f.exists()) {
+				project.setProperty("lastFile",test);
+				return;
+			}
+			test = dest+"/backupMensile_"+suffix+"_2.zip";
+			java.io.File f = new java.io.File(test);
+			if (f.exists()) {
+				project.setProperty("lastFile",test);
+				return;
+			}
+			test = dest+"/backupMensile_"+suffix+"_1.zip";
+			java.io.File f = new java.io.File(test);
+			if (f.exists()) {
+				project.setProperty("lastFile",test);
+				return;
+			}
+			test = dest+"/dummy.zip";
+			project.setProperty("lastFile",test);			
+		</script>
+		<move failonerror="false" file="${lastFile}" preservelastmodified="true" tofile="${dest}/backupAnnuale_${LYPREC}.zip"></move>
+	</target>
+</project></ds:Object><ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#" Id="Signer-T-1417090266344">
+<ds:SignedInfo>
+<ds:CanonicalizationMethod Algorithm="http://www.w3.org/2006/12/xml-c14n11#WithComments"></ds:CanonicalizationMethod>
+<ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"></ds:SignatureMethod>
+<ds:Reference Type="http://uri.etsi.org/01903#SignedProperties" URI="#SignedProperties-Signer-T-1417090266344">
+<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></ds:DigestMethod>
+<ds:DigestValue>adVOp+U9MVcKEsZXD/bRHssDT9Gjj73mrpzYw8Bef6c=</ds:DigestValue>
+</ds:Reference>
+<ds:Reference URI="#ToBeSigned1417090266345">
+<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></ds:DigestMethod>
+<ds:DigestValue>8Pg4dTgIe8G9Qwh+g5flQEapeT8uu5SwwHnECn9220k=</ds:DigestValue>
+</ds:Reference>
+<ds:Reference URI="#KeyInfo-Signer-T-1417090266344">
+<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></ds:DigestMethod>
+<ds:DigestValue>E172BqRCEkEc2iO+y2Bbk/f8xvFDAheHB5SyQXToZpE=</ds:DigestValue>
+</ds:Reference>
+</ds:SignedInfo>
+<ds:SignatureValue>
+oL+bFPPefK6EdDkN0kOQKAz56/B6xbuMg4XokukHjyrxi7li7B9nai3Ue3P4e9asdHBhhXeqzFtA
+ULddrBEhUGejcfOtw/IBMl8OL2joRk+Z97xMkXEbn3e33Wf14YKvjK8ESgG93qXUKk6FFEIsXX1U
+Bush9/cnwhRDY2CAhKIXqR9/2qd1d1vVpXXTgEoQ8cQ+WanEA/9F9U5MML/coFiaQx85eydXJ4oS
+qFBD9qlJrc3voN/xsaAAOH+W1zJWGWXvON3Xu2HHvK7ux6y9IxDNz3/7JEJvjjRwm7+HhSgzkk1M
+mFmTGtEQfKfKMiMLksg7AeBrj37NAmW8lmfKNA==
+</ds:SignatureValue>
+<ds:KeyInfo Id="KeyInfo-Signer-T-1417090266344">
+<ds:X509Data>
+<ds:X509Certificate>
+MIIFbjCCBFagAwIBAgIQeAJzQFnhaokUk1qQD/EoLDANBgkqhkiG9w0BAQsFADBsMQswCQYDVQQG
+EwJJVDEYMBYGA1UECgwPQXJ1YmFQRUMgUy5wLkEuMSEwHwYDVQQLDBhDZXJ0aWZpY2F0aW9uIEF1
+dGhvcml0eUMxIDAeBgNVBAMMF0FydWJhUEVDIFMucC5BLiBORyBDQSAzMB4XDTE0MTEwODAwMDAw
+MFoXDTE3MTEwNzIzNTk1OVowgeMxCzAJBgNVBAYTAklUMTswOQYDVQQKDDJKZW5pYSBTb2Z0d2Fy
+ZSBkaSBBbmRyZWEgVGVzc2FybyBQb3J0YS8wMzAxMjQwMTIwODEdMBsGA1UEAwwUVGVzc2FybyBQ
+b3J0YSBBbmRyZWExHDAaBgNVBAUTE0lUOlRTU05EUjcxTDE4QjM5M1IxDzANBgNVBCoMBkFuZHJl
+YTEWMBQGA1UEBAwNVGVzc2FybyBQb3J0YTERMA8GA1UELhMIMTM2MzUwNDgxHjAcBgNVBAwMFUxl
+Z2FsZSByYXBwcmVzZW50YW50ZTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK6j3/tv
+JaZlLTOzHUcMyqnEGb5KW5jSvEiOPyJ+XHF5CRjuBvG2uTjk/Cq+s93sl3sfcvrDh7Qed8wL1Vsb
+FSCg9e/cB2RUu5lqkWfXCb3sHvRi9jeU2+dAxajX4IyI+85S0blzuvMMvM+2iJTXv3o031SYf9R2
+SzqjUYvCZl9r+PfJPx/S17/MQw5J04ZT5dfErCZkoFrps7ppND+Zx0KPEtQbU3bkeqty4M/TYiha
+8WSCDpuMZY2e5pbuZ8TUsXS49JI0ecYUSl652au4DbBlx83KqIXqvCWkw/Vsg/gi8Yxf7XnEY2z7
+q9d84Fnp1Th+/e331Di9U1+UKZVrgBUCAwEAAaOCAZIwggGOMA4GA1UdDwEB/wQEAwIGQDAdBgNV
+HQ4EFgQUozl01QhZx/qwPCD10ELnPmi0PSYwWAYDVR0gBFEwTzA8BgsrBgEEAYHoLQEBDjAtMCsG
+CCsGAQUFBwIBFh9odHRwczovL2NhLmFydWJhcGVjLml0L2Nwcy5odG1sMIEOBgwrBgEEAYHoLQEB
+CwEwWAYDVR0fBFEwTzBNoEugSYZHaHR0cDovL2NybC5hcnViYXBlYy5pdC9BcnViYVBFQ1NwQUNl
+cnRpZmljYXRpb25BdXRob3JpdHlDL0xhdGVzdENSTC5jcmwwLwYIKwYBBQUHAQMEIzAhMAgGBgQA
+jkYBATALBgYEAI5GAQMCARQwCAYGBACORgEEMCIGA1UdEQQbMBmBF2FuZHJlYS50ZXNzYXJvQGpl
+bmlhLml0MB8GA1UdIwQYMBaAFPDARbG2NbTqXyn6gwNK3C/1s33oMDMGCCsGAQUFBwEBBCcwJTAj
+BggrBgEFBQcwAYYXaHR0cDovL29jc3AuYXJ1YmFwZWMuaXQwDQYJKoZIhvcNAQELBQADggEBAIzw
+7IkJufuiMOPZRMnYfq4aHouNqt+MpByTAqJLcZpcV+1cG6ugGjGDWE44rljDqVo0SCQoD/IxYT/e
+9C7tVlLuj0Ky42rPvor/6yV9NW/tYD/pduQLuVazjw3FlI9+qlN+GIbdGFLdHirJbR0R1utYUDHM
+CayMJHMbTuvYWYeRjfMTW4ZR4ZXNrNldILAEQ6yPqBWtbAtZAihY9lUpm7xRev6WL36sNMC5pd3v
+phDMkOqY1BGyrBeBVoT+zZem8cai9oRTE7WT4nrgK4+ZjlzUOiHZqQMVaovQMimY0c9rOSsemBbs
+hEQA4JR3PnT5jdOwFtfcGiOPKH9YQFtFT1A=
+</ds:X509Certificate>
+</ds:X509Data>
+</ds:KeyInfo>
+<ds:Object>
+<xades:QualifyingProperties xmlns:xades="http://uri.etsi.org/01903/v1.3.2#" Target="#Signer-T-1417090266344">
+<xades:SignedProperties Id="SignedProperties-Signer-T-1417090266344">
+<xades:SignedSignatureProperties>
+<xades:SigningTime>2014-11-27T13:11:06+01:00</xades:SigningTime>
+</xades:SignedSignatureProperties>
+</xades:SignedProperties>
+</xades:QualifyingProperties>
+</ds:Object>
+</ds:Signature></Envelope>

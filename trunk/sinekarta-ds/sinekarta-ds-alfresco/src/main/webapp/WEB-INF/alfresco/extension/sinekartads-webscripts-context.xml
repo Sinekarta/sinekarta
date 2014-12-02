@@ -1,0 +1,68 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
+<!-- 
+/*
+ * Copyright (C) 2010 - 2012 Jenia Software.
+ *
+ * This file is part of Sinekarta
+ *
+ * Sinekarta is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Sinekarta is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ */
+ -->
+<beans>
+
+    <bean id="webscript.org.sinekartads.skdsHelloWorld.post" parent="webscript"
+	      class="org.sinekartads.alfresco.webscripts.SkdsHelloWorldWS">
+	</bean>
+
+	<bean id="webscript.org.sinekartads.skdsDocumentDetails.post" parent="webscript"
+	      class="org.sinekartads.alfresco.webscripts.document.SkdsDocumentDetailsWS">
+    	<property name="serviceRegistry">
+            <ref bean="ServiceRegistry" />
+        </property>
+	</bean>
+	
+	<bean id="webscript.org.sinekartads.skdsKeyStoreOpen.post" parent="webscript"
+	      class="org.sinekartads.alfresco.webscripts.keyring.SkdsKeyStoreOpenWS">
+    	<property name="serviceRegistry">
+            <ref bean="ServiceRegistry" />
+        </property>
+	</bean>
+	<bean id="webscript.org.sinekartads.skdsKeyStoreRead.post" parent="webscript"
+	      class="org.sinekartads.alfresco.webscripts.keyring.SkdsKeyStoreReadWS">
+    	<property name="serviceRegistry">
+            <ref bean="ServiceRegistry" />
+        </property>
+	</bean>
+	
+	<bean id="webscript.org.sinekartads.skdsPreSign.post" parent="webscript"
+	      class="org.sinekartads.alfresco.webscripts.core.SkdsPreSignWS">
+    	<property name="serviceRegistry">
+            <ref bean="ServiceRegistry" />
+        </property>
+	</bean>
+	
+	<bean id="webscript.org.sinekartads.skdsPostSign.post" parent="webscript"
+	      class="org.sinekartads.alfresco.webscripts.core.SkdsPostSignWS">
+    	<property name="serviceRegistry">
+            <ref bean="ServiceRegistry" />
+        </property>
+	</bean>
+	
+	<bean id="webscript.org.sinekartads.skdsVerify.post" parent="webscript"
+		  class="org.sinekartads.alfresco.webscripts.core.SkdsVerifyWS">
+    	<property name="serviceRegistry">
+            <ref bean="ServiceRegistry" />
+        </property>
+	</bean>	
+	
+</beans>

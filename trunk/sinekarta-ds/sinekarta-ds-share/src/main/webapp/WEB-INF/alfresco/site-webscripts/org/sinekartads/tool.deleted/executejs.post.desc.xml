@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<webscript>
+  <shortname>ania generic internal tool</shortname>
+  <description>
+	this script is for internal use only.
+  </description>
+  <url>/sinekarta/tools/executejs</url>
+  <format default="text">any</format>
+  <negotiate accept="text/plain">text</negotiate>
+  <authentication runas="admin">none</authentication>
+  <transaction>skds-required</transaction>
+</webscript>

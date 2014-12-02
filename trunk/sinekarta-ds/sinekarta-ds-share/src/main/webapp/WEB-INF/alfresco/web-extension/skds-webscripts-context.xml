@@ -1,0 +1,62 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- 
+/*
+ * Copyright (C) 2010 - 2012 Jenia Software.
+ *
+ * This file is part of Sinekarta
+ *
+ * Sinekarta is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Sinekarta is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ */
+ -->
+<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
+<beans>
+	<bean id="sinekartaConfiguration" 
+	      class="org.sinekartads.share.ShareConfiguration">
+    	<property name="resources" value="alfresco/web-extension/sinekarta-ds-share/skds-share.properties" />
+    </bean>
+    
+   	<bean id="clientFactory" 
+	      class="org.sinekartads.share.client.ShareClientFactory">
+    	<property name="connectorService" 	ref="connector.service" />
+    </bean>
+    
+ 	<bean id="webscript.org.sinekartads.skdsHelloWorld.get" parent="webscript"
+	      class="org.sinekartads.share.webscripts.SkdsHelloWorldWS">
+		<property name="connectorService" 	ref="connector.service" />
+  	</bean> 
+
+   	<bean id="webscript.org.sinekartads.skdsSignOptions.get" parent="webscript"
+	      class="org.sinekartads.share.webscripts.sign.SkdsSignOptionsWS">
+		<property name="connectorService" 	ref="connector.service" />
+  	</bean>  
+   	<bean id="webscript.org.sinekartads.skdsSignOptions.post" parent="webscript"
+	      class="org.sinekartads.share.webscripts.sign.SkdsSignOptionsWS">
+		<property name="connectorService" 	ref="connector.service" />
+  	</bean>    	
+   	<bean id="webscript.org.sinekartads.skdsSignClient.post" parent="webscript"
+	      class="org.sinekartads.share.webscripts.sign.SkdsSignClientWS">
+		<property name="connectorService" 	ref="connector.service" />
+  	</bean>    	
+	<bean id="webscript.org.sinekartads.skdsSignResult.post" parent="webscript"
+	      class="org.sinekartads.share.webscripts.sign.SkdsSignResultWS">
+		<property name="connectorService" 	ref="connector.service" />
+  	</bean>
+  	
+  	<bean id="webscript.org.sinekartads.skdsVerifyInit.post" parent="webscript"
+	      class="org.sinekartads.share.webscripts.verify.SkdsVerifyInitWS">
+		<property name="connectorService" 	ref="connector.service" />
+  	</bean> 
+  	<bean id="webscript.org.sinekartads.skdsVerifyResult.post" parent="webscript"
+	      class="org.sinekartads.share.webscripts.verify.SkdsVerifyResultWS">
+		<property name="connectorService" 	ref="connector.service" />
+  	</bean>   	
+</beans>
