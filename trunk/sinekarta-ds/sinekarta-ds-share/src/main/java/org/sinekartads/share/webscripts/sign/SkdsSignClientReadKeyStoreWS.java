@@ -41,7 +41,7 @@ public class SkdsSignClientReadKeyStoreWS extends SignController {
 		String ksUserAlias = dto.getKsUserAlias();
 		String ksUserPassword = dto.getKsUserPassword();
 		KeyStoreClientCtrl keyStoreClient = clientFactory.getKeyStoreCtrl ( sessionId );
-		signature.setHexRawX509Certificates( 
+		signature.setHexCertificateChain( 
 				keyStoreClient.selectIdentity(ksUserAlias, ksUserPassword) );
 	}
 	

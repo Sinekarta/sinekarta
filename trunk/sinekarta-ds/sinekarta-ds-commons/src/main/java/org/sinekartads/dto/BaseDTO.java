@@ -73,6 +73,11 @@ public abstract class BaseDTO implements Serializable {
 		return false;
 	}
 	
+	/**
+	 * @deprecated ignore this field - fake field for serialization only proposes
+	 */
+	protected transient boolean empty;
+	
 	
 	
 	public BaseDTO() {
@@ -98,7 +103,17 @@ public abstract class BaseDTO implements Serializable {
 	}
 	
 	public String toString() {
-		return toJSON();
+		return TemplateUtils.Encoding.serializeJSON ( this );
+	}
+	
+	public boolean equals ( Object obj ) {
+		boolean equals = false;
+		if ( obj != null && obj instanceof BaseDTO ) {
+			equals = StringUtils.equals ( 
+					TemplateUtils.Encoding.serializeJSON ( this ), 
+					TemplateUtils.Encoding.serializeJSON ( (BaseDTO)obj ) );
+		}
+		return equals; 
 	}
 	
 
@@ -115,11 +130,11 @@ public abstract class BaseDTO implements Serializable {
 	}
 	
 	public static<DTO extends BaseDTO> DTO fromHex(String hex, Class<DTO> clazz) {
-		return TemplateUtils.Serialization.deserializeFromHex(clazz, hex);
+		return TemplateUtils.Encoding.deserializeHex(clazz, hex);
 	}
 	
 	public String toHex() {
-		return TemplateUtils.Serialization.serializeToHex(this);
+		return TemplateUtils.Encoding.serializeHex(this);
 	}
 	
 	public static <DTO extends BaseDTO> String serializeHex ( DTO dto ) {

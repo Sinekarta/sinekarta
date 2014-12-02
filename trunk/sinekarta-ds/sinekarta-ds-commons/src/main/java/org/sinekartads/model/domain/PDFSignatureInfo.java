@@ -138,7 +138,7 @@ public class PDFSignatureInfo
 								VerifyResult,
 								PDFSignatureInfo >			finalizedInstance;
 		
-		finalizedInstance = TemplateUtils.Serialization.clone ( this );
+		finalizedInstance = TemplateUtils.Instantiation.clone ( this );
 		finalizedInstance.finalized = true;
 		return finalizedInstance;
 	}

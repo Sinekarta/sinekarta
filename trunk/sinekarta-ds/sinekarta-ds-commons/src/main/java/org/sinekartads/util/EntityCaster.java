@@ -1,9 +1,6 @@
 package org.sinekartads.util;
 
-import java.io.Serializable;
-
-
-public class EntityCaster<Source extends Serializable, Target extends Serializable> extends EntityTransformer<Source, Target> {
+public class EntityCaster<Source, Target> extends EntityTransformer<Source, Target> {
 
 	public EntityCaster ( Class<Target> targetClass ) {
 		

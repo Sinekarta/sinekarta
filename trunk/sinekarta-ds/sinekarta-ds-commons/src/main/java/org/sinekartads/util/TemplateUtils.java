@@ -12,6 +12,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import net.sf.json.JsonConfig;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -27,25 +31,17 @@ public abstract class TemplateUtils {
 	// -
 
 	public static final class Cast {
-
-		public static < Source extends Serializable, Target extends Serializable> Target cast (
-				Class<Target> targetClass, 
-				Source item ) {
-			
-			return targetClass.cast(item);
-		}
 		
-		public static <Source extends Serializable, Target extends Serializable> Target[] cast (
-				Class<Target> targetClass,  
-				Source ... items ) {
+		public static < Source, Target > Target[] cast ( Class<Target> targetClass,
+														 Source ... items 			) {
 			
 			EntityCaster<Source, Target> caster = new EntityCaster<Source, Target> ( targetClass ); 
 			return caster.transform ( items );
 		}
 		
-		public static < Source extends Serializable, Target extends Serializable, 
-						 SourceCol extends Collection<Source>, 
-						 TargetCol extends Collection<Target>> TargetCol cast (
+		public static < Source, Target, 
+						SourceCol extends Collection<Source>, 
+						TargetCol extends Collection<Target>> TargetCol cast (
 				Class<Target> targetClass,   
 				SourceCol sourceCol ) {
 			
@@ -53,25 +49,23 @@ public abstract class TemplateUtils {
 			return caster.transform(sourceCol);
 		}
 		
-		public static < Source extends Serializable, Target extends Serializable, 
-						 SourceSet extends Set<Source>, 
-						 TargetSet extends Set<Target>> TargetSet castSet (
-			Class<Target> targetClass,   
-			SourceSet sourceCol ) {
-			
-			EntityCaster<Source, Target> caster = new EntityCaster<Source, Target> ( targetClass );
-			return caster.transform(sourceCol);
-		}
-		
-		public static < Source extends Serializable, Target extends Serializable, 
-						 SourceList extends List<Source>, 
-						 TargetList extends List<Target>> TargetList castList (
-			Class<Target> targetClass,   
-			SourceList sourceCol ) {
-			
-			EntityCaster<Source, Target> caster = new EntityCaster<Source, Target> ( targetClass );
-			return caster.transform(sourceCol);
-		}
+//		public static < Source, Target, 
+//						SourceSet extends Set<Source>, 
+//						TargetSet extends Set<Target>> TargetSet cast ( Class<Target> targetClass,   
+//																		SourceSet sourceCol 	   ) {
+//			
+//			EntityCaster<Source, Target> caster = new EntityCaster<Source, Target> ( targetClass );
+//			return caster.transform(sourceCol);
+//		}
+//		
+//		public static < Source, Target, 
+//						SourceList extends List<Source>, 
+//						TargetList extends List<Target>> TargetList cast ( Class<Target> targetClass,   
+//								 										   SourceList sourceCol 		) {
+//			
+//			EntityCaster<Source, Target> caster = new EntityCaster<Source, Target> ( targetClass );
+//			return caster.transform(sourceCol);
+//		}
 		
 	}
 	
@@ -187,11 +181,11 @@ public abstract class TemplateUtils {
 		public static <T> T clone ( T item ) {
 			T clone = null;
 			try {
-				clone = (T) cloneBySerialization ( Serialization.toSerializable(item) );
+				clone = (T) cloneBySerialization ( Encoding.toSerializable(item) );
 			} catch(RuntimeException e) {
 				throw e;
 			} catch(Exception e) {
-				// TODO attempt with other clonation methods if the first fails 
+				// TODO attempt with other clonation methods if the first one fails 
 				throw new UnsupportedOperationException(String.format("Unable to clone the item - %s", item), e);
 			}
 			return clone;
@@ -199,8 +193,8 @@ public abstract class TemplateUtils {
 		
 		public static < T extends Serializable > T cloneBySerialization ( T item ) {
 			if ( item == null )													return null;
-			byte[] bytes = Serialization.serialize ( Serialization.toSerializable(item) );
-			return (T) Serialization.deserialize ( item.getClass(), bytes );
+			byte[] bytes = Encoding.serialize ( Encoding.toSerializable(item) );
+			return (T) Encoding.deserialize ( item.getClass(), bytes );
 	    }
 		
 		public static <T> T[] nullFilledArray ( T templateObject, int length ) {
@@ -235,7 +229,7 @@ public abstract class TemplateUtils {
 			TCol tCol = null;
 			if ( sCol != null ) {
 				try {
-					SCol emptyCol = (SCol) clone ( Serialization.toSerializable(sCol) );
+					SCol emptyCol = (SCol) clone ( Encoding.toSerializable(sCol) );
 					emptyCol.clear();
 					tCol = (TCol)emptyCol;
 				} catch(Exception e) {
@@ -253,7 +247,7 @@ public abstract class TemplateUtils {
 	}
 	
 	
-	public static final class Serialization {
+	public static final class Encoding {
 		
 		public static Serializable toSerializable ( Object item) {
 			if( !(item instanceof Serializable) ) {
@@ -270,24 +264,102 @@ public abstract class TemplateUtils {
 			return (T)SerializationUtils.deserialize(bytes);
 		}
 		
-		public static String serializeToHex ( Serializable item ) {
+		public static String serializeHex ( Serializable item ) {
 			byte[] bytes = SerializationUtils.serialize ( item );
 			return HexUtils.encodeHex ( bytes );
 		}
 		
-		public static <T> T deserializeFromHex ( Class<T> tClass, String hex ) {
+		public static <T> T deserializeHex ( Class<T> tClass, String hex ) {
 			byte[] bytes = HexUtils.decodeHex(hex);
 			return deserialize(tClass, bytes);
 		}
 		
-		public static String serializeToBase64 ( Serializable item ) {
+		public static String serializeBase64 ( Serializable item ) {
 			byte[] bytes = SerializationUtils.serialize ( item );
 			return Base64.encodeBase64String ( bytes );
 		}
 		
-		public static <T> T deserializeFromBase64 ( Class<T> tClass, String base64 ) {
+		public static <T> T deserializeBase64 ( Class<T> tClass, String base64 ) {
 			byte[] bytes = Base64.decodeBase64 ( base64 );
 			return deserialize ( tClass, bytes );
+		}
+		
+		public static <T> T deserializeJSON ( Class<T> tClass, String json ) {
+			JSONObject jsonObject = JSONObject.fromObject ( json );
+			return (T)JSONObject.toBean(jsonObject, standardJsonConfig(tClass));
+		}
+
+		public static String serializeJSON ( Object item ) {
+			return serializeJSON ( item, false );
+		}
+		
+		public static <T> String serializeJSON ( T[] tArray) {
+			return serializeJSON ( tArray, false );
+		}
+		
+		public static String serializeJSON ( Object item, boolean prettify ) {
+			if ( item == null )													return "";
+			String json;
+			try {
+				JSONObject jsonobj = JSONObject.fromObject(item, standardJsonConfig(item.getClass()));
+				if ( prettify ) {
+					json = jsonobj.toString(4);
+				} else {
+					json = jsonobj.toString();
+				}
+			} catch(RuntimeException e) {
+				throw e;
+			} catch(Exception e) {
+				throw new RuntimeException(e);
+			}
+			return json;
+		}
+
+		
+		
+		public static <T> String serializeJSON ( T[] tArray, boolean prettify ) {
+			Class<T[]> tArrayClass = (Class<T[]>)tArray.getClass();
+			String json;
+			try {
+				JSONArray jsonArray = JSONArray.fromObject ( tArray, standardJsonConfig(tArrayClass) );
+				if ( prettify ) {
+					json = jsonArray.toString(4);
+				} else {
+					json = jsonArray.toString();
+				}
+			} catch(RuntimeException e) {
+				throw e;
+			} catch(Exception e) {
+				throw new RuntimeException(e);
+			}
+			return json;
+		}
+		
+		public static <T> T[] deserializeJSONArray ( Class<T[]> tArrayClass, String json ) {
+			JSONArray jsonArray = JSONArray.fromObject ( json, standardJsonConfig(tArrayClass) );
+			Class<T> tClass = (Class<T>) tArrayClass.getComponentType();
+			T[] tArray = Instantiation.nullFilledArray ( tClass, jsonArray.size() );
+			return (T[]) jsonArray.toArray ( tArray );
+		}
+		
+		public static String prettifyJSON ( String json ) {
+			String prettyJSON;
+			try {
+				JSONObject jsonobj = JSONObject.fromObject(json);
+				prettyJSON = jsonobj.toString(4);
+			} catch(RuntimeException e) {
+				throw e;
+			} catch(Exception e) {
+				throw new RuntimeException(e);
+			}
+			return prettyJSON;
+		}
+		
+		public static JsonConfig standardJsonConfig ( Class<?> tClass) {
+			JsonConfig jsonConfig = new JsonConfig();
+			jsonConfig.setRootClass(tClass);
+			jsonConfig.setIgnoreTransientFields(true);
+			return jsonConfig;
 		}
 	}
 	
@@ -313,7 +385,7 @@ public abstract class TemplateUtils {
 					    														 EntityCol entityCol 			) {
 			
 			// Obtain a clean copy of the given collection
-			EntityCol matchingCol = (EntityCol) Instantiation.clone ( Serialization.toSerializable(entityCol) );
+			EntityCol matchingCol = (EntityCol) Instantiation.clone ( Encoding.toSerializable(entityCol) );
 			matchingCol.clear();
 			
 			// Return the collection of all the items for which filter succeeds 
@@ -331,7 +403,7 @@ public abstract class TemplateUtils {
 																				   EntityMap entityMap		) {
 																			
 			// Obtain a clean copy of the given collection
-			EntityMap matchingMap = (EntityMap) Instantiation.clone ( Serialization.toSerializable(entityMap) );
+			EntityMap matchingMap = (EntityMap) Instantiation.clone ( Encoding.toSerializable(entityMap) );
 			matchingMap.clear();
 			
 			// Return a map where filter succeeds for all entry keys
@@ -349,7 +421,7 @@ public abstract class TemplateUtils {
 																					EntityMap entityMap			) {
 			
 			// Obtain a clean copy of the given collection
-			EntityMap matchingMap = (EntityMap) Instantiation.clone ( Serialization.toSerializable(entityMap) );
+			EntityMap matchingMap = (EntityMap) Instantiation.clone ( Encoding.toSerializable(entityMap) );
 			matchingMap.clear();
 			
 			// Return a map where filter succeeds for all entry keys
@@ -378,8 +450,8 @@ public abstract class TemplateUtils {
 			
 			// Obtain a clean copy of the given collection
 			EntityCol clones;
-			EntityCol sourceCol =   (EntityCol) Instantiation.clone ( Serialization.toSerializable(entityCol) );
-			EntityCol filteredCol = (EntityCol) Instantiation.clone ( Serialization.toSerializable(entityCol) );
+			EntityCol sourceCol =   (EntityCol) Instantiation.clone ( Encoding.toSerializable(entityCol) );
+			EntityCol filteredCol = (EntityCol) Instantiation.clone ( Encoding.toSerializable(entityCol) );
 			filteredCol.clear();
 			
 			// Remove the first entity and all its clones until the sourceCol is empty,

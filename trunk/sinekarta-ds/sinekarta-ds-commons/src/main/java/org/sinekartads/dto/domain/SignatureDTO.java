@@ -26,7 +26,7 @@ public class SignatureDTO extends BaseDTO {
 		timeStampRequest = new TimeStampRequestDTO();
 		certificate = new CertificateDTO();
 		digest = new DigestDTO();
-		hexRawX509Certificates = new String[0];
+		hexCertificateChain = new String[0];
 		timeStamps = new TimeStampDTO[0];
 	}
 	
@@ -45,12 +45,20 @@ public class SignatureDTO extends BaseDTO {
 	private String location;
 	
 	private TimeStampRequestDTO timeStampRequest;	
-	private String[] hexRawX509Certificates;
+	private String[] hexCertificateChain;
 	private CertificateDTO certificate;
 	private DigestDTO digest;
 	private String hexDigitalSignature;	
 	private TimeStampDTO[] timeStamps;
 	private String verifyResult;
+	/**
+	 * @deprecated ignore this field - fake field for serialization only proposes
+	 */
+	transient boolean empty;
+	/**
+	 * @deprecated ignore this field - fake field for serialization only proposes
+	 */
+	transient SignatureStatus status;
 	
 	@Override
     public boolean isEmpty ( ) {
@@ -70,9 +78,11 @@ public class SignatureDTO extends BaseDTO {
 		if ( ArrayUtils.isNotEmpty(timeStamps) )			return SignatureStatus.SignProcess.MARKED;
 		if ( StringUtils.isNotBlank(hexDigitalSignature) )	return SignatureStatus.SignProcess.SIGNED;
 		if ( !BaseDTO.isEmpty(digest) )						return SignatureStatus.SignProcess.DIGEST;
-		if ( ArrayUtils.isNotEmpty(hexRawX509Certificates))	return SignatureStatus.SignProcess.CHAIN;
+		if ( ArrayUtils.isNotEmpty(hexCertificateChain))	return SignatureStatus.SignProcess.CHAIN;
 		return SignatureStatus.Stable.RAW;
 	}
+	
+	
 	
 	
 	
@@ -161,8 +171,12 @@ public class SignatureDTO extends BaseDTO {
 		this.signCategory = signCat; 
 	}
 	
-	public X509Certificate[] rawX509CertificatesFromHex() {
-		return X509Utils.rawX509CertificatesFromHex(hexRawX509Certificates);
+	public X509Certificate[] certificateChainToHex() {
+		return X509Utils.rawX509CertificatesFromHex(hexCertificateChain);
+	}
+	
+	public void certificateChainToHex(X509Certificate[] certificateChain) {
+		hexCertificateChain = X509Utils.rawX509CertificatesToHex(certificateChain);
 	}
 	
 	public void digitalSignatureToHex(byte[] digitalSignature) {
@@ -173,10 +187,6 @@ public class SignatureDTO extends BaseDTO {
 		return HexUtils.decodeHex(hexDigitalSignature);
 	}
 	
-	public void rawX509CertificatesToHex(X509Certificate[] rawX509CertificateChain) {
-		hexRawX509Certificates = X509Utils.rawX509CertificatesToHex(rawX509CertificateChain);
-	}
-	
 	public SignatureAlgorithm signAlgorithmFromString() {
 		return SignatureAlgorithm.getInstance(signAlgorithm);
 	}
@@ -185,11 +195,11 @@ public class SignatureDTO extends BaseDTO {
 		this.signAlgorithm = signatureAlgorithm.getName();
 	}
 	
-	public DigestAlgorithm digestAlgorithmFromString() {
+	public DigestAlgorithm digestAlgorithmFromName() {
 		return DigestAlgorithm.getInstance(digestAlgorithm);
 	}
 	
-	public void digestAlgorithmToString(DigestAlgorithm digestAlgorithm) {
+	public void digestAlgorithmToName(DigestAlgorithm digestAlgorithm) {
 		this.digestAlgorithm = digestAlgorithm.getName();
 	}
 	
@@ -247,7 +257,7 @@ public class SignatureDTO extends BaseDTO {
 	
 	
 	// -----
-	// --- Formatted properties
+	// --- Simple properties
 	// -
 
 	public String getSignCategory() {
@@ -258,10 +268,10 @@ public class SignatureDTO extends BaseDTO {
 		this.signCategory = signCategory;
 	}
 	
-	public void setSignatureAlgorithm(String signatureAlgorithm) {
+	public void setSignAlgorithm(String signatureAlgorithm) {
 		this.signAlgorithm = signatureAlgorithm;
 	}
-	public String getSignatureAlgorithm() {
+	public String getSignAlgorithm() {
 		return signAlgorithm;
 	}
 	
@@ -288,12 +298,12 @@ public class SignatureDTO extends BaseDTO {
 		return hexDigitalSignature;
 	}
 	
-	public String[] getHexRawX509Certificates() {
-		return hexRawX509Certificates;
+	public String[] getHexCertificateChain() {
+		return hexCertificateChain;
 	}
 
-	public void setHexRawX509Certificates(String[] hexRawX509CertificateChain) {
-		this.hexRawX509Certificates = hexRawX509CertificateChain;
+	public void setHexCertificateChain(String[] hexRawX509CertificateChain) {
+		this.hexCertificateChain = hexRawX509CertificateChain;
 	}
 
 	public void setCertificate(CertificateDTO certificate) {

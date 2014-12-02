@@ -18,7 +18,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Test;
-import org.sinekartads.SinekartaDsTestCase;
 import org.sinekartads.core.service.CMSSignatureService;
 import org.sinekartads.core.service.TimeStampService;
 import org.sinekartads.model.domain.CMSSignatureInfo;
@@ -33,12 +32,13 @@ import org.sinekartads.model.domain.Transitions.FinalizedSignature;
 import org.sinekartads.model.domain.Transitions.SignedSignature;
 import org.sinekartads.model.domain.TsRequestInfo;
 import org.sinekartads.model.oid.DigestAlgorithm;
+import org.sinekartads.test.SkdsTestCase;
 import org.sinekartads.util.HexUtils;
 import org.sinekartads.util.TemplateUtils;
 import org.sinekartads.util.x509.X509Utils;
 import org.springframework.util.Assert;
 
-public class SignCMS extends SinekartaDsTestCase {
+public class SignCMS extends SkdsTestCase {
 
 	public static final String KEYSTORE_FILE	= "JENIA.p12";
 	public static final String KEYSTORE_PIN 	= "skdscip";

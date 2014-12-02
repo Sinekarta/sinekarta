@@ -34,9 +34,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.tika.io.IOUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.sinekartads.SinekartaDsTestCase;
 import org.sinekartads.core.provider.ExternalDigester;
 import org.sinekartads.model.domain.KeyStoreType;
+import org.sinekartads.test.SkdsTestCase;
 import org.sinekartads.util.TemplateUtils;
 
 import com.itextpdf.text.DocumentException;
@@ -51,7 +51,7 @@ import com.itextpdf.text.pdf.security.MakeSignature;
 import com.itextpdf.text.pdf.security.MakeSignature.CryptoStandard;
 import com.itextpdf.text.pdf.security.PrivateKeySignature;
 
-public class PDFSignTC00_HelloWorld extends SinekartaDsTestCase {
+public class PDFSignTC00_HelloWorld extends SkdsTestCase {
 	
 	static final Logger tracer = Logger.getLogger(PDFSignTC00_HelloWorld.class); 
 	static final String SOURCE_FILE = "pippo.pdf";

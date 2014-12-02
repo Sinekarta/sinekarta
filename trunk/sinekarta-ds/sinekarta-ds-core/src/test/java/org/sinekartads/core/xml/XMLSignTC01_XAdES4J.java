@@ -33,8 +33,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.sinekartads.SinekartaDsTestCase;
 import org.sinekartads.model.domain.KeyStoreType;
+import org.sinekartads.test.SkdsTestCase;
 
 import xades4j.production.DataObjectReference;
 import xades4j.production.SignedDataObjects;
@@ -49,7 +49,7 @@ import xades4j.providers.impl.KeyStoreKeyingDataProvider.KeyEntryPasswordProvide
 import xades4j.providers.impl.KeyStoreKeyingDataProvider.KeyStorePasswordProvider;
 import xades4j.providers.impl.KeyStoreKeyingDataProvider.SigningCertSelector;
 
-public class XMLSignTC01_XAdES4J extends SinekartaDsTestCase {
+public class XMLSignTC01_XAdES4J extends SkdsTestCase {
 	
 	static final Logger tracer = Logger.getLogger(XMLSignTC01_XAdES4J.class); 
 	static final String SOURCE_FILE = "employeesalary.xml";

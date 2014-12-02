@@ -23,7 +23,7 @@ public class TimeStampDTO extends BaseDTO {
 	private String hexTimeStampToken;
 	private DigestDTO messageImprint;
 //	private CertificateDTO certificate;
-	private String[] hextCertificateChain;
+	private String[] hexCertificateChain;
 	private String hexDigitalSignature;
 	private String verifyResult;
 	private String tsaName;
@@ -32,17 +32,23 @@ public class TimeStampDTO extends BaseDTO {
 	private String reason;
 	private String location;
 	
+	/**
+	 * @deprecated ignore this field - fake field for serialization only proposes
+	 */
+	transient boolean empty;
+	
 	@Override
     public boolean isEmpty ( ) {
     	return StringUtils.isBlank ( hexTimeStampToken );
     }
 	
+
 	
-	public String getSigAlgorithm() {
+	public String getSignAlgorithm() {
 		return signAlgorithm;
 	}
 
-	public void setSigAlgorithm(String sigAlgorithm) {
+	public void setSignAlgorithm(String sigAlgorithm) {
 		this.signAlgorithm = sigAlgorithm;
 	}
 	
@@ -55,11 +61,11 @@ public class TimeStampDTO extends BaseDTO {
 	}
 	
 	public void setHexCertificateChain(String[] hextCertificateChain) {
-		this.hextCertificateChain = hextCertificateChain;
+		this.hexCertificateChain = hextCertificateChain;
 	}
 	
 	public String[] getHexCertificateChain() {
-		return hextCertificateChain;
+		return hexCertificateChain;
 	}
 	
 //	public void setCertificate(CertificateDTO certificate) {

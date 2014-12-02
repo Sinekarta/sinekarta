@@ -72,7 +72,7 @@ public abstract class AbstractSignatureService < ST extends SignatureType<ST>,
 		if ( StringUtils.isBlank(errorMessage) ) {
 			errorMessage = e.getClass().getName();
 		}
-		resp.setError ( TemplateUtils.Serialization.serializeToHex(e) );
+		resp.setError ( TemplateUtils.Encoding.serializeHex(e) );
 		resp.setErrorType ( e.getClass().getName() );
 		resp.setErrorMessage ( errorMessage );
 		resp.resultCodeToString ( ResultCode.INTERNAL_SERVER_ERROR );

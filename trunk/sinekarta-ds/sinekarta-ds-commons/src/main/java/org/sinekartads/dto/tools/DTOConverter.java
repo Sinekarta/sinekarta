@@ -236,7 +236,7 @@ public class DTOConverter {
 
 		dto.signCategoryToString			( signature.getSignType().getCategory() );
 		dto.signAlgorithmToString			( signature.getSignAlgorithm() );
-		dto.digestAlgorithmToString			( signature.getDigestAlgorithm() );
+		dto.digestAlgorithmToName			( signature.getDigestAlgorithm() );
 		
 		dto.counterSignatureToString		( signature.isCounterSignature() );
 		dto.setReason						( signature.getReason() );
@@ -245,7 +245,7 @@ public class DTOConverter {
 		dto.finalizedToString               ( signature.isFinalized() );
 		
 		if ( signature.isFinalized() ) {
-			dto.setHexRawX509Certificates	( X509Utils.rawX509CertificatesToHex(signature.getRawX509Certificates()) );
+			dto.setHexCertificateChain	( X509Utils.rawX509CertificatesToHex(signature.getRawX509Certificates()) );
 //			dto.setCertificate				( fromCertificateInfo(signature.getCertificate()) );
 			dto.setDigest					( fromDigestInfo(signature.getDigest()) );
 			dto.digitalSignatureToHex		( signature.getDigitalSignature() );
@@ -268,7 +268,7 @@ public class DTOConverter {
 					dto.setDigest				( fromDigestInfo(signature.getDigest()) );
 				}
 				case CHAIN: {
-					dto.setHexRawX509Certificates 	( X509Utils.rawX509CertificatesToHex(signature.getRawX509Certificates()) );
+					dto.setHexCertificateChain 	( X509Utils.rawX509CertificatesToHex(signature.getRawX509Certificates()) );
 				}
 				default:
 			}
@@ -406,13 +406,13 @@ public class DTOConverter {
 		try {
 			switch ( signCategory ) {
 				case CMS: {
-					rawSignature = new CMSSignatureInfo ( dto.signAlgorithmFromString(), dto.digestAlgorithmFromString() );
+					rawSignature = new CMSSignatureInfo ( dto.signAlgorithmFromString(), dto.digestAlgorithmFromName() );
 					break;
 				}
 				case PDF: {
 					PDFSignatureInfo pdfSignature = new PDFSignatureInfo ( dto.getPdfSignName(),
 																		   dto.signAlgorithmFromString(),
-																		   dto.digestAlgorithmFromString() );
+																		   dto.digestAlgorithmFromName() );
 					pdfSignature.setCoversWholeDocument	( dto.pdfCoversWholeDocumentFromString() );
 					pdfSignature.setRevision ( dto.getPdfRevision() );
 					rawSignature = pdfSignature;
@@ -436,7 +436,7 @@ public class DTOConverter {
 		ChainSignature<?,?,VerifyResult,?> chainSignature = null;
 		if ( hasPropertyAccess(dto, SignatureStatus.SignProcess.CHAIN) ) {
 			chainSignature = emptySignature.toChainSignature (
-					X509Utils.rawX509CertificatesFromHex(dto.getHexRawX509Certificates()) );
+					X509Utils.rawX509CertificatesFromHex(dto.getHexCertificateChain()) );
 		}
 		
 		DigestSignature<?,?,VerifyResult,?> digestSignature = null;

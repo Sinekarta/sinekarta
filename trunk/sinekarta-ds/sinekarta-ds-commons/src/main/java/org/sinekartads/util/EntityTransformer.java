@@ -1,15 +1,8 @@
 package org.sinekartads.util;
 
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-
-import org.sinekartads.alfresco.webscripts.BaseAlfrescoWS;
-import org.sinekartads.dto.request.BaseRequest;
-import org.sinekartads.dto.response.BaseResponse;
-import org.springframework.core.GenericTypeResolver;
 
 
 public abstract class EntityTransformer<Source, Target> {
@@ -24,12 +17,11 @@ public abstract class EntityTransformer<Source, Target> {
 		return doTransform(item);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public Target[] transform(Source[] sArray) {
 		if ( sArray == null ) 													return null;
-		Target[] tArray = TemplateUtils.Instantiation.nullFilledArray(tClass, length);
-		
-		return tArray;
+		Collection<Source> sCol = TemplateUtils.Conversion.arrayToList ( sArray );
+		Collection<Target> tCol = new ArrayList<Target>();
+		return TemplateUtils.Conversion.collectionToArray ( transform(sCol, tCol) );
 	}
 	
 	public < SourceCol extends Collection<Source>, 

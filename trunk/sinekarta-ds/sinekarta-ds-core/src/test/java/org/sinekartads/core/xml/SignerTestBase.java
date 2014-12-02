@@ -38,9 +38,9 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.sinekartads.SinekartaDsTestCase;
 import org.sinekartads.model.domain.KeyStoreType;
 import org.sinekartads.model.oid.EncryptionAlgorithm;
+import org.sinekartads.test.SkdsTestCase;
 import org.sinekartads.util.DNParser;
 import org.sinekartads.util.TemplateUtils;
 import org.sinekartads.util.x509.X509Utils;
@@ -57,7 +57,7 @@ import xades4j.verification.UnexpectedJCAException;
  *
  * @author Luís
  */
-public class SignerTestBase extends SinekartaDsTestCase {
+public class SignerTestBase extends SkdsTestCase {
 
 	public static final String DOCUMENT_NAME = "document.xml";
 	public static final String DOCUMENT_BASE = "document";

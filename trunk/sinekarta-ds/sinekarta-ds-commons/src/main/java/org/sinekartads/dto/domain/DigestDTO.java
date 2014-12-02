@@ -13,6 +13,12 @@ public class DigestDTO extends BaseDTO {
 	
 	private String hexFingerPrint;
 	
+	/**
+	 * @deprecated ignore this field - fake field for serialization only proposes
+	 */
+	transient boolean empty;
+	
+	
 
 	
 	// -----
@@ -23,7 +29,6 @@ public class DigestDTO extends BaseDTO {
 	public boolean isEmpty ( ) {
 		return StringUtils.isBlank ( hexFingerPrint );
 	}
-	
 	
 	
 	// -----
@@ -52,19 +57,12 @@ public class DigestDTO extends BaseDTO {
 	// --- Direct access to formatted properties
 	// -
 	
-	/**
-	 * @deprecated use digAlgorithmToOid(DigestAlgorithm) instead
-	 */ 
 	public void setDigestAlgorithmName(String digestAlgorithmName) {
 		this.digestAlgorithmName = digestAlgorithmName;
 	}
 	public String getDigestAlgorithmName() {
 		return digestAlgorithmName;
 	}
-
-	/**
-	 * @deprecated use digitalDigestToHex(byte[]) instead
-	 */ 
 	public void setHexFingerPrint(String hexFingerPrint) {
 		this.hexFingerPrint = hexFingerPrint;
 	}

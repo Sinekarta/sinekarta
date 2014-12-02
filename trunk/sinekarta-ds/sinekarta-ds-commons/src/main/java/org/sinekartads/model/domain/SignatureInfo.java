@@ -291,7 +291,7 @@ public class SignatureInfo<ST extends SignatureType<ST>,
 		
 //		assertStatus ( SignatureStatus.Stable.RAW );
 		
-		SignatureInfo<ST, SD, SV, SI> emptyInstance = TemplateUtils.Serialization.clone ( this );
+		SignatureInfo<ST, SD, SV, SI> emptyInstance = TemplateUtils.Instantiation.clone ( this );
 		return emptyInstance;
 	}
 	
@@ -312,7 +312,7 @@ public class SignatureInfo<ST extends SignatureType<ST>,
 	
 	
 	public ChainSignature < ST, SD, SV, SI >	toChainSignature ( X509Certificate[] certificateChain ) {
-		SignatureInfo<ST, SD, SV, SI> chainInstance = TemplateUtils.Serialization.clone ( this );
+		SignatureInfo<ST, SD, SV, SI> chainInstance = TemplateUtils.Instantiation.clone ( this );
 //		chainInstance.certificate = new CertificateInfo(untrustedChain);
 		chainInstance.rawX509Certificates = certificateChain;
 		return chainInstance;
@@ -329,7 +329,7 @@ public class SignatureInfo<ST extends SignatureType<ST>,
 		assertStatus ( SignatureStatus.SignProcess.CHAIN );
 		Assert.notNull( digest );
 		
-		SignatureInfo<ST, SD, SV, SI> digestInstance = TemplateUtils.Serialization.clone ( this );
+		SignatureInfo<ST, SD, SV, SI> digestInstance = TemplateUtils.Instantiation.clone ( this );
 		digestInstance.digest = digest;
 		return digestInstance;
 	}
@@ -346,7 +346,7 @@ public class SignatureInfo<ST extends SignatureType<ST>,
 		assertStatus ( SignatureStatus.SignProcess.DIGEST );
 		Assert.isTrue( ArrayUtils.isNotEmpty(digitalSignature) );
 		
-		SignatureInfo<ST, SD, SV, SI> signedInstance = TemplateUtils.Serialization.clone ( this );
+		SignatureInfo<ST, SD, SV, SI> signedInstance = TemplateUtils.Instantiation.clone ( this );
 		signedInstance.digitalSignature = digitalSignature;
 		return signedInstance;
 	}
@@ -363,7 +363,7 @@ public class SignatureInfo<ST extends SignatureType<ST>,
 		assertStatus ( SignatureStatus.SignProcess.SIGNED );
 		Assert.isTrue ( type.isTimeStamped() );
 		
-		MarkedSignature<ST, SD, SV, SI> signedInstance = TemplateUtils.Serialization.clone ( this );
+		MarkedSignature<ST, SD, SV, SI> signedInstance = TemplateUtils.Instantiation.clone ( this );
 		return (MarkedSignature<ST, SD, SV, SI>)signedInstance;
 	}
 
@@ -421,7 +421,7 @@ public class SignatureInfo<ST extends SignatureType<ST>,
 			Assert.notNull( timeStamps );
 		}
 		
-		SignatureInfo<ST, SD, SV, SI> finalizedInstance = TemplateUtils.Serialization.clone ( this );
+		SignatureInfo<ST, SD, SV, SI> finalizedInstance = TemplateUtils.Instantiation.clone ( this );
 		finalizedInstance.finalized = true;
 		return finalizedInstance;
 	}
@@ -437,7 +437,7 @@ public class SignatureInfo<ST extends SignatureType<ST>,
 		
 		Assert.notNull( verifyResult );
 		
-		SignatureInfo<ST, SD, SV, SI> verifiedInstance = TemplateUtils.Serialization.clone ( this );
+		SignatureInfo<ST, SD, SV, SI> verifiedInstance = TemplateUtils.Instantiation.clone ( this );
 		verifiedInstance.verifyResult = verifyResult;
 		return verifiedInstance;
 	}
@@ -452,7 +452,7 @@ public class SignatureInfo<ST extends SignatureType<ST>,
 	@SuppressWarnings("unchecked")
 	public InvalidSignature<ST, SD, SV, SI> invalidateSignature () {
 		
-		SignatureInfo<ST, SD, SV, SI> invalidatedInstance = TemplateUtils.Serialization.clone ( this );
+		SignatureInfo<ST, SD, SV, SI> invalidatedInstance = TemplateUtils.Instantiation.clone ( this );
 		invalidatedInstance.verifyResult = (SV)VerifyResult.INVALID;
 		return invalidatedInstance;
 	}

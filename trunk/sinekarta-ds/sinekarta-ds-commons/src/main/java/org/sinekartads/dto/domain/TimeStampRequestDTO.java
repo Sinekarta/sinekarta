@@ -34,6 +34,11 @@ public class TimeStampRequestDTO extends BaseDTO {
 	
 	private String timestampDisposition;
 	
+	/**
+	 * @deprecated ignore this field - fake field for serialization only proposes
+	 */
+	transient boolean empty;
+	
 	@Override
     public boolean isEmpty ( ) {
     	return StringUtils.isBlank ( tsUrl );

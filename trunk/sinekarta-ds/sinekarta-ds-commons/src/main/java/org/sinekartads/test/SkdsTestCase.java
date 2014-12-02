@@ -1,4 +1,4 @@
-package org.sinekartads;
+package org.sinekartads.test;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,9 +19,9 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.sinekartads.util.verification.UserPermissionsLevel;
 import org.sinekartads.util.verification.UserPermissionsVerifier;
 
-public abstract class SinekartaDsTestCase extends TestCase {
+public abstract class SkdsTestCase extends TestCase {
 	
-	Logger tracer = Logger.getLogger(SinekartaDsTestCase.class);
+	Logger tracer = Logger.getLogger(SkdsTestCase.class);
 	
 	// -----
 	// --- Test configurations
@@ -94,7 +94,7 @@ public abstract class SinekartaDsTestCase extends TestCase {
 	// --- Test resource retrieval - default: src/test/resources/<PACKAGE>/.*
 	// -
 	
-	protected static File getTestResource(Class<? extends SinekartaDsTestCase> clazz, String name) {
+	protected static File getTestResource(Class<? extends SkdsTestCase> clazz, String name) {
 		String className = clazz.getName();
 		className = className.substring(0, className.lastIndexOf("."));
 		String path = "src/test/resources/"+className.replace(".", "/")+"/";		
