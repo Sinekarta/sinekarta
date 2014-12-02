@@ -56,7 +56,7 @@ import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 
 import org.bouncycastle.asn1.ASN1InputStream;
-import org.bouncycastle.asn1.DERObjectIdentifier;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.ASN1TaggedObject;
@@ -104,7 +104,7 @@ public class CertificateUtil {
 	public static String getCRLURL(X509Certificate certificate) throws CertificateParsingException {
 	    DEREncodable obj;
 		try {
-			// FIXME verificare, da jdk15 -> public static final DERObjectIdentifier cRLDistributionPoints = new DERObjectIdentifier("2.5.29.31"); 
+			// FIXME verificare, da jdk15 -> public static final ASN1ObjectIdentifier cRLDistributionPoints = new ASN1ObjectIdentifier("2.5.29.31"); 
 			obj = getExtensionValue(certificate, "2.5.29.31");			
 //			obj = getExtensionValue(certificate, Extension.cRLDistributionPoints.getId());
 		} catch (IOException e) {
@@ -172,8 +172,8 @@ public class CertificateUtil {
 	        	if ( AccessDescription.size() != 2 ) {
 	        		continue;
 	        	}
-	        	else if (AccessDescription.getObjectAt(0) instanceof DERObjectIdentifier) {
-	        		DERObjectIdentifier id = (DERObjectIdentifier)AccessDescription.getObjectAt(0);
+	        	else if (AccessDescription.getObjectAt(0) instanceof ASN1ObjectIdentifier) {
+	        		ASN1ObjectIdentifier id = (ASN1ObjectIdentifier)AccessDescription.getObjectAt(0);
 	        		if (SecurityIDs.ID_OCSP.equals(id.getId())) {
 	            		DEREncodable description = AccessDescription.getObjectAt(1);
 	                    String AccessLocation =  getStringFromGeneralName(description);

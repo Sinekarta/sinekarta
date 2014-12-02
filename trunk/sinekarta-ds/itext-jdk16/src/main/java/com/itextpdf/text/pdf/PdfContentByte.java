@@ -203,8 +203,8 @@ public class PdfContentByte {
     /** This is the writer */
     protected PdfWriter writer;
 
-    /** This is the Document */
-    protected Document pdf;
+    /** This is the PdfDocument */
+    protected PdfDocument pdf;
 
     /** This is the GraphicState in use */
     protected GraphicState state = new GraphicState();
@@ -252,7 +252,7 @@ public class PdfContentByte {
     public PdfContentByte(final PdfWriter wr) {
         if (wr != null) {
             writer = wr;
-            pdf = writer.getDocument();
+            pdf = writer.getPdfDocument();
         }
     }
     
@@ -3149,10 +3149,10 @@ public class PdfContentByte {
     }
 
     /**
-     * Gets the <CODE>Document</CODE> in use by this object.
-     * @return the <CODE>Document</CODE> in use by this object
+     * Gets the <CODE>PdfDocument</CODE> in use by this object.
+     * @return the <CODE>PdfDocument</CODE> in use by this object
      */
-    public Document getDocument() {
+    public PdfDocument getPdfDocument() {
         return pdf;
     }
 

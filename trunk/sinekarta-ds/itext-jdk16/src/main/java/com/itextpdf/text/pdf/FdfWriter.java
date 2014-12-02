@@ -380,7 +380,7 @@ public class FdfWriter {
         private FdfWriter fdf;
 
         Wrt(OutputStream os, FdfWriter fdf) throws IOException {
-            super(new Document(), os);
+            super(new PdfDocument(), os);
             this.fdf = fdf;
             this.os.write(HEADER_FDF);
             body = new PdfBody(this);

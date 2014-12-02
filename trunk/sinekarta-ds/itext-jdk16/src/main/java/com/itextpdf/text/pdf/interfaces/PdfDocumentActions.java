@@ -1,5 +1,5 @@
 /*
- * $Id: DocumentActions.java 6134 2013-12-23 13:15:14Z blowagie $
+ * $Id: PdfDocumentActions.java 6134 2013-12-23 13:15:14Z blowagie $
  *
  * This file is part of the iText (R) project.
  * Copyright (c) 1998-2014 iText Group NV
@@ -52,7 +52,7 @@ import com.itextpdf.text.pdf.PdfName;
  * A PDF document can have an open action and other additional actions.
  */
 
-public interface DocumentActions {
+public interface PdfDocumentActions {
 
     /**
      * When the document opens it will jump to the destination with

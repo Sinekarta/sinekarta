@@ -116,7 +116,7 @@ class PdfStamperImp extends PdfWriter {
      * @throws IOException
      */
     protected PdfStamperImp(PdfReader reader, OutputStream os, char pdfVersion, boolean append) throws DocumentException, IOException {
-        super(new Document(), os);
+        super(new PdfDocument(), os);
         if (!reader.isOpenedWithFullPermissions())
             throw new BadPasswordException(MessageLocalization.getComposedMessage("pdfreader.not.opened.with.owner.password"));
         if (reader.isTampered())

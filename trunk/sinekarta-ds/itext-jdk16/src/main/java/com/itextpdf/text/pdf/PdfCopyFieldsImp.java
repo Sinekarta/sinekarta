@@ -98,7 +98,7 @@ class PdfCopyFieldsImp extends PdfWriter {
     }
 
     PdfCopyFieldsImp(OutputStream os, char pdfVersion) throws DocumentException {
-        super(new Document(), os);
+        super(new PdfDocument(), os);
         pdf.addWriter(this);
         if (pdfVersion != 0)
             super.setPdfVersion(pdfVersion);
