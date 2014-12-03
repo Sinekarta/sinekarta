@@ -653,13 +653,14 @@
 					var knownDriversJSON = this.formatJSON ( knownDrivers );
 					this.info('refresh', 'knownDriversJSON: ' + knownDriversJSON);
 					var appletResponseJSON = document.sinekartaApplet.verifySmartCard ( knownDriversJSON );
-					var appletResponseJSON = document.sinekartaApplet.login ( '18071971' );
 					var appletResultJSON = this.parseAppletResponse ( appletResponseJSON );
 					var smartCardMessage;
 					if ( appletResultJSON !== undefined ) {
+						this.info('refresh', 'matchingDrivers: ' + matchingDrivers);
 						matchingDrivers = this.parseJSON(appletResultJSON);
 						smartCardMessage = "${msg('label.clientType.SMARTCARD')}";
 					} else {
+						this.info('refresh', 'unable to detect any matching drivers');
 						smartCardMessage = "${msg('label.missing.smartCard')}";
 					}
 					document.getElementById("${htmlid}-clientType-SMARTCARD-label").innerHTML = smartCardMessage;

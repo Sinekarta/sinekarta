@@ -198,8 +198,7 @@ public class JavaWebscriptTools {
 				throw new AlfrescoException(message, code, receivedData);
 			}
 			// Accept the response only if the operation succeeds
-			response = (SkdsResponse)TemplateUtils.Encoding.deserializeJSON ( 
-					responseClass, resp.getResponseStream() );
+			response = (SkdsResponse)TemplateUtils.Encoding.deserializeJSON ( responseClass, resp.getResponseStream() );
 			code = response.resultCodeFromString();
 			if ( code != null && code != ResultCode.SUCCESS ) {
 				if ( StringUtils.isBlank(message) ) {
