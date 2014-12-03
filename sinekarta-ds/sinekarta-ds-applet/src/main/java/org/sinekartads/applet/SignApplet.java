@@ -27,11 +27,11 @@ public class SignApplet extends Applet {
 	public String verifySmartCard ( String knownDriversJSON ) {
 		AppletResponseDTO resp = new AppletResponseDTO ( );
 		try {
-			String[] knownDrivers = (String[]) JSONUtils.fromJSON(knownDriversJSON, String[].class);
+			String[] knownDrivers = (String[]) JSONUtils.fromJSONArray(String[].class, knownDriversJSON);
 			matchingDrivers = SmartCardUtils.detectDrivers(knownDrivers);
 			String driver = matchingDrivers[0];
 			sca.selectDriver ( driver );
-			resp.setResult ( JSONUtils.toJSON(matchingDrivers) );
+			resp.setResult ( JSONUtils.toJSONArray(matchingDrivers) );
 			resp.setResultCode(AppletResponseDTO.SUCCESS);
 		} catch(Exception e) {
 			processError(resp, e);
@@ -63,7 +63,7 @@ public class SignApplet extends Applet {
 		try {
 			String[] aliases = sca.login ( pin );
 			sca.logout();
-			String aliasesJSON = JSONUtils.toJSON(aliases);
+			String aliasesJSON = JSONUtils.toJSONArray(aliases);
 			resp.setResult ( aliasesJSON );
 			resp.setResultCode(AppletResponseDTO.SUCCESS);
 		} catch(Exception e) {
