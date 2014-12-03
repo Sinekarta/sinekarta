@@ -22,9 +22,9 @@ import net.sf.json.JsonConfig;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.tika.io.IOUtils;
 import org.sinekartads.util.EntityTransformer.BitsBytesTransformer;
 import org.springframework.util.Assert;
 

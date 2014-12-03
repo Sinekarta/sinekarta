@@ -106,7 +106,8 @@ public abstract class BaseAlfrescoWS<Request extends BaseRequest, Response exten
 			if  ( StringUtils.equalsIgnoreCase(requestType, "xml") ) {
 				req = (Request) BaseDTO.fromXML(wsReq.getContent().getInputStream(), requestClass);
 			} else if (StringUtils.equalsIgnoreCase(requestType, "json") ) {
-				req = (Request) BaseDTO.fromJSON(wsReq.getContent().getInputStream(), requestClass);
+				req = (Request) TemplateUtils.Encoding.deserializeJSON ( 
+						requestClass, wsReq.getContent().getInputStream() );
 			}
 			
 			// Esegue la business logic per generare il response

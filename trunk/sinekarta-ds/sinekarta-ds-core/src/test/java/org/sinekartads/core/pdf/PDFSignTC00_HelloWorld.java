@@ -30,9 +30,9 @@ import java.security.cert.X509Certificate;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.apache.tika.io.IOUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.sinekartads.core.provider.ExternalDigester;
 import org.sinekartads.model.domain.KeyStoreType;

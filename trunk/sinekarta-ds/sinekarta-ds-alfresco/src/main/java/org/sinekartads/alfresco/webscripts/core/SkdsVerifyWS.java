@@ -47,7 +47,7 @@ public class SkdsVerifyWS
 			
 			// Retrieve the content and the optional verification data
 			String contentHex = loadFromNode ( document.getBaseDocument() );
-			String tsResponse = loadFromNode ( document.getTimeStamp() );
+			String tsResponse = "";// loadFromNode ( document.getTimeStamp() );
 			String envelope   = loadFromNode ( document.getMarkedSign() );
 			VerifyResponseDTO	verifyResp = null;
 			SignatureService signatureService;

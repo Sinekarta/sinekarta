@@ -35,7 +35,6 @@
 //import org.apache.commons.lang.math.RandomUtils;
 //import org.apache.commons.lang3.ArrayUtils;
 //import org.apache.log4j.Logger;
-//import org.apache.tika.io.IOUtils;
 //import org.sinekartads.SinekartaDsTestCase;
 //import org.sinekartads.core.provider.ExternalDigester;
 //import org.sinekartads.core.provider.ExternalSigner;
