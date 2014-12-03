@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<SalaryDeposit>
+    <Organisation>
+        <Name>DDLab Inc</Name>
+        <AccountNo>SBC-12345789</AccountNo>
+    </Organisation>
+    <Employees>
+        <Emp>
+            <Name>John Abraham</Name>
+            <AccountNo>SB-001</AccountNo>
+            <Amount>1234</Amount>
+        </Emp>
+        <Emp>
+            <Name>Bipasha Basu</Name>
+            <AccountNo>SB-002</AccountNo>
+            <Amount>2334</Amount>
+        </Emp>
+        <Emp>
+            <Name>Vidya Balan</Name>
+            <AccountNo>SB-003</AccountNo>
+            <Amount>3465</Amount>
+        </Emp>
+        <Emp>
+            <Name>Debadatta Mishra</Name>
+            <AccountNo>SB-007</AccountNo>
+            <Amount>5789</Amount>
+        </Emp>
+        <Emp>
+            <Name>Priti Zinta</Name>
+            <AccountNo>SB-009</AccountNo>
+            <Amount>1234</Amount>
+        </Emp>
+    </Employees>
+</SalaryDeposit>
