@@ -2,7 +2,6 @@ package org.sinekartads.utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.lang.reflect.Array;
 
 import net.sf.json.JSONArray;
@@ -40,48 +39,43 @@ public class JSONUtils {
 	}
 	
 	public static String toJSON(Object obj) {
+		if ( obj == null)										return "";
 		try {
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			JSONObject jsonobj = JSONObject.fromObject(obj);
-			String json = jsonobj.toString();
-			baos.write(json.getBytes());
-			baos.flush();
-		return new String(baos.toByteArray());
+			JSONObject jsonobj = JSONObject.fromObject(obj, standardJsonConfig(obj.getClass()));
+			return jsonobj.toString();
+		} catch(Exception e) {
+			throw new RuntimeException(e);
+		}
+		
+	}
+	
+	public static String toJSONArray(Object[] array) {
+		if ( array == null)										return "";
+		try {
+			JSONArray jsonArray = JSONArray.fromObject(array, standardJsonConfig(array.getClass()));
+			return jsonArray.toString();
 		} catch(Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 	
-	public static String strFromJSON(String json) {
-		return (String)fromJSON(json, String.class);
-	}
-	public String[] strArrayFromJSON(String json) {
-		return (String[])fromJSON(json, String[].class);
+	
+	public static Object[] fromJSONArray ( Class<? extends Object[]> arrayClass, String json ) {
+		JSONArray jsonArray = JSONArray.fromObject ( json, standardJsonConfig(arrayClass) );
+		Class<? extends Object> tClass = arrayClass.getComponentType();
+		Object[] tArray = (Object[]) Array.newInstance ( tClass, jsonArray.size() );
+		return jsonArray.toArray ( tArray );
 	}
 	
-	public static Object fromJSON(String json, Class<?> clazz) {
-		try {
-			if( Array.class.isAssignableFrom(clazz) ) {
-				ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				IOUtils.copy(new ByteArrayInputStream(json.getBytes()), baos);
-				String data = new String(baos.toByteArray());
-				JSONArray jsonObject=JSONArray.fromObject(data);
-				JsonConfig jsonConfig = new JsonConfig();
-				jsonConfig.setRootClass(clazz);
-				jsonConfig.setIgnoreTransientFields(true);
-				return JSONArray.toArray(jsonObject, jsonConfig);
-			} else {
-				ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				IOUtils.copy(new ByteArrayInputStream(json.getBytes()), baos);
-				String data = new String(baos.toByteArray());
-				JSONObject jsonObject=JSONObject.fromObject(data);
-				JsonConfig jsonConfig = new JsonConfig();
-				jsonConfig.setRootClass(clazz);
-				jsonConfig.setIgnoreTransientFields(true);
-				return JSONObject.toBean(jsonObject, jsonConfig);
-			}
-		} catch(IOException e) {
-			throw new RuntimeException(e);
-		}
+	public static <T> T fromJSON ( Class<T> tClass, String json ) {
+		JSONObject jsonObject = JSONObject.fromObject ( json );
+		return (T)JSONObject.toBean(jsonObject, standardJsonConfig(tClass));
+	}
+	
+	public static JsonConfig standardJsonConfig ( Class<?> tClass ) {
+		JsonConfig jsonConfig = new JsonConfig();
+		jsonConfig.setRootClass(tClass);
+		jsonConfig.setIgnoreTransientFields(true);
+		return jsonConfig;
 	}
 }
