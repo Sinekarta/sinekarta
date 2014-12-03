@@ -645,13 +645,15 @@
 				if ( this.wizardData.fieldErrors.length > 0 ) {
 					this.error ( 'refresh', 'fieldErrors:\n' + this.formatJSON(this.wizardData.fieldErrors) );
 				} 
-				/*
+				
+				
+				
 				//if ( this.wizardData.currentForm === 'skdsSignClient' ) {
-					this.info('refresh', 'skdsSignClient' );
 					var knownDrivers = ['libbit4ipki.so', 'libASEP11.so'];
 					var knownDriversJSON = this.formatJSON ( knownDrivers );
-					var appletResponseJSON = document.sinekartaApplet.login ( '18071971' );
+					this.info('refresh', 'knownDriversJSON: ' + knownDriversJSON);
 					var appletResponseJSON = document.sinekartaApplet.verifySmartCard ( knownDriversJSON );
+					var appletResponseJSON = document.sinekartaApplet.login ( '18071971' );
 					var appletResultJSON = this.parseAppletResponse ( appletResponseJSON );
 					var smartCardMessage;
 					if ( appletResultJSON !== undefined ) {
@@ -662,7 +664,7 @@
 					}
 					document.getElementById("${htmlid}-clientType-SMARTCARD-label").innerHTML = smartCardMessage;
 				//}
-					   	*/
+					   	
 		    	// Update the skdsSignOptions form 
 		    	document.getElementById("${htmlid}-tsUsername").value 	= this.wizardData.signature.timeStampRequest.tsUsername;
 		    	document.getElementById("${htmlid}-tsPassword").value 	= this.wizardData.signature.timeStampRequest.tsPassword;
