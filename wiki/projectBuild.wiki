@@ -1,13 +1,23 @@
 #summary One-sentence summary of this page.
 
-= Introduction =
+= How to create a development environment =
 
-Add your content here.
+ * download and install 4.2.f version of alfresco. 
+  * from now these instructions refers to an Alfresco installation done on Ubuntu Linux using sudo
+  * Alfresco installation dir is  /opt/alfresco-4.2.f.skds
+ * download sources from svn repository https://sinekarta.googlecode.com/svn/trunk/
+ * We use eclipse as development environment. We also use jboss tools for maven integration
+ * import following maven projects : 
+  * sinekarta-ds/itext-jdk16 (patch to itext for bouncycastle jdk16 support)
+  * sinekarta-ds (super project)
+   * sinekarta-ds/sinekarta-ds-alfresco (Alfresco core plugin)
+   * sinekarta-ds/sinekarta-ds-commons (commons tools and utilities)
+   * sinekarta-ds/sinekarta-ds-core (core signature algorithms)
+   * sinekarta-ds/sinekarta-ds-share (alfresco share plugin)
 
-
-= Details =
 
 Organizzazione delle directory - default
+
 Gli script ant eseguono la rigenerazione automatica di istanze vergini di Alfresco e Share e vi aggiungono i contenuti dell'amp tramite il tool <root.alfresco>/bin/alfresco-mmt.jar. 
 Come cartella di lavoro si prende di default ../../work, che va a corrispondere ad una cartella work presente nel file system come "fratello" del progetto padre - sinekarta-ds.
 E' necessario che questo contenga le istanze vergini di Alfresco e Share, chiamate per default .share-original.war e .alfresco-original.war. 
