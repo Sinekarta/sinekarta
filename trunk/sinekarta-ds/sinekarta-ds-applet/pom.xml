@@ -98,6 +98,9 @@
 						<manifest>
 							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 						</manifest>
+						<manifestEntries>
+					    	<Permissions>all-permissions</Permissions>
+					 	</manifestEntries>
 					</archive>
 				</configuration>
 				<executions>
