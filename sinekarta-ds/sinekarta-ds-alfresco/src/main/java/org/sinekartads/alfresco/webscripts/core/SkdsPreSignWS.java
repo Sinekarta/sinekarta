@@ -31,7 +31,6 @@ import org.sinekartads.dto.tools.SignatureService;
 import org.sinekartads.model.domain.SignatureType.SignCategory;
 import org.springframework.extensions.webscripts.Cache;
 import org.springframework.extensions.webscripts.Status;
-import org.springframework.util.SerializationUtils;
 
 public class SkdsPreSignWS 
 		extends SkdsBaseSignWS<SkdsPreSignRequest, SkdsSignResponse> {

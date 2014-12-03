@@ -74,7 +74,7 @@ public class SkdsPostSignWS
 					// Store the results to the relative nodeRefs, if any
 					storeIntoNode ( document.getDetachedSign(), postSignResp.getDetachedSign() );
 					storeIntoNode ( document.getEmbeddedSign(), postSignResp.getEmbeddedSign() );
-					storeIntoNode ( document.getTimeStamp(), 	postSignResp.getTsResponse() );
+//					storeIntoNode ( document.getTimeStamp(), 	postSignResp.getTsResponse() );
 					storeIntoNode ( document.getMarkedSign(), 	postSignResp.getMarkedSign() );					
 					
 					// Replace the signedSignature with the evaluated finalizedSignature
