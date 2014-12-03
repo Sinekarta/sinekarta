@@ -40,6 +40,7 @@ import org.sinekartads.model.domain.TsRequestInfo;
 import org.sinekartads.model.domain.TsRequestInfo.TsRequestStatus;
 import org.sinekartads.model.domain.VerifyInfo;
 import org.sinekartads.util.HexUtils;
+import org.sinekartads.util.TemplateUtils;
 import org.sinekartads.util.x509.X509Utils;
 
 public class DTOConverter {
@@ -69,7 +70,7 @@ public class DTOConverter {
 	
 	
 	@SuppressWarnings("unchecked")
-	public BaseDTO[] fromEntities ( Object ... entities ) {
+	public <Info extends Object, DTO extends BaseDTO> DTO[] fromEntities ( Class<DTO> dtoClass, Info ... entities ) {
 		int length;
 		if ( ArrayUtils.isNotEmpty(entities) ) {
 			length = entities.length;
@@ -77,20 +78,20 @@ public class DTOConverter {
 			length = 0;
 		}
 		
-		BaseDTO[] dtos = new BaseDTO[entities.length];
-		BaseDTO dto;
+		DTO[] dtos = TemplateUtils.Instantiation.nullFilledArray(dtoClass, length);
+		DTO dto;
 		Object entity;
 		for ( int i=0; i<length; i++ ) {
 			dto = null;
 			entity = entities[i];
 			if ( entity instanceof DigestInfo ) {
-				dto = fromDigestInfo( (DigestInfo)entity );
+				dto = (DTO)fromDigestInfo( (DigestInfo)entity );
 			} else if ( entity instanceof KeyStoreDescriptor ) {
-				dto = fromKeyStoreDescriptor( (KeyStoreDescriptor)entity );					
+				dto = (DTO)fromKeyStoreDescriptor( (KeyStoreDescriptor)entity );					
 //			} else if ( entity instanceof CertificateInfo ) {
 //				dtos[i] = fromCertificateInfo( (CertificateInfo)entity );
 			} else if ( entity instanceof SignatureInfo ) {
-				dto = fromSignatureInfo( (SignatureInfo<?,?,VerifyResult,?>)entity );
+				dto = (DTO)fromSignatureInfo( (SignatureInfo<?,?,VerifyResult,?>)entity );
 			} else {
 				throw new UnsupportedOperationException(String.format (
 						"unable to convert an instance of %s", entity.getClass() ));
@@ -249,7 +250,7 @@ public class DTOConverter {
 //			dto.setCertificate				( fromCertificateInfo(signature.getCertificate()) );
 			dto.setDigest					( fromDigestInfo(signature.getDigest()) );
 			dto.digitalSignatureToHex		( signature.getDigitalSignature() );
-			dto.setTimeStamps				( (TimeStampDTO[])fromEntities((Object[])signature.getTimeStamps()) );
+			dto.setTimeStamps				( fromEntities(TimeStampDTO.class, signature.getTimeStamps()) );
 			if ( signature.isVerified() ) {
 				dto.verifyResultToString	( signature.getVerifyResult() );
 			} else {
@@ -259,7 +260,7 @@ public class DTOConverter {
 			dto.setTimeStampRequest			( fromTsRequestInfo(signature.getTsRequest()) );
 			switch ( (SignatureStatus.SignProcess) signature.getStatus() ) {
 				case MARKED: {
-					dto.setTimeStamps			( (TimeStampDTO[])fromEntities((Object[])signature.getTimeStamps()) );
+					dto.setTimeStamps			( fromEntities(TimeStampDTO.class, signature.getTimeStamps()) );
 				}
 				case SIGNED: {
 					dto.digitalSignatureToHex	( signature.getDigitalSignature() );

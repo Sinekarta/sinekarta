@@ -31,13 +31,13 @@ import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.sinekartads.dto.BaseDTO;
 import org.sinekartads.dto.DTOFormatter;
 import org.sinekartads.dto.ResultCode;
 import org.sinekartads.dto.share.WizardDTO;
 import org.sinekartads.dto.tools.DTOConverter;
 import org.sinekartads.share.ShareConfiguration;
 import org.sinekartads.share.util.AlfrescoException;
+import org.sinekartads.util.TemplateUtils;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.extensions.surf.util.I18NUtil;
 import org.springframework.extensions.webscripts.Cache;
@@ -202,7 +202,7 @@ public abstract class WSController<DTO extends WizardDTO> extends BaseWS {
 				wizardData = (DTO) dtoClass.getConstructor ( new Class<?>[0]).newInstance(new Object[0] );
 				wizardData.setBackUrl( getParameter(req, IO_BACKURL) );
 			} else {
-				wizardData = (DTO) BaseDTO.deserializeJSON ( dtoClass, jscWizardData );
+				wizardData = (DTO) TemplateUtils.Encoding.deserializeJSON ( dtoClass, jscWizardData );
 			}
 	
 			// Evaluate the input status 							- PREPARE if missing

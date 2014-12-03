@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.sinekartads.dto.BaseDTO;
 import org.sinekartads.dto.domain.VerifyDTO;
+import org.sinekartads.util.TemplateUtils;
 
 @XmlRootElement(name = "SinekartaDsVerifyResponse")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -22,7 +23,7 @@ public class SkdsVerifyResponse extends BaseResponse {
 	}
 
 	public static SkdsVerifyResponse fromJSON(InputStream is) throws IOException {
-		return (SkdsVerifyResponse)BaseDTO.fromJSON(is, SkdsVerifyResponse.class);
+		return (SkdsVerifyResponse)TemplateUtils.Encoding.deserializeJSON ( SkdsVerifyResponse.class, is );
 	}
 	
 	

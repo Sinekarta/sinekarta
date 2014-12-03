@@ -1,5 +1,8 @@
 package org.sinekartads.util;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -12,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
@@ -20,6 +24,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.tika.io.IOUtils;
 import org.sinekartads.util.EntityTransformer.BitsBytesTransformer;
 import org.springframework.util.Assert;
 
@@ -284,63 +289,59 @@ public abstract class TemplateUtils {
 			return deserialize ( tClass, bytes );
 		}
 		
-		public static <T> T deserializeJSON ( Class<T> tClass, String json ) {
-			JSONObject jsonObject = JSONObject.fromObject ( json );
-			return (T)JSONObject.toBean(jsonObject, standardJsonConfig(tClass));
+		public static String serializeJSON ( Object item, OutputStream os ) throws IOException {
+			String jsonEnc = serializeJSON ( item, false );
+			IOUtils.write ( jsonEnc.getBytes(), os );
+			return jsonEnc;
 		}
-
+		
 		public static String serializeJSON ( Object item ) {
 			return serializeJSON ( item, false );
 		}
 		
-		public static <T> String serializeJSON ( T[] tArray) {
-			return serializeJSON ( tArray, false );
-		}
-		
 		public static String serializeJSON ( Object item, boolean prettify ) {
 			if ( item == null )													return "";
-			String json;
+			String jsonEnc;
 			try {
-				JSONObject jsonobj = JSONObject.fromObject(item, standardJsonConfig(item.getClass()));
-				if ( prettify ) {
-					json = jsonobj.toString(4);
+				Class<?> tClass = item.getClass();
+				JsonConfig jsonConfig = standardJsonConfig ( tClass );
+				JSON json;
+				if ( Object[].class.isAssignableFrom(tClass) ) {
+					json = JSONArray.fromObject ( item, jsonConfig );
 				} else {
-					json = jsonobj.toString();
+					json = JSONObject.fromObject ( item, jsonConfig );
+				}
+				if ( prettify ) {
+					jsonEnc = json.toString(4);
+				} else {
+					jsonEnc = json.toString();
 				}
 			} catch(RuntimeException e) {
 				throw e;
 			} catch(Exception e) {
 				throw new RuntimeException(e);
 			}
-			return json;
+			return jsonEnc;
 		}
 
+		public static <T> T deserializeJSON ( Class<T> tClass, InputStream is ) throws IOException {
+			String jsonEnc = new String ( IOUtils.toByteArray(is) );
+			return deserializeJSON(tClass, jsonEnc);
+		}
 		
-		
-		public static <T> String serializeJSON ( T[] tArray, boolean prettify ) {
-			Class<T[]> tArrayClass = (Class<T[]>)tArray.getClass();
-			String json;
-			try {
-				JSONArray jsonArray = JSONArray.fromObject ( tArray, standardJsonConfig(tArrayClass) );
-				if ( prettify ) {
-					json = jsonArray.toString(4);
-				} else {
-					json = jsonArray.toString();
-				}
-			} catch(RuntimeException e) {
-				throw e;
-			} catch(Exception e) {
-				throw new RuntimeException(e);
+		public static <T> T deserializeJSON ( Class<T> tClass, String jsonEnc ) {
+			JsonConfig jsonConfig = standardJsonConfig ( tClass );
+			T item;
+			if ( Object[].class.isAssignableFrom(tClass) ) {
+				JSONArray jsonArray = JSONArray.fromObject ( jsonEnc, jsonConfig );
+				item = (T)JSONArray.toArray(jsonArray);
+			} else {
+				JSONObject jsonObject = JSONObject.fromObject ( jsonEnc, jsonConfig );
+				item = (T)JSONObject.toBean(jsonObject);
 			}
-			return json;
+			return item;
 		}
-		
-		public static <T> T[] deserializeJSONArray ( Class<T[]> tArrayClass, String json ) {
-			JSONArray jsonArray = JSONArray.fromObject ( json, standardJsonConfig(tArrayClass) );
-			Class<T> tClass = (Class<T>) tArrayClass.getComponentType();
-			T[] tArray = Instantiation.nullFilledArray ( tClass, jsonArray.size() );
-			return (T[]) jsonArray.toArray ( tArray );
-		}
+
 		
 		public static String prettifyJSON ( String json ) {
 			String prettyJSON;

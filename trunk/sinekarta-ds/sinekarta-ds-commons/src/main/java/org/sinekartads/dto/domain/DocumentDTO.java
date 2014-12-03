@@ -26,7 +26,7 @@ public class DocumentDTO extends BaseDTO {
 	private NodeDTO baseDocument;
 	private NodeDTO detachedSign;
 	private NodeDTO embeddedSign;
-	private NodeDTO timeStamp;
+	private NodeDTO[] timeStamps;
 	private NodeDTO markedSign;
 	private String signCategory;
 	private SignatureDTO[] signatures;
@@ -38,8 +38,10 @@ public class DocumentDTO extends BaseDTO {
 		if ( BaseDTO.isNotEmpty(baseDocument) )				return false;
 		if ( BaseDTO.isNotEmpty(detachedSign) )				return false;
 		if ( BaseDTO.isNotEmpty(embeddedSign) )				return false;
-		if ( BaseDTO.isNotEmpty(timeStamp) )				return false;
 		if ( BaseDTO.isNotEmpty(markedSign) )				return false;
+		for ( NodeDTO timeStamp : timeStamps ) {
+			if ( BaseDTO.isNotEmpty(timeStamp) )			return false;
+		}
 		for ( SignatureDTO signature : signatures ) {
 			if ( BaseDTO.isNotEmpty(signature) )			return false;
 		}
@@ -75,20 +77,20 @@ public class DocumentDTO extends BaseDTO {
 		this.embeddedSign = embeddedSign;
 	}
 	
-	public NodeDTO getTimeStamp() {
-		return timeStamp;
+	public NodeDTO[] getTimeStamp() {
+		return timeStamps;
 	}
 
-	public void setTimeStamp(NodeDTO timestamp) {
-		this.timeStamp = timestamp;
+	public void setTimeStamp(NodeDTO[] timeStamps) {
+		this.timeStamps = timeStamps;
 	}
 
 	public NodeDTO getMarkedSign() {
 		return markedSign;
 	}
 
-	public void setMarkedSign(NodeDTO markedSignature) {
-		this.markedSign = markedSignature;
+	public void setMarkedSign(NodeDTO markedSign) {
+		this.markedSign = markedSign;
 	}
 
 	public String getSignCategory() {

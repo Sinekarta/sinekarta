@@ -22,6 +22,7 @@ import java.io.InputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.sinekartads.dto.BaseDTO;
 import org.sinekartads.dto.ResultCode;
+import org.sinekartads.util.TemplateUtils;
 
 public class BaseResponse extends BaseDTO {
 	
@@ -29,7 +30,7 @@ public class BaseResponse extends BaseDTO {
 
 	public static BaseResponse fromJSON(InputStream is) throws IOException {
 		
-		return (BaseResponse)BaseDTO.fromJSON(is, BaseResponse.class);
+		return (BaseResponse)TemplateUtils.Encoding.deserializeJSON(BaseResponse.class, is);
 	}
 	
 	private String resultCode;

@@ -7,12 +7,19 @@ import org.sinekartads.util.EntityTransformer;
 
 public abstract class DTOSerializer<D extends BaseDTO> extends EntityTransformer<D, String> {
 	
-	
 	public static class HexSerializer<DTO extends BaseDTO> extends DTOSerializer<DTO> {
 
 		@Override
 		protected String doTransform(DTO dto) {
 			return dto.toHex();
+		}
+	}
+	
+	public static class Base64Serializer<DTO extends BaseDTO> extends DTOSerializer<DTO> {
+
+		@Override
+		protected String doTransform(DTO dto) {
+			return dto.toBase64();
 		}
 	}
 	

@@ -7,6 +7,7 @@ import org.sinekartads.dto.BaseDTO;
 import org.sinekartads.model.domain.SignDisposition;
 import org.sinekartads.model.oid.DigestAlgorithm;
 import org.sinekartads.util.HexUtils;
+import org.sinekartads.util.TemplateUtils;
 
 public class TimeStampRequestDTO extends BaseDTO {
 
@@ -17,7 +18,7 @@ public class TimeStampRequestDTO extends BaseDTO {
 	}
 	
 	public static TimeStampRequestDTO fromJSON ( String json ) {
-		return BaseDTO.fromJSON ( json, TimeStampRequestDTO.class );
+		return TemplateUtils.Encoding.deserializeJSON ( TimeStampRequestDTO.class, json );
 	}
 	
 	private String messageImprintAlgorithm;

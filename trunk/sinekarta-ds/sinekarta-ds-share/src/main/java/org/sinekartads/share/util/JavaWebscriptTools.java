@@ -28,10 +28,10 @@ import org.alfresco.web.site.SlingshotUserFactory;
 import org.apache.axiom.attachments.utils.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.sinekartads.dto.BaseDTO;
 import org.sinekartads.dto.ResultCode;
 import org.sinekartads.dto.request.BaseRequest;
 import org.sinekartads.dto.response.BaseResponse;
+import org.sinekartads.util.TemplateUtils;
 import org.springframework.extensions.surf.RequestContext;
 import org.springframework.extensions.surf.support.ThreadLocalRequestContext;
 import org.springframework.extensions.surf.util.URLEncoder;
@@ -198,7 +198,8 @@ public class JavaWebscriptTools {
 				throw new AlfrescoException(message, code, receivedData);
 			}
 			// Accept the response only if the operation succeeds
-			response = (SkdsResponse)BaseDTO.fromJSON ( resp.getResponseStream(), responseClass );
+			response = (SkdsResponse)TemplateUtils.Encoding.deserializeJSON ( 
+					responseClass, resp.getResponseStream() );
 			code = response.resultCodeFromString();
 			if ( code != null && code != ResultCode.SUCCESS ) {
 				if ( StringUtils.isBlank(message) ) {

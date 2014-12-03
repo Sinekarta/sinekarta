@@ -98,18 +98,18 @@ public abstract class AbstractSignatureService < ST extends SignatureType<ST>,
 			DigestSignature	< ST, SD, VerifyResult, SI > digestSignature;
 			InputStream contentIs = HexUtils.decodeHexToInputStream ( contentHex );
 			
-			SignatureDTO dto = (SignatureDTO) SignatureDTO.fromHex ( chainSignatureBase64, dtoClass );
+			SignatureDTO dto = (SignatureDTO) SignatureDTO.fromBase64 ( chainSignatureBase64, dtoClass );
 			chainSignature 	= (SignatureInfo<ST, SD, VerifyResult, SI>) converter.toSignatureInfo ( dto );
 			digestSignature = doPreSign ( chainSignature, contentIs );
 			SignatureDTO result = (SignatureDTO) converter.fromSignatureInfo ( 
 					(SignatureInfo < ST, SD, VerifyResult, SI >) digestSignature );
-			resp.setResult(result.toHex());
+			resp.setResult(result.toBase64());
 			resp.resultCodeToString(ResultCode.SUCCESS);
 		} catch ( Exception e ) {
 			processError ( resp, e );
 		}
 		
-		return resp.toHex();
+		return resp.toBase64();
 	}
 	
 	public abstract DigestSignature<ST, SD, VerifyResult, SI> doPreSign (
@@ -137,7 +137,7 @@ public abstract class AbstractSignatureService < ST extends SignatureType<ST>,
 		
 		PostSignResponseDTO resp = new PostSignResponseDTO(); 
 		try {
-			SignatureDTO dto = (SignatureDTO) SignatureDTO.fromHex ( signedSignatureBase64, dtoClass );
+			SignatureDTO dto = (SignatureDTO) SignatureDTO.fromBase64 ( signedSignatureBase64, dtoClass );
 			SignedSignature	   < ST, SD, VerifyResult, SI > signedSignature;
 			FinalizedSignature < ST, SD, VerifyResult, SI > finalizedSignature;
 			InputStream contentIs = HexUtils.decodeHexToInputStream ( contentHex );
@@ -152,7 +152,7 @@ public abstract class AbstractSignatureService < ST extends SignatureType<ST>,
 			
 			dto = (SignatureDTO) converter.fromSignatureInfo ( 
 						(SignatureInfo < ST, SD, VerifyResult, SI >) finalizedSignature );
-			resp.setResult(dto.toHex());
+			resp.setResult(dto.toBase64());
 			resp.setDetachedSign(detachedSignOs.getHex());
 			resp.setEmbeddedSign(embeddedSignOs.getHex());
 			resp.setTsResponse(tsResponseOs.getHex());
@@ -162,7 +162,7 @@ public abstract class AbstractSignatureService < ST extends SignatureType<ST>,
 			processError ( resp, e );
 		}
 		
-		return resp.toHex();
+		return resp.toBase64();
 	}
 	
 	public abstract FinalizedSignature<ST, SD, VerifyResult, SI> doPostSign ( 
@@ -194,7 +194,7 @@ public abstract class AbstractSignatureService < ST extends SignatureType<ST>,
 		HexOutputStream markedSignOs = new HexOutputStream();
 
 		try {
-			TimeStampRequestDTO requestDTO = BaseDTO.fromHex(tsRequestBase64, TimeStampRequestDTO.class);
+			TimeStampRequestDTO requestDTO = BaseDTO.fromBase64(tsRequestBase64, TimeStampRequestDTO.class);
 			TsRequestInfo tsRequest = converter.toTsRequestInfo(requestDTO);
 			InputStream contentIs = HexUtils.decodeHexToInputStream ( contentHex );
 			InputStream detachedSignIs = HexUtils.decodeHexToInputStream ( detachedSignHex );
@@ -208,7 +208,7 @@ public abstract class AbstractSignatureService < ST extends SignatureType<ST>,
 														 markedSignOs );
 			
 			TimeStampDTO timeStampDTO = converter.fromTimeStampInfo ( timeStamp );
-			resp.setResult(timeStampDTO.toHex());
+			resp.setResult(timeStampDTO.toBase64());
 			resp.setTsResponse(tsResponseOs.getHex());
 			resp.setMarkedSign(markedSignOs.getHex());
 			resp.resultCodeToString(ResultCode.SUCCESS);
@@ -216,7 +216,7 @@ public abstract class AbstractSignatureService < ST extends SignatureType<ST>,
 			processError ( resp, e );
 		}
 		
-		return resp.toHex();
+		return resp.toBase64();
 	}
 	
 	public abstract TimeStampInfo doApplyTimeStamp (
@@ -258,13 +258,13 @@ public abstract class AbstractSignatureService < ST extends SignatureType<ST>,
 			
 			VerifyDTO verifyDTO = converter.fromVerifyInfo ( verifyResult );
 			resp.setExtractedContent(extractedContentOs.getHex());
-			resp.setResult(verifyDTO.toHex());
+			resp.setResult(verifyDTO.toBase64());
 			resp.resultCodeToString(ResultCode.SUCCESS);
 		} catch ( Exception e ) {
 			processError ( resp, e );
 		}
 		
-		return resp.toHex();
+		return resp.toBase64();
 	}
 
 	public abstract VerifyInfo doVerify ( 
