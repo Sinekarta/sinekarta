@@ -32,11 +32,13 @@ These are projects :
  * install itext-jdk16  on local repository : 
   * right click on /itext-jdk16/pom.xml
   * Run As -> Maven install
-  * wait for [INFO] BUILD SUCCESS in eclipse console
+  * wait for "BUILD SUCCESS" in eclipse console
  * run basic test : 
   * right click /sinekarta-ds/pom.xml
-  * Run As -> Maven test
-  * wait for [INFO] BUILD SUCCESS in eclipse console
+  * Run As -> Maven build...
+  * set "package" in goals field
+  * press Run 
+  * wait for "BUILD SUCCESS" in eclipse console
 
 
 Organizzazione delle directory - default
