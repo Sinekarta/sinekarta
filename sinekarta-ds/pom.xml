@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
 	<modelVersion>4.0.0</modelVersion>
 	<name>sinekarta-ds</name>
 	<groupId>org.sinekarta</groupId>
@@ -19,9 +20,9 @@
 		<maven-surefire-report-plugin.version>2.9</maven-surefire-report-plugin.version>
 		<sinekarta-ds.version>1.0.0-SNAPSHOT</sinekarta-ds.version>
 		<spring-surf.version>1.2.0-M11</spring-surf.version>
-		<alfresco.version>4.2.e</alfresco.version>
+		<alfresco.version>4.2.f</alfresco.version>
 	</properties>
-	
+
 
 
 	<modules>
@@ -30,11 +31,11 @@
 		<module>sinekarta-ds-alfresco</module>
 		<!-- module>sinekarta-ds-applet</module -->
 		<module>sinekarta-ds-share</module>
-  </modules>
+	</modules>
 
 	<dependencyManagement>
-		<dependencies>	
-				
+		<dependencies>
+
 			<!-- dependencies provided by alfresco - do not add to amp -->
 			<dependency>
 				<groupId>org.alfresco</groupId>
@@ -76,25 +77,25 @@
 				<artifactId>spring-surf</artifactId>
 				<version>${spring-surf.version}</version>
 			</dependency>
-			
-			
+
+
 			<!-- spring -->
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-core</artifactId>
 				<version>3.2.6.RELEASE</version>
 			</dependency>
-			
+
 			<!-- cryptography and security -->
 			<dependency>
 				<groupId>javax.security</groupId>
 				<artifactId>jacc</artifactId>
 				<version>1.1</version>
-			</dependency>			
+			</dependency>
 			<dependency>
-			    <groupId>com.google.code.jscep</groupId>
-			    <artifactId>jscep</artifactId>
-			    <version>2.0.1</version>
+				<groupId>com.google.code.jscep</groupId>
+				<artifactId>jscep</artifactId>
+				<version>2.0.1</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.santuario</groupId>
@@ -105,7 +106,7 @@
 				<groupId>iaik</groupId>
 				<artifactId>iaik-pkcs11-wrapper</artifactId>
 				<version>${iaik-pkcs11-wrapper.version}</version>
-			</dependency>	
+			</dependency>
 			<dependency>
 				<groupId>iaik</groupId>
 				<artifactId>iaik_jce</artifactId>
@@ -131,7 +132,7 @@
 				<artifactId>itext-jdk16</artifactId>
 				<version>5.5.2</version>
 			</dependency>
-					
+
 			<!-- webservice -->
 			<dependency>
 				<groupId>com.sun.xml.ws</groupId>
@@ -168,7 +169,7 @@
 					</exclusion>
 				</exclusions>
 			</dependency>
-			
+
 			<!-- apache-commons -->
 			<dependency>
 				<groupId>commons-beanutils</groupId>
@@ -215,10 +216,10 @@
 				<artifactId>commons-net</artifactId>
 				<version>2.2</version>
 			</dependency>
-			<!-- FIXME warning - verify that everything will go strait:
-			 |   - alfresco is using an old commons-lang version,
-			 |   - sinekarta uses the more powerful commons-lang3 
-			 | you must grant that no collision will happen when the amp has been installed -->
+			<!-- FIXME warning - verify that everything will go strait: | - alfresco 
+				is using an old commons-lang version, | - sinekarta uses the more powerful 
+				commons-lang3 | you must grant that no collision will happen when the amp 
+				has been installed -->
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-lang3</artifactId>
@@ -229,7 +230,7 @@
 				<artifactId>commons-lang</artifactId>
 				<version>2.5</version>
 			</dependency>
-			
+
 			<!-- utilities -->
 			<dependency>
 				<groupId>org.codehaus.jackson</groupId>
@@ -251,14 +252,14 @@
 				<artifactId>xalan</artifactId>
 				<version>2.7.0</version>
 			</dependency>
-			<!-- FIXME can we use simply the alfresco json libs?? -->		
+			<!-- FIXME can we use simply the alfresco json libs?? -->
 			<dependency>
 				<groupId>net.sf.json-lib</groupId>
 				<artifactId>json-lib</artifactId>
 				<version>2.4</version>
-				<classifier>jdk15</classifier>				
+				<classifier>jdk15</classifier>
 			</dependency>
-			
+
 			<!-- logging & testing -->
 			<dependency>
 				<groupId>junit</groupId>
@@ -270,24 +271,22 @@
 				<artifactId>log4j</artifactId>
 				<version>1.2.15</version>
 				<exclusions>
-				    <exclusion>
-				        <groupId>com.sun.jmx</groupId>
-				        <artifactId>jmxri</artifactId>
-				    </exclusion>
-				    <exclusion>
-				        <groupId>com.sun.jdmk</groupId>
-				        <artifactId>jmxtools</artifactId>
-				    </exclusion>
-				    <exclusion>
-				            <groupId>javax.jms</groupId>
-				            <artifactId>jms</artifactId>
-				    </exclusion>
+					<exclusion>
+						<groupId>com.sun.jmx</groupId>
+						<artifactId>jmxri</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>com.sun.jdmk</groupId>
+						<artifactId>jmxtools</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>javax.jms</groupId>
+						<artifactId>jms</artifactId>
+					</exclusion>
 				</exclusions>
-			</dependency>			
-			
-			<!-- maven plugins
-			 | FIXME do these need to be declared??? 
-			 |-->
+			</dependency>
+
+			<!-- maven plugins | FIXME do these need to be declared??? | -->
 			<dependency>
 				<groupId>com.sun.jdk</groupId>
 				<artifactId>plugin</artifactId>
@@ -295,40 +294,32 @@
 				<type>jar</type>
 				<scope>system</scope>
 				<systemPath>${java.home}/lib/plugin.jar</systemPath>
-			</dependency>    
-   			<!--dependency>
-		         <groupId>com.sun.java</groupId>
-		         <artifactId>java-plugin</artifactId>
-		         <version>1.6.0_16</version>
-		         <systemPath>${java.home}/lib/plugin.jar</systemPath>
-            </dependency-->
-            <!-- dependency>
-	            <groupId>com.sun</groupId>
-	            <artifactId>tools</artifactId>
-	            <version>1.5.0</version>
-	            <scope>system</scope>
-         		<!- - FIXME: the systemPath below works but eclipse doesn't resolve it, 
-						the absolute path is there only to avoid the error highlighting - ->
-	            <systemPath>/opt/alfresco-4.2.e/java/lib/tools.jar</systemPath>
-	            <!- - systemPath>${java.home}/lib/tools.jar</systemPath - ->
-	        </dependency -->
-			
-			
-			
+			</dependency>
+			<!--dependency> <groupId>com.sun.java</groupId> <artifactId>java-plugin</artifactId> 
+				<version>1.6.0_16</version> <systemPath>${java.home}/lib/plugin.jar</systemPath> 
+				</dependency -->
+			<!-- dependency> <groupId>com.sun</groupId> <artifactId>tools</artifactId> 
+				<version>1.5.0</version> <scope>system</scope> <!- - FIXME: the systemPath 
+				below works but eclipse doesn't resolve it, the absolute path is there only 
+				to avoid the error highlighting - -> <systemPath>/opt/alfresco-4.2.e/java/lib/tools.jar</systemPath> 
+				<!- - systemPath>${java.home}/lib/tools.jar</systemPath - -> </dependency -->
+
+
+
 			<!-- sinekarta utilities -->
 			<dependency>
 				<groupId>org.sinekarta</groupId>
 				<artifactId>sinekarta-itextpdf-jdk16</artifactId>
 				<version>1.0.0</version>
 			</dependency>
-			
+
 			<!-- sinekarta modules -->
-		   <dependency>
+			<dependency>
 				<groupId>org.sinekarta</groupId>
 				<artifactId>sinekarta-ds-commons</artifactId>
 				<version>${sinekarta-ds.version}</version>
-			</dependency>		
-		   <dependency>
+			</dependency>
+			<dependency>
 				<groupId>org.sinekarta</groupId>
 				<artifactId>sinekarta-ds-core</artifactId>
 				<version>${sinekarta-ds.version}</version>
@@ -421,11 +412,8 @@
 					</dependencies>
 				</plugin>
 
-				<!--plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>jboss-maven-plugin</artifactId>
-					<version>1.4.1</version>
-				</plugin-->
+				<!--plugin> <groupId>org.codehaus.mojo</groupId> <artifactId>jboss-maven-plugin</artifactId> 
+					<version>1.4.1</version> </plugin -->
 				<!-- XXX: Maven 2.0.10 does not allow us to override plugin versions 
 					in child poms -->
 				<plugin>
@@ -475,11 +463,8 @@
 					<artifactId>maven-surefire-plugin</artifactId>
 					<version>2.16</version>
 				</plugin>
-				<!--plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>jboss-packaging-maven-plugin</artifactId>
-					<version>2.1.1</version>
-				</plugin-->
+				<!--plugin> <groupId>org.codehaus.mojo</groupId> <artifactId>jboss-packaging-maven-plugin</artifactId> 
+					<version>2.1.1</version> </plugin -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-jarsigner-plugin</artifactId>
@@ -531,7 +516,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore/>
+										<ignore />
 									</action>
 								</pluginExecution>
 
@@ -558,8 +543,8 @@
 				</plugin>
 				<plugin>
 					<groupId>com.github.goldin</groupId>
-				    <artifactId>copy-maven-plugin</artifactId>
-				    <version>0.2.5</version>
+					<artifactId>copy-maven-plugin</artifactId>
+					<version>0.2.5</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -599,11 +584,7 @@
 			<id>Codehaus SVN Repository</id>
 			<url>http://svn.codehaus.org/fest/m2/repo/</url>
 		</repository>
-	
-		<repository>
-			<id>artifactory</id>
-			<url>http://jeniasrv004.jenia.it:8104/artifactory/libs-release</url>
-		</repository>
+
 		<repository>
 			<id>java.net</id>
 			<url>http://download.java.net/maven/2/</url>
@@ -644,6 +625,13 @@
 			</releases>
 		</repository>
 
+		<repository>
+			<id>alfresco-public</id>
+			<url>https://artifacts.alfresco.com/nexus/content/groups/public</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</repository>
 	</repositories>
 
 </project>
