@@ -8,7 +8,8 @@ import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.sinekartads.util.TemplateUtils;
+import org.sinekartads.util.TemplateUtils.Instantiation;
 
 /*
  * Copyright (C) 2010 - 2012 Jenia Software.
@@ -39,61 +40,50 @@ public class JSONUtils {
 	}
 	
 	public static String toJSON(Object obj) {
-		if ( obj == null)										return null;
+		if ( obj == null)										return "";
 		try {
-//			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			String json;
-			if ( net.sf.json.util.JSONUtils.isArray(obj.getClass()) ) {
-				JSONArray jsonArray = JSONArray.fromObject(obj);
-				json = jsonArray.toString();
-			} else {
-				JSONObject jsonobj = JSONObject.fromObject(obj);
-				json = jsonobj.toString();
-			}
-//			baos.write(json.getBytes());
-//			
-//			baos.flush();
-//			return new String(baos.toByteArray());
-			return json;
+			JSONObject jsonobj = JSONObject.fromObject(obj, standardJsonConfig(obj.getClass()));
+			return jsonobj.toString();
+		} catch(Exception e) {
+			throw new RuntimeException(e);
+		}
+		
+	}
+	
+	public static String toJSONArray(Object[] array) {
+		if ( array == null)										return "";
+		try {
+			JSONArray jsonArray = JSONArray.fromObject(array, standardJsonConfig(array.getClass()));
+			return jsonArray.toString();
 		} catch(Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 	
-	public static String strFromJSON(String json) {
-		return (String)fromJSON(json, String.class);
-	}
-	public String[] strArrayFromJSON(String json) {
-		return (String[])fromJSON(json, String[].class);
+	
+	public static Object[] fromJSONArray ( Class<? extends Object[]> arrayClass, String json ) {
+		JSONArray jsonArray = JSONArray.fromObject ( json, standardJsonConfig(arrayClass) );
+		Class<? extends Object> tClass = arrayClass.getComponentType();
+		Object[] tArray = Instantiation.nullFilledArray ( tClass, jsonArray.size() );
+		return jsonArray.toArray ( tArray );
 	}
 	
 	public static Object fromJSON(String json, Class<?> clazz) {
-		if ( StringUtils.isEmpty(json) )							return null; 
 		try {
-			if( net.sf.json.util.JSONUtils.isArray(clazz) ) {
-				ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				IOUtils.copy(new ByteArrayInputStream(json.getBytes()), baos);
-				String data = new String(baos.toByteArray());
-				JSONArray jsonArray=JSONArray.fromObject(data);
-//				JsonConfig jsonConfig = new JsonConfig();
-//				jsonConfig.setRootClass(clazz);
-//				jsonConfig.setIgnoreTransientFields(true);
-//				for ( int i=0; i<jsonArray.size(); i++) {
-//					array = 
-//				}
-				return jsonArray.toArray(new String[jsonArray.size()]);
-			} else {
-				ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				IOUtils.copy(new ByteArrayInputStream(json.getBytes()), baos);
-				String data = new String(baos.toByteArray());
-				JSONObject jsonObject=JSONObject.fromObject(data);
-				JsonConfig jsonConfig = new JsonConfig();
-				jsonConfig.setRootClass(clazz);
-				jsonConfig.setIgnoreTransientFields(true);
-				return JSONObject.toBean(jsonObject, jsonConfig);
-			}
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			IOUtils.copy(new ByteArrayInputStream(json.getBytes()), baos);
+			String data = new String(baos.toByteArray());
+			JSONObject jsonObject=JSONObject.fromObject(data);
+			return JSONObject.toBean(jsonObject, standardJsonConfig(clazz));
 		} catch(Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+	
+	public static JsonConfig standardJsonConfig ( Class<?> tClass ) {
+		JsonConfig jsonConfig = new JsonConfig();
+		jsonConfig.setRootClass(tClass);
+		jsonConfig.setIgnoreTransientFields(true);
+		return jsonConfig;
 	}
 }

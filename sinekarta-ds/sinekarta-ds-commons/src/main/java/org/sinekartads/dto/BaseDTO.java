@@ -38,18 +38,17 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
-import net.sf.json.JSONObject;
-import net.sf.json.JsonConfig;
-
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sinekartads.dto.tools.DTODeserializer.Base64Deserializer;
 import org.sinekartads.dto.tools.DTODeserializer.HexDeserializer;
 import org.sinekartads.dto.tools.DTODeserializer.JSONDeserializer;
 import org.sinekartads.dto.tools.DTODeserializer.XMLDeserializer;
 import org.sinekartads.dto.tools.DTOPropertyType;
+import org.sinekartads.dto.tools.DTOSerializer.Base64Serializer;
 import org.sinekartads.dto.tools.DTOSerializer.HexSerializer;
 import org.sinekartads.dto.tools.DTOSerializer.JSONSerializer;
 import org.sinekartads.dto.tools.DTOSerializer.XMLSerializer;
@@ -116,7 +115,7 @@ public abstract class BaseDTO implements Serializable {
 		return equals; 
 	}
 	
-
+	
 	
 	// -----
 	// --- Hex serialization
@@ -164,48 +163,77 @@ public abstract class BaseDTO implements Serializable {
 		return TemplateUtils.Transformation.transform(new HexDeserializer<DTO>(dtoClass), hexCol);
 	}
 	
+
+	
+	// -----
+	// --- Base64 serialization
+	// -
+	
+	public static <DTO extends BaseDTO> DTO fromBase64(InputStream is, Class<DTO> clazz) throws IOException {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		IOUtils.copy(is, baos);
+		String base64 = new String(baos.toByteArray());
+		return fromBase64(base64, clazz);
+	}
+	
+	public static<DTO extends BaseDTO> DTO fromBase64(String base64, Class<DTO> clazz) {
+		return TemplateUtils.Encoding.deserializeBase64(clazz, base64);
+	}
+	
+	public String toBase64() {
+		return TemplateUtils.Encoding.serializeBase64(this);
+	}
+	
+	public static <DTO extends BaseDTO> String serializeBase64 ( DTO dto ) {
+		return new Base64Serializer<DTO>().transform ( dto );
+	}
+	
+	@SafeVarargs
+	public static <DTO extends BaseDTO> String[] serializeBase64 ( DTO ... dtos ) {
+		return TemplateUtils.Transformation.transform ( new Base64Serializer<DTO>(), dtos );
+	}
+	
+	public static <DTO extends BaseDTO> Collection<String> serializeBase64 ( Collection<DTO> dtoCol ) {
+		return TemplateUtils.Transformation.transform(new Base64Serializer<DTO>(), dtoCol);
+	}
+	
+	public static <DTO extends BaseDTO> DTO deserializeBase64 ( Class<DTO> dtoClass, String base64 ) {
+		return (DTO)TemplateUtils.Transformation.transform ( new Base64Deserializer<DTO>(dtoClass), base64 );
+	}
+	
+	public static <DTO extends BaseDTO> DTO[] deserializeBase64 ( Class<DTO> dtoClass, String ... base64Array ) {
+		return (DTO[])TemplateUtils.Transformation.transform ( new Base64Deserializer<DTO>(dtoClass), base64Array );
+	}
+	
+	public static <DTO extends BaseDTO, 
+					DTOCol extends Collection<DTO>> 
+							DTOCol deserializeBase64 ( Class<DTO> dtoClass, Collection<String> base64Col ) {
+		return TemplateUtils.Transformation.transform(new Base64Deserializer<DTO>(dtoClass), base64Col);
+	}
+	
 	
 	
 	// -----
 	// --- JSON serialization
 	// -
 	
-	public static <DTO extends BaseDTO> DTO fromJSON(String json, Class<? extends DTO> clazz) {
-		try {
-			return fromJSON ( new ByteArrayInputStream(json.getBytes()), clazz );
-		} catch(IOException e) {
-			throw new RuntimeException(e);
-		} 
+	public static <DTO extends BaseDTO> DTO fromJSON(Class<? extends DTO> dtoClass, String json) {
+		return TemplateUtils.Encoding.deserializeJSON(dtoClass, json);
 	}
 
-	@SuppressWarnings("unchecked")
-	public static <DTO extends BaseDTO> DTO fromJSON(InputStream is, Class<? extends DTO> clazz) throws IOException {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		IOUtils.copy(is, baos);
-		String data = new String(baos.toByteArray());
-		JSONObject jsonObject=JSONObject.fromObject(data);
-		JsonConfig jsonConfig = new JsonConfig();
-		jsonConfig.setRootClass(clazz);
-		jsonConfig.setIgnoreTransientFields(true);
-		return (DTO)JSONObject.toBean(jsonObject, jsonConfig);
+	public static <DTO extends BaseDTO> DTO fromJSON(InputStream is, Class<? extends DTO> dtoClass) throws IOException {
+		String json = new String ( IOUtils.toByteArray(is) );
+		return TemplateUtils.Encoding.deserializeJSON ( dtoClass, json );
 	}
 	
 	public void toJSON(OutputStream os) throws IOException {
-		JSONObject jsonobj = JSONObject.fromObject(this);
-		String json = jsonobj.toString();
-		os.write(json.getBytes());
+		String json = toJSON(); 
+		os.write ( json.getBytes() );
 		os.flush();
 	}
-	//	["workspace://SpacesStore/d094eb45-c110-44e5-be13-387e387adab6"]
-	//  \[[^\]]*
+
 	public String toJSON() {
-		try {
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			toJSON(baos);
-			return new String(baos.toByteArray());
-		} catch(IOException e) {
-			throw new RuntimeException(e);
-		}
+		return TemplateUtils.Encoding.serializeJSON ( this );
 	}
 	
 	public static <DTO extends BaseDTO> String serializeJSON ( DTO dto ) {
