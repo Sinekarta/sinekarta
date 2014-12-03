@@ -33,15 +33,15 @@ These are projects :
   * right click on /itext-jdk16/pom.xml
   * Run As -> Maven install
   * wait for "BUILD SUCCESS" in eclipse console
- * create a directory named work at the same level of your workspace directory
+ * create a directory named work in your workspace directory 
  * copy alfresco.war and share.war (you can find these on /opt/alfresco-4.2.f.skds/tomcat/webapps) into work directory created
+  * could be that you have to use sudo to make the copy
+  * could be that you have to change permissions and/or ownership
  * rename alfresco.war in .alfresco-original.war (hidden file)
  * rename share.war in .share-original.war (hidden file)
- * package the build : 
+ * resolve dependencies for ant tasks : 
   * right click /sinekarta-ds/pom.xml
-  * Run As -> Maven build...
-  * set "package" in goals field
-  * press Run 
+  * Run As -> Maven install
   * wait for "BUILD SUCCESS" in eclipse console
 
 
