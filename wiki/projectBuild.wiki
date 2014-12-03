@@ -2,11 +2,13 @@
 
 = How to create a development environment =
 
+== download and compile sources ==
+
  * download and install 4.2.f version of alfresco. 
   * from now these instructions refers to an Alfresco installation done on Ubuntu Linux using sudo
   * Alfresco installation dir is  /opt/alfresco-4.2.f.skds
  * download sources from svn repository https://sinekarta.googlecode.com/svn/trunk/
- * We use eclipse as development environment. We also use jboss tools for maven integration
+ * we use eclipse as development environment. We also use jboss tools for maven integration
  * import following maven projects : 
   * sinekarta-ds/itext-jdk16 (patch to itext for bouncycastle jdk16 support)
   * sinekarta-ds (super project)
@@ -14,6 +16,20 @@
    * sinekarta-ds/sinekarta-ds-commons (commons tools and utilities)
    * sinekarta-ds/sinekarta-ds-core (core signature algorithms)
    * sinekarta-ds/sinekarta-ds-share (alfresco share plugin)
+
+ === now you should have a running eclipse workspace (no compilation problems) ===
+
+These are projects : 
+ * sinekarta-ds (generic project)
+ * itext-jdk16 (java project)
+ * sinekarta-ds-alfresco (java project)
+ * sinekarta-ds-commons (java project)
+ * sinekarta-ds-core (java project)
+ * sinekarta-ds-share (java project)
+
+== running the build ==
+
+ * 
 
 
 Organizzazione delle directory - default
