@@ -254,6 +254,8 @@ public abstract class TemplateUtils {
 	
 	public static final class Encoding {
 		
+		// --- Simple serialization
+		
 		public static Serializable toSerializable ( Object item) {
 			if( !(item instanceof Serializable) ) {
 				throw new UnsupportedOperationException(String.format ( "not serializable object - %s", item ));
@@ -269,6 +271,9 @@ public abstract class TemplateUtils {
 			return (T)SerializationUtils.deserialize(bytes);
 		}
 		
+		
+		// --- Hex encoding
+		
 		public static String serializeHex ( Serializable item ) {
 			byte[] bytes = SerializationUtils.serialize ( item );
 			return HexUtils.encodeHex ( bytes );
@@ -279,6 +284,20 @@ public abstract class TemplateUtils {
 			return deserialize(tClass, bytes);
 		}
 		
+		public static String serializeHex ( Serializable item, OutputStream os ) throws IOException {
+			String hexEnc = serializeHex ( item );
+			IOUtils.write ( hexEnc.getBytes(), os );
+			return hexEnc;
+		}
+		
+		public static <T> T deserializeHex ( Class<T> tClass, InputStream is ) throws IOException {
+			String hexEnc = new String ( IOUtils.toByteArray(is) );
+			return deserializeJSON(tClass, hexEnc);
+		}
+		
+		
+		// --- Base64 encoding
+		
 		public static String serializeBase64 ( Serializable item ) {
 			byte[] bytes = SerializationUtils.serialize ( item );
 			return Base64.encodeBase64String ( bytes );
@@ -288,6 +307,20 @@ public abstract class TemplateUtils {
 			byte[] bytes = Base64.decodeBase64 ( base64 );
 			return deserialize ( tClass, bytes );
 		}
+		
+		public static String serializeBase64 ( Serializable item, OutputStream os ) throws IOException {
+			String base64Enc = serializeBase64 ( item );
+			IOUtils.write ( base64Enc.getBytes(), os );
+			return base64Enc;
+		}
+		
+		public static <T> T deserializeBase64 ( Class<T> tClass, InputStream is ) throws IOException {
+			String base64Enc = new String ( IOUtils.toByteArray(is) );
+			return deserializeJSON(tClass, base64Enc);
+		}
+		
+		
+		// --- JSON encoding
 		
 		public static String serializeJSON ( Object item, OutputStream os ) throws IOException {
 			String jsonEnc = serializeJSON ( item, false );
@@ -337,7 +370,7 @@ public abstract class TemplateUtils {
 				item = (T)JSONArray.toArray(jsonArray);
 			} else {
 				JSONObject jsonObject = JSONObject.fromObject ( jsonEnc, jsonConfig );
-				item = (T)JSONObject.toBean(jsonObject);
+				item = (T)JSONObject.toBean(jsonObject, jsonConfig);
 			}
 			return item;
 		}

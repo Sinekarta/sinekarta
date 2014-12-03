@@ -23,6 +23,11 @@ public abstract class BaseRequest extends BaseDTO {
 	
 	private static final long serialVersionUID = -4894748877824011215L;
 
+	/**
+	 * @deprecated ignore this field - fake field for serialization only proposes
+	 */
+	protected String JSONUrl;
+	
 	public String getJSONUrl() {
 		String className = getClass().getSimpleName(); 
 		String cleanName = className.substring(0, className.lastIndexOf("Request"));

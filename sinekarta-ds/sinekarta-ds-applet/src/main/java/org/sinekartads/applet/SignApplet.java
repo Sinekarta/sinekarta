@@ -15,6 +15,7 @@ import org.sinekartads.utils.X509Utils;
 public class SignApplet extends Applet {
 
 	private static final long serialVersionUID = -2886113966359858032L;
+	private static final Logger tracer = Logger.getLogger(SignApplet.class);
 	
 	SmartCardAccess sca;
 	String[] matchingDrivers;
@@ -25,6 +26,9 @@ public class SignApplet extends Applet {
 	}
 	
 	public String verifySmartCard ( String knownDriversJSON ) {
+		tracer.info("verifySmartCard");
+		tracer.info(String.format("knownDriversJSON: %s", knownDriversJSON));
+		
 		AppletResponseDTO resp = new AppletResponseDTO ( );
 		try {
 			String[] knownDrivers = (String[]) JSONUtils.fromJSONArray(String[].class, knownDriversJSON);
@@ -36,10 +40,15 @@ public class SignApplet extends Applet {
 		} catch(Exception e) {
 			processError(resp, e);
 		}
+		
+		tracer.info(String.format("respJSON: %s", JSONUtils.toJSON ( resp )));
 		return JSONUtils.toJSON ( resp );
 	}
 	
 	public String selectDriver ( String driver ) {
+		tracer.info("selectDriver");
+		tracer.info(String.format("driver: %s", driver));
+		
 		AppletResponseDTO resp = new AppletResponseDTO ( );
 		try {
 			boolean missing = true;
@@ -55,10 +64,15 @@ public class SignApplet extends Applet {
 		} catch(Exception e) {
 			processError ( resp, e );
 		}
+		
+		tracer.info(String.format("respJSON: %s", JSONUtils.toJSON ( resp )));
 		return JSONUtils.toJSON ( resp );
 	}
 	
 	public String login ( String pin ) {
+		tracer.info("login");
+		tracer.info(String.format("driver: %s", pin));
+		
 		AppletResponseDTO resp = new AppletResponseDTO ( );
 		try {
 			String[] aliases = sca.login ( pin );
@@ -69,10 +83,15 @@ public class SignApplet extends Applet {
 		} catch(Exception e) {
 			processError ( resp, e );
 		}
+		
+		tracer.info(String.format("respJSON: %s", JSONUtils.toJSON ( resp )));
 		return JSONUtils.toJSON ( resp );
 	}
 	
 	public String selectCertificate(String alias) {
+		tracer.info("selectCertificate");
+		tracer.info(String.format("alias: %s", alias));
+		
 		AppletResponseDTO resp = new AppletResponseDTO ( );
 		try {
 			X509Certificate signingCertificate;
@@ -84,10 +103,15 @@ public class SignApplet extends Applet {
 		} catch(Exception e) {
 			processError(resp, e);
 		}
+		
+		tracer.info(String.format("respJSON: %s", JSONUtils.toJSON ( resp )));
 		return JSONUtils.toJSON(resp);
 	}
 	
 	public String signDigest(String digestEnc) {
+		tracer.info("signDigest");
+		tracer.info(String.format("digestEnc: %s", digestEnc));
+		
 		AppletResponseDTO resp = new AppletResponseDTO ( );
 		try {
 			byte[] digest = HexUtils.decodeHex(digestEnc);
@@ -100,6 +124,8 @@ public class SignApplet extends Applet {
 		} catch(Exception e) {
 			processError(resp, e);
 		}
+		
+		tracer.info(String.format("respJSON: %s", JSONUtils.toJSON ( resp )));
 		return JSONUtils.toJSON(resp);
 	}
 	
@@ -119,6 +145,6 @@ public class SignApplet extends Applet {
 		}
 		resp.setErrorMessage ( errorMessage );
 		resp.setResultCode(AppletResponseDTO.ERROR);
-		Logger.getLogger(getClass()).error(errorMessage, e);
+		tracer.error(errorMessage, e);
 	}
 }

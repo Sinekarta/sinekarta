@@ -91,7 +91,7 @@ public abstract class BaseAlfrescoWS<Request extends BaseRequest, Response exten
 			tracer.debug("webscript " + getClass().getName() + " starting");
 		
 		Map<String, Object> model = new HashMap<String, Object>();
-		String requestType = wsReq.getParameter(REQUEST_TYPE);
+		String requestType = wsReq.getParameter ( REQUEST_TYPE );
 		
 		Response resp = null;
 		try {
