@@ -1,0 +1,26 @@
+#summary One-sentence summary of this page.
+
+= Introduction =
+
+Add your content here.
+
+
+= Details =
+
+Organizzazione delle directory - default
+Gli script ant eseguono la rigenerazione automatica di istanze vergini di Alfresco e Share e vi aggiungono i contenuti dell'amp tramite il tool <root.alfresco>/bin/alfresco-mmt.jar. 
+Come cartella di lavoro si prende di default ../../work, che va a corrispondere ad una cartella work presente nel file system come "fratello" del progetto padre - sinekarta-ds.
+E' necessario che questo contenga le istanze vergini di Alfresco e Share, chiamate per default .share-original.war e .alfresco-original.war. 
+Occorre inoltre configurare le due istanze di tomcat di modo che reperiscano le applicazioni - automaticamente aggiornate e scompattate da ant - dentro a ../../work. Questo si ottiene con la generazione di link simbolici da shell.
+
+
+Passi da eseguire per compilare ed installare il progetto
+  * maven install del progetto padre - sinekarta-ds
+  * ant: full-deploy del build.xml di sinekarta-ds-alfresco - default target
+  * riavviare il tomcat di Alfresco
+  * ant: full-deploy del build.xml di sinekarta-ds-share
+  * riavviare il tomcat di Share
+
+Passi da eseguire aggiornare tomcat alle modifiche al front-end
+  * ant: update-running-tomcat del build.xml di sinekarta-ds-share - default target
+Non è necessario riavviare il server
