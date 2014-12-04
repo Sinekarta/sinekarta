@@ -100,7 +100,6 @@
 						</manifest>
 						<manifestEntries>
 							<Trusted-Library>true</Trusted-Library>
-							<Trusted-Only>true</Trusted-Only>
 					    	<Permissions>all-permissions</Permissions>
 					 	</manifestEntries>
 					</archive>
