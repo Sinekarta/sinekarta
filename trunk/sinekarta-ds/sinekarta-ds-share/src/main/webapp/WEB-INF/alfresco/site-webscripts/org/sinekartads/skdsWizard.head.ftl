@@ -649,6 +649,7 @@
 				
 				
 				//if ( this.wizardData.currentForm === 'skdsSignClient' ) {
+					/*
 					var knownDrivers = ['libbit4ipki.so', 'libASEP11.so'];
 					var knownDriversJSON = this.formatJSON ( knownDrivers );
 					this.info('refresh', 'knownDriversJSON: ' + knownDriversJSON);
@@ -664,6 +665,19 @@
 						smartCardMessage = "${msg('label.missing.smartCard')}";
 					}
 					document.getElementById("${htmlid}-clientType-SMARTCARD-label").innerHTML = smartCardMessage;
+					*/
+					var driver = "libbit4ipki.so";
+					var appletResponseJSON = document.sinekartaApplet.selectDriver ( driver );
+					var appletResultJSON = this.parseAppletResponse ( appletResponseJSON );
+					if ( appletResultJSON !== undefined ) {
+						if ( appletResultJSON === driver ) {
+							this.info ( 'refresh', 'driver: ' + appletResultJSON );
+						} else {
+							this.error ( 'refresh', 'unexpected result: ' + appletResultJSON );
+						}
+					} else {
+						this.error ( 'refresh', 'unexpected response: ' + appletResultJSON );
+					}
 				//}
 					   	
 		    	// Update the skdsSignOptions form 

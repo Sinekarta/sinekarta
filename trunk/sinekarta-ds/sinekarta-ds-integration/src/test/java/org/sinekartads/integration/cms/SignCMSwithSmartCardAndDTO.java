@@ -82,7 +82,8 @@ public class SignCMSwithSmartCardAndDTO extends BaseIntegrationTC {
 		SignApplet applet = new SignApplet();
 		try {
 			// Main options 
-			String knownDriversJSON = "[\"libbit4ipki.so\",\"libASEP11.so\"]";
+			String driver = "libbit4ipki.so";
+//			String knownDriversJSON = "[\"libbit4ipki.so\",\"libASEP11.so\"]";
 			String contentHex = HexUtils.encodeHex (
 					FileUtils.readFileToByteArray ( 
 							getTestResource ( SOURCE_FILE ) ) );
@@ -120,13 +121,13 @@ public class SignCMSwithSmartCardAndDTO extends BaseIntegrationTC {
 			// Init the applet
 			try {
 				applet.init();
-				jsonResp = applet.verifySmartCard ( knownDriversJSON );
-				appletResponse = (AppletResponseDTO) JSONUtils.fromJSON(AppletResponseDTO.class, jsonResp);
-				String[] matchingDrivers = (String[]) 
-						JSONUtils.fromJSONArray ( String[].class, extractJSON(appletResponse) );
-				Assert.isTrue( ArrayUtils.isNotEmpty(matchingDrivers) );
+//				jsonResp = applet.verifySmartCard ( knownDriversJSON );
+//				appletResponse = (AppletResponseDTO) JSONUtils.fromJSON(AppletResponseDTO.class, jsonResp);
+//				String[] matchingDrivers = (String[]) 
+//						JSONUtils.fromJSONArray ( String[].class, extractJSON(appletResponse) );
+//				Assert.isTrue( ArrayUtils.isNotEmpty(matchingDrivers) );
 //				String driver = matchingDrivers[0];
-//				applet.selectDriver ( driver );
+				applet.selectDriver ( driver );
 			} catch(Exception e) {
 				tracer.error("error during the applet initialization", e);
 				throw e;

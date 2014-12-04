@@ -99,13 +99,15 @@
 							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 						</manifest>
 						<manifestEntries>
+							<Trusted-Library>true</Trusted-Library>
+							<Trusted-Only>true</Trusted-Only>
 					    	<Permissions>all-permissions</Permissions>
 					 	</manifestEntries>
 					</archive>
 				</configuration>
 				<executions>
 					<execution>
-						<id>make-my-applet-jar</id>
+						<id>make-applet-jar</id>
 						<phase>package</phase>
 						<goals>
 							<goal>single</goal>

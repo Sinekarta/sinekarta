@@ -31,6 +31,7 @@ import iaik.pkcs.pkcs11.objects.RSAPrivateKey;
 import iaik.pkcs.pkcs11.objects.X509PublicKeyCertificate;
 //import iaik.pkcs.pkcs11.wrapper.PKCS11Exception;
 
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.cert.CertificateException;
@@ -45,11 +46,14 @@ import javax.security.auth.x500.X500Principal;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.sinekartads.utils.DNParser;
 import org.sinekartads.utils.HexUtils;
+import org.sinekartads.utils.X509Utils;
 
 public class SmartCardAccess {
 		
+	private static final Logger tracer = Logger.getLogger(SmartCardAccess.class); 
 	
 	String pkcs11Driver;
 	
@@ -73,6 +77,7 @@ public class SmartCardAccess {
 	public void selectDriver(String pkcs11Driver) 
 			throws SmartCardReaderNotFoundException, PKCS11DriverNotFoundException, 
 					InvalidPKCS11DriverException, InvalidSmartCardException, SmartCardAccessException {
+		tracer.info(String.format("selectDriver - %s", pkcs11Driver));
 		this.pkcs11Driver = pkcs11Driver;
 		try {
 			iaikPKCS11Module = Module.getInstance(pkcs11Driver);
@@ -141,6 +146,12 @@ public class SmartCardAccess {
 		} catch (TokenException e) {
 			throw new SmartCardAccessException("Unable to open smart card session",e);
 		}
+		
+		tracer.info(String.format("iaikPKCS11Module: %s", iaikPKCS11Module));
+		tracer.info(String.format("iaikSmartCard: %s", iaikSmartCard));
+		tracer.info(String.format("iaikSmartCardInfo: %s", iaikSmartCardInfo));
+		tracer.info(String.format("iaikSession: %s", iaikSession));
+		tracer.info(String.format("selectDriver - success"));
 	}
 	
 	public String[] login ( ) 
@@ -152,7 +163,11 @@ public class SmartCardAccess {
 	public String[] login ( String pin ) 
 			throws IllegalStateException, 
 					SmartCardAccessException {
-		
+		tracer.info(String.format("login - %s", pin));
+		tracer.info(String.format("iaikPKCS11Module: %s", iaikPKCS11Module));
+		tracer.info(String.format("iaikSmartCard: %s", iaikSmartCard));
+		tracer.info(String.format("iaikSmartCardInfo: %s", iaikSmartCardInfo));
+		tracer.info(String.format("iaikSession: %s", iaikSession));
 		// Execute the login
 		if (iaikSmartCardInfo.isLoginRequired()) {
 			try {
@@ -176,16 +191,19 @@ public class SmartCardAccess {
 		this.pin = pin;
 		
 		// Parse the certificate aliases
-		String alias;
+		String alias;										StringBuilder buf = new StringBuilder();
 		X500Principal principal;
 		List<String> aliases = new ArrayList<String>();
 		for ( X509PublicKeyCertificate iaikCert : iaikCertificateList() ) {
 			principal = new X500Principal(iaikCert.getSubject().getByteArrayValue());
 			alias = DNParser.parse(principal.getName(), "CN");
-			aliases.add(alias);
+			aliases.add(alias);								buf.append(alias).append(" ");
 		}
 		
 		// return the aliases as an array
+		tracer.info(String.format("pin: %s", pin));
+		tracer.info(String.format("aliases: %s", buf.toString()));
+		tracer.info(String.format("login - success"));
 		return aliases.toArray ( new String[aliases.size()] );
 	}
 	
@@ -193,7 +211,13 @@ public class SmartCardAccess {
 	public X509Certificate selectCertificate(String alias) 
 			throws IllegalStateException, 
 					SmartCardAccessException {
-		
+		tracer.info(String.format("selectCertificate - %s", alias));
+		tracer.info(String.format("iaikPKCS11Module: %s", iaikPKCS11Module));
+		tracer.info(String.format("iaikSmartCard: %s", iaikSmartCard));
+		tracer.info(String.format("iaikSmartCardInfo: %s", iaikSmartCardInfo));
+		tracer.info(String.format("iaikSession: %s", iaikSession));
+		tracer.info(String.format("pin: %s", pin));
+		tracer.info(String.format("alias: %s", alias));
 		if (iaikSession==null) {
 			throw new IllegalStateException("Session not initialized, login before");
 		}
@@ -243,6 +267,14 @@ public class SmartCardAccess {
 				// If it doesn't, try with the next one
 				cert = null;
 			}
+		}
+		
+		try {
+			tracer.info(String.format("iaikPrivateKey: %s", iaikPrivateKey));
+			tracer.info(String.format("cert: %s", X509Utils.rawX509CertificateToHex(cert)));
+			tracer.info(String.format("selectCertificate - success"));
+		} catch(Exception e) {
+			throw new RuntimeException(e);
 		}
 		return cert;
 	}

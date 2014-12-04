@@ -39,13 +39,14 @@ public class SmartCardAccessTest extends TestCase {
 			try {
 				sca = new SmartCardAccess();
 				
-				String[] matchingDrivers = SmartCardUtils.detectDrivers(knownDrivers);
-				StringBuilder buf = new StringBuilder();
-				for ( String driver : matchingDrivers ) {
-					buf.append(driver).append(" ");
-				}
-				tracer.info(String.format ( "matching drivers:    %s", buf.toString() ));
-				sca.selectDriver ( matchingDrivers[0] );
+//				String[] matchingDrivers = SmartCardUtils.detectDrivers(knownDrivers);
+//				StringBuilder buf = new StringBuilder();
+//				for ( String driver : matchingDrivers ) {
+//					buf.append(driver).append(" ");
+//				}
+//				tracer.info(String.format ( "matching drivers:    %s", buf.toString() ));
+//				sca.selectDriver ( matchingDrivers[0] );
+				sca.selectDriver("libbit4ipki.so");
 			} catch(Exception e) {
 				throw new RuntimeException(e);
 			}
