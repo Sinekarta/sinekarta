@@ -396,10 +396,10 @@
 			// -
 			
 			parseAppletResponse: function skds_parseAppletResponse ( appletResponseJSON ) {
-				this.info('parseAppletResponse',appletResponseJSON);				
-				var appletResponse = this.formatJSON ( appletResponseJSON );
+				var appletResponse = this.parseJSON ( appletResponseJSON );
+				this.info('parseAppletResponse', 'appletResponseJSON: '+appletResponseJSON );		
 				var resultJSON = undefined;
-				if ( appletResponse === 'SUCCESS' ) {
+				if ( appletResponse.resultCode === 'SUCCESS' ) {
 					resultJSON = appletResponse.result;
 				} else {
 					this.error('skds_parseAppletResponse', appletResponse.errorMessage);
@@ -447,6 +447,28 @@
 					}
 					this.setPanelDisplay ( macrogroup + '-' + group, 'block' );
 				}
+			},
+			
+			updateSelect: function skds_updateSelect ( name, options, selection ) {
+				var select = document.getElementById("${htmlid}-"+name);
+				var selected;
+				var found = false;
+				select.options = new Array();
+				select.options[0] = new Option("${msg('select.dummy')}", '', false, false);
+				for ( i=0; i<options.length; i++) {
+					value = options[i];
+					select.options[i+1] = new Option(value, value, false, false);
+					if ( value === selection ) {
+						select.options[i+1].selected = found = true;
+					}
+					this.info ( 'onScPinChange', 
+							'value:   ' + value + '\n' +
+							'selection: ' + selection + '\n' +
+							'found: ' + found + '\n' );
+				}
+				if ( !found ) {
+					select.options[0].selected = true;
+				} 
 			},
 			
 			
@@ -646,39 +668,19 @@
 					this.error ( 'refresh', 'fieldErrors:\n' + this.formatJSON(this.wizardData.fieldErrors) );
 				} 
 				
-				
-				
-				//if ( this.wizardData.currentForm === 'skdsSignClient' ) {
-					/*
-					var knownDrivers = ['libbit4ipki.so', 'libASEP11.so'];
-					var knownDriversJSON = this.formatJSON ( knownDrivers );
-					this.info('refresh', 'knownDriversJSON: ' + knownDriversJSON);
-					var appletResponseJSON = document.sinekartaApplet.verifySmartCard ( knownDriversJSON );
-					var appletResultJSON = this.parseAppletResponse ( appletResponseJSON );
-					var smartCardMessage;
-					if ( appletResultJSON !== undefined ) {
-						this.info('refresh', 'matchingDrivers: ' + matchingDrivers);
-						matchingDrivers = this.parseJSON(appletResultJSON);
-						smartCardMessage = "${msg('label.clientType.SMARTCARD')}";
+				var driver = "libbit4ipki.so";
+				var appletResponseJSON = document.sinekartaApplet.selectDriver ( driver );
+				this.info('refresh', 'appletResponseJSON: ' + appletResponseJSON);
+				var appletResultJSON = this.parseAppletResponse ( appletResponseJSON );
+				if ( appletResultJSON !== undefined ) {
+					if ( appletResultJSON === driver ) {
+						this.info ( 'refresh', 'driver: ' + appletResultJSON );
 					} else {
-						this.info('refresh', 'unable to detect any matching drivers');
-						smartCardMessage = "${msg('label.missing.smartCard')}";
+						this.error ( 'refresh', 'unexpected result: ' + appletResultJSON );
 					}
-					document.getElementById("${htmlid}-clientType-SMARTCARD-label").innerHTML = smartCardMessage;
-					*/
-					var driver = "libbit4ipki.so";
-					var appletResponseJSON = document.sinekartaApplet.selectDriver ( driver );
-					var appletResultJSON = this.parseAppletResponse ( appletResponseJSON );
-					if ( appletResultJSON !== undefined ) {
-						if ( appletResultJSON === driver ) {
-							this.info ( 'refresh', 'driver: ' + appletResultJSON );
-						} else {
-							this.error ( 'refresh', 'unexpected result: ' + appletResultJSON );
-						}
-					} else {
-						this.error ( 'refresh', 'unexpected response: ' + appletResultJSON );
-					}
-				//}
+				} else {
+					this.error ( 'refresh', 'unexpected response: ' + appletResultJSON );
+				}
 					   	
 		    	// Update the skdsSignOptions form 
 		    	document.getElementById("${htmlid}-tsUsername").value 	= this.wizardData.signature.timeStampRequest.tsUsername;
@@ -693,27 +695,9 @@
 				// updateClientType() will update wizardDataView as side-effect
 				this.updateClientType  ( this.wizardData.clientType );
 				
-				// Update the skdsSignClient keyStore aliases select
-				found = false;
-				var ksAliasesSelect = document.getElementById("${htmlid}-ksUserAlias");
-				var selected;
-				ksAliasesSelect.options = new Array();
-				ksAliasesSelect.options[0] = new Option("${msg('select.dummy')}", '', false, false);
-				for ( i=0; i<this.wizardData.ksAliases.length; i++) {
-					alias = this.wizardData.ksAliases[i];
-					selected = false;
-					this.info ( 'refresh', 'ksUserAlias: ' + this.wizardData.ksUserAlias + '\n' +
-								  		   'alias:       ' + alias + '\n' +
-								  		   'match:       ' + (alias === this.wizardData.ksUserAlias) );
-					if ( alias === this.wizardData.ksUserAlias ) {
-						found = selected = true;
-					}
-					ksAliasesSelect.options[i+1] = new Option(alias, alias, selected, false);
-				}
-				if ( !found ) {
-					ksAliasesSelect.options[0].selected = true;
-				} 
-				
+				// Update the skdsSignClient keyStore and smartCard aliases select components
+				this.updateKsUserAliasSelect ( );
+				this.updateScUserAliasSelect ( );
 			},
 		    
 			
@@ -886,7 +870,24 @@
 		    
 		    
 		    // -----
-		    // --- SignOptions - Input widget change events
+		    // --- SignClient - Select options update
+		    // -
+		    
+		    updateKsUserAliasSelect: function skds_updateKsUserAliasSelect ( ) {
+		    	this.updateSelect ( 'ksUserAlias', this.wizardData.ksAliases, this.wizardData.ksUserAlias );
+		    },
+		    
+		    updateScUserAliasSelect: function skds_updateScUserAliasSelect ( ) {
+				this.info ( 'onScPinChange', 
+						'aliases: ' + this.wizardData.scAliases + '\n' +
+						'alias:   ' + this.wizardData.scUserAlias );
+		    	this.updateSelect ( 'scUserAlias', this.wizardData.scAliases, this.wizardData.scUserAlias );
+		    },
+			
+			
+		    
+		    // -----
+		    // --- SignClient - Input widget change events
 		    // -
 		    
 		    onKsPinChange: function skds_onKsPinChange ( e ) {
@@ -908,63 +909,58 @@
 		    	this.updateWizardDataView ( );
 		    },
 		    
-			onScPinChange: function skds_onScPinChange(){
+			onScPinChange: function skds_onScPinChange ( ) {
 				
-				var pinInputObj = document.getElementById("${htmlid}-scPin");
+				var scPin = document.getElementById("${htmlid}-scPin").value;
+				var aliases;
+				var html;
 				
-				var knownDrivers = ['libbit4ipki.so', 'libASEP11.so'];
-				var knownDriversJSON = this.formatJSON ( knownDrivers );
-				var appletResponseJSON = document.sinekartaApplet.verifySmartCard ( knownDriversJSON );
+				var appletResponseJSON = document.sinekartaApplet.login ( scPin );
+				this.info('onScPinChange', 'appletResponseJSON: ' + appletResponseJSON);
 				var appletResultJSON = this.parseAppletResponse ( appletResponseJSON );
-				var smartCardMessage;
-				if ( appletResultJSON === undefined ) {
-					smartCardMessage = "${msg('label.missing.smartCard')}";
-				} else {
-					smartCardMessage = "${msg('label.clientType.SMARTCARD')}";
-				}
-				document.getElementById("${htmlid}-clientType-SMARTCARD-label").innerHTML = smartCardMessage;
-				
-					
-				var appletResponseJSON = document.sinekartaApplet.login(pinInputObj.value);	
-				var appletResultJSON = this.parseAppletResponse ( appletResponseJSON );
-				var smartCardMessage;
 				if ( appletResultJSON !== undefined ) {
-					var aliasArray = JSON.parse(appletResultJSON);
-					document.getElementById("${htmlid}-scUserAlias").options.length = 0;
-					var option = document.createElement("option");
-					option.value = '';
-					option.text = '';
-					aliasSelect.add(option);
-					for(i=0;i<aliasArray.length;i++) {
-						var option = document.createElement("option");
-						option.value = aliasArray[i];
-						option.text = aliasArray[i];
-						document.getElementById("${htmlid}-scUserAlias").add(option);
-					}		
+					this.info ( 'onScPinChange', 'aliases: ' + appletResultJSON );
+					if ( appletResultJSON !== undefined ) {
+						this.wizardData.scAliases = JSON.parse ( appletResultJSON );
+						this.wizardData.scUserAlias = '';
+						var singleAlias = this.wizardData.scAliases.length == 1; 
+						if ( singleAlias ) {
+							this.wizardData.scUserAlias = this.wizardData.scAliases[0];
+						}
+						this.info ( 'onScPinChange', 
+								'aliases: ' + this.wizardData.scAliases + '\n' +
+								'alias:   ' + this.wizardData.scUserAlias );
+						this.updateScUserAliasSelect ( );
+						if ( singleAlias ) {
+							this.onScUserAliasChange ( );
+						}
+						smartCardMessage = "${msg('label.clientType.SMARTCARD')}";
+					} else {
+						smartCardMessage = "${msg('label.missing.smartCard')}";
+					}
 				} else {
-					smartCardMessage = "${msg('label.clientType.SMARTCARD')}";
+					this.error ( 'onScPinChange', 'unexpected response: ' + appletResultJSON );
 				}
-				
-				
-				
+				this.updateWizardDataView ( );
 			},
 		    
 		    onScUserAliasChange: function skds_onScUserAliasChange() {
-				var destInputObj = document.getElementById("${htmlid}-sc-certificate-chain-id");
-				var aliasObj = document.getElementById("${htmlid}-scUserAlias");
-				if(aliasObj.value != '') {
-					var chain = document.sinekartaApplet.selectCertificate(pinObj.value, aliasObj.value);
+		    	var scUserAliasSelect = document.getElementById("${htmlid}-scUserAlias");
+				var scUserAlias = scUserAliasSelect.options[scUserAliasSelect.selectedIndex].value;
+				this.info ( 'onScUserAliasChange', 'scUserAlias: ' + scUserAlias );
+				if ( scUserAlias !== '' ) {
+					var appletResponseJSON = document.sinekartaApplet.selectCertificate(scUserAlias);
+					var appletResultJSON = this.parseAppletResponse ( appletResponseJSON );
+					if ( appletResultJSON !== undefined ) {
+						this.wizardData.signature.hexCertificateChain[0] = this.parseAppletResponse ( appletResponseJSON );
+						this.info ( 'onScUserAliasChange', 'signing certificate: ' + this.wizardData.signature.hexCertificateChain[0] );
+					} else {
+						this.error ( 'onScUserAliasChange', 'unexpected response: ' + appletResultJSON );
+					}
+				} else {
+					this.wizardData.signature.hexCertificateChain[0] = '';
 				}
-				
-				var jsonChain = JSON.parse(chain);
-				destInputObj.value = jsonChain[0];													
-				
-				
-			  	var result = JSON.parse('{"digest": "69554c6a57726c466d6c50387466654c4e4632414f304c6278495a4b41525339374c59787354304c7248413d"}');
-				document.getElementById("${htmlid}-sc-digest-id").value = result.digest;
-				
-				
-				
+				this.updateWizardDataView ( );
 			},
 
 		});

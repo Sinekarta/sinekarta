@@ -5,7 +5,6 @@ import java.security.cert.X509Certificate;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.sinekartads.smartcard.DriverNotFoundException;
 import org.sinekartads.smartcard.SmartCardAccess;
 import org.sinekartads.smartcard.SmartCardUtils;
 import org.sinekartads.utils.HexUtils;
@@ -22,6 +21,7 @@ public class SignApplet extends Applet {
 	
 	@Override
 	public void init ( ) {
+		tracer.info("mandi mandi");
 		sca = new SmartCardAccess ( );
 	}
 	
