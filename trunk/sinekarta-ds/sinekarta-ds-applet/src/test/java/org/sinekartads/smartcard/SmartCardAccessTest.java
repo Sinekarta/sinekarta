@@ -17,7 +17,7 @@ public class SmartCardAccessTest extends TestCase {
 	public void test ( ) {
 
 		// The allowedDrivers are received from the html page
-		String[] knownDrivers = new String[] { "libbit4ipki.so", "libASEP11.so" };
+//		String[] knownDrivers = new String[] { "libbit4ipki.so", "libASEP11.so" };
 		// Input: fingerPrint - arbitrary 64 byte sequence (SHA256)
 		byte[] fingerPrint = HexUtils.decodeHex("2f265c664c0aa544a5c07b95b2e2e7756b7fddc9f4cdbce23befe35f755fcbf0");
 		// Output: digitalSignature evaluated by the smartCard
@@ -87,6 +87,11 @@ public class SmartCardAccessTest extends TestCase {
 				sca.logout();
 			} catch(Exception e) {
 				throw new RuntimeException(e);
+			}
+		} catch(Exception e) {
+			Throwable cause = e.getCause();
+			if ( cause != null && cause instanceof SmartCardReaderNotFoundException ) {
+				tracer.info("unable to run the test because the smart card reader has not been found");
 			}
 		} finally {
 			// SmartCard finalization - called when the wizard steps to the results form

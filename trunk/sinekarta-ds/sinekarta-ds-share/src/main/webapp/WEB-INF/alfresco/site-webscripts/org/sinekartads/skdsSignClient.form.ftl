@@ -89,16 +89,11 @@
 						<label for="${htmlid}-scUserAlias">${msg("label.scUserAlias")}</label>
 					</span>
 					<span class="skds-data-input">
-						<select id="${htmlid}-scUserAlias" onchange="getCertificationChain()">
+						<select id="${htmlid}-scUserAlias">
 							<option value="${msg("select.dummy")}" selected>${msg("select.dummy")}</option>
 						</select>
 					</span>
-					<input id="${htmlid}-sc-certificate-chain-id" name="certificateChain" type="hidden" value="" />
-					<input id="${htmlid}-sc-digest-id" name="hiddenDigest" type="hidden" value="" />
-					<input id="${htmlid}-sc-sign-id" name="hiddenSign" type="hidden" value="" />
 					<@fieldError field='scUserAlias' />
-					<button type="button" onclick="signDigest()">Firma</button>
-
 				</div>
 		    </div>
 		</div>
