@@ -51,13 +51,13 @@ public class SignApplet extends Applet {
 		
 		AppletResponseDTO resp = new AppletResponseDTO ( );
 		try {
-			boolean missing = true;
-			for ( int i=0; i<matchingDrivers.length && missing; i++ ) {
-				missing = StringUtils.equalsIgnoreCase(driver, matchingDrivers[i]);
-			}
-			if ( missing ) {
-				throw new DriverNotFoundException(String.format ( "indivalid driver", driver ));
-			}
+//			boolean missing = true;
+//			for ( int i=0; i<matchingDrivers.length && missing; i++ ) {
+//				missing = StringUtils.equalsIgnoreCase(driver, matchingDrivers[i]);
+//			}
+//			if ( missing ) {
+//				throw new DriverNotFoundException(String.format ( "indivalid driver", driver ));
+//			}
 			sca.selectDriver ( driver );
 			resp.setResult(driver);
 			resp.setResultCode(AppletResponseDTO.SUCCESS);
@@ -71,7 +71,7 @@ public class SignApplet extends Applet {
 	
 	public String login ( String pin ) {
 		tracer.info("login");
-		tracer.info(String.format("driver: %s", pin));
+		tracer.info(String.format("pin: %s", pin));
 		
 		AppletResponseDTO resp = new AppletResponseDTO ( );
 		try {

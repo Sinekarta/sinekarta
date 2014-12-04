@@ -168,9 +168,6 @@
 		<exec dir="${workspace.dir}" executable="/usr/java/jdk1.7.0_10/bin/jarsigner" output="jarsigner.txt">
 		  	<arg line="-keystore &quot;jarsigner/JENIASoftware.p12&quot; -storepass jenia -keypass jenia -storetype PKCS12 -providerName SunJSSE &quot;sinekarta-ds/sinekarta-ds-share/${applet.dir}/lib/${applet.jar}&quot; &quot;id di jenia software a comodo ca limited&quot;" />
 		</exec>
-		<!-- Warning: after having signed the jar with the code above, you need to modify the Manifest.MF adding this row:
-		 |			 Permissions: all-permissions 
-		-->
 	</target>
 	
     <target name="package-amp" depends="prepare-libs">
