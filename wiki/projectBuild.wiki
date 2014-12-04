@@ -41,7 +41,9 @@ These are projects :
  * rename share.war in .share-original.war (hidden file)
  * resolve dependencies for ant tasks : 
   * right click /sinekarta-ds/pom.xml
-  * Run As -> Maven install
+  * Run As -> Maven build...
+  * set "package" in "Goals" field
+  * press "Run" button
   * wait for "BUILD SUCCESS" in eclipse console
 
 
