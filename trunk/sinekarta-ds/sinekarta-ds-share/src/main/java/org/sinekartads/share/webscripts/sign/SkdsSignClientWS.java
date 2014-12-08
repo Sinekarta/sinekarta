@@ -40,7 +40,7 @@ public class SkdsSignClientWS extends BaseSignController {
 				X509Utils.rawX509CertificateFromHex ( hexCertificate );
 			}
 		} catch(Exception e) {
-			processError ( getMessage("error.invalidCertificateChain") );
+			processError ( dto, getMessage("error.invalidCertificateChain") );
 		}
 		
 //		String sessionId = dto.getSessionId();
@@ -103,7 +103,7 @@ public class SkdsSignClientWS extends BaseSignController {
 	}
 	
 	@Override
-	protected String currentForm() {
-		return "skdsSignClient";
+	protected WizardStep currentStep() {
+		return STEP_CLIENT;
 	}
 }

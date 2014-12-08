@@ -25,10 +25,17 @@ public abstract class BaseVerifyWS extends WSController<VerifyWizardDTO> {
 	public static final String[] WIZARD_FORMS = {
 		"skdsVerifyInit", "skdsVerifyResult"
 	};
+	protected static final WizardStep STEP_INIT 	= new WizardStep("skdsVerifyInit",   "skdsVerifyInit");
+	protected static final WizardStep STEP_RESULTS	= new WizardStep("skdsVerifyResult", "skdsVerifyResult");
 	
 	SignatureClientFactory clientFactory = SignatureClientFactory.getInstance();
 	
 	protected String[] getWizardForms() {
 		return WIZARD_FORMS;
+	}
+	
+	@Override
+	protected WizardStep[] getWizardSteps() {
+		return new WizardStep[] { STEP_INIT, STEP_RESULTS };
 	}
 }

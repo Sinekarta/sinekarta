@@ -6,13 +6,13 @@ import org.sinekartads.model.domain.SignatureType.SignCategory;
 
 public class SignWizardDTO extends WizardDTO {
 
+	private static final long serialVersionUID = 1909479520274923507L;
+
 	public static enum TsSelection {
 		NONE,
 		DEFAULT,
 		CUSTOM;
 	}
-	
-	private static final long serialVersionUID = 775568680966263562L;
 	
 	public SignWizardDTO ( ) {
 		nodeRefs = new String[0];
@@ -38,7 +38,10 @@ public class SignWizardDTO extends WizardDTO {
 	private String[] ksAliases;
 	private String ksUserAlias;
 	private String ksUserPassword;
-	
+
+	private String[] scDriverNames;
+	private String[] scDriverDescriptions;
+	private String scDriver;
 	private String scPin;
 	private String[] scAliases;
 	private String scUserAlias;
@@ -130,6 +133,30 @@ public class SignWizardDTO extends WizardDTO {
 		this.ksUserPassword = ksUserPassword;
 	}
 	
+	public String[] getScDriverNames() {
+		return scDriverNames;
+	}
+
+	public void setScDriverNames(String[] scDriverNames) {
+		this.scDriverNames = scDriverNames;
+	}
+
+	public String[] getScDriverDescriptions() {
+		return scDriverDescriptions;
+	}
+
+	public void setScDriverDescriptions(String[] scDriverDescriptions) {
+		this.scDriverDescriptions = scDriverDescriptions;
+	}
+
+	public String getScDriver() {
+		return scDriver;
+	}
+
+	public void setScDriver(String scDriver) {
+		this.scDriver = scDriver;
+	}
+
 	public String getScUserAlias() {
 		return scUserAlias;
 	}

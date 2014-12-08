@@ -56,6 +56,12 @@ public class AppletResponseDTO implements Serializable {
 	public void setResult(String result) {
 		this.result = result;
 	}
+	
+	
+	
+	// -----
+	// --- Elaboration status transmission
+	// -
 
 	public String getResultCode() {
 		if ( ArrayUtils.isEmpty(actionErrors) && ArrayUtils.isEmpty(fieldErrors) ) {
@@ -82,8 +88,10 @@ public class AppletResponseDTO implements Serializable {
 	}
 
 
-
-	// FieldError DTO protocol
+	
+	// -----
+	// --- ActionError and FieldError implementation
+	// -
 	
 	public static class FieldErrorDTO {
 		

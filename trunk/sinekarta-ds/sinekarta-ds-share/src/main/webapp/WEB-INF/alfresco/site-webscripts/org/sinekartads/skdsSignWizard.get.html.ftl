@@ -101,7 +101,7 @@
 	</div>
 <#attempt>
 	<#-- macro json_string string>${string?js_string?replace("\\'", "\'")?replace("\\>", ">")}</#macro -->
-	<form id="${htmlid}-form" action="${wscWizardData.currentForm}" method="post" class="skds-form">
+	<form id="${htmlid}-form" action="${wscWizardData.currentStep.form}" method="post" class="skds-form">
 	
 		<input type="hidden" id="${htmlid}-htmlid"			name="htmlid" 		  value='${htmlid}' />
 		<input type="hidden" id="${htmlid}-wizardDataJSON" 	name="wizardDataJSON" value="${wizardDataJSON}" />
@@ -188,7 +188,7 @@
 	
 		<!-- 
 		 | Form body, displays the structure inside the included htmlTemplate.
-		 | The htmlTemplate to be displayed is provided by the WSController into the currentForm property of the  
+		 | The htmlTemplate to be displayed is provided by the WSController into the currentStep property of the  
 		 | wizard DTO. If any form data is wrong, or if any process error occurs, this value will be equal to the
 		 | form that has caused the error.
 		 | Any FreeMarker error will be caught and displayed into the recover statement. 

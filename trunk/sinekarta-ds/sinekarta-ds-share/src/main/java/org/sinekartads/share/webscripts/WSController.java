@@ -17,22 +17,16 @@
  */
 package org.sinekartads.share.webscripts;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import net.sf.json.JSONObject;
-
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.sinekartads.dto.DTOFormatter;
 import org.sinekartads.dto.ResultCode;
 import org.sinekartads.dto.share.WizardDTO;
+import org.sinekartads.dto.share.WizardDTO.WizardStepDTO;
 import org.sinekartads.dto.tools.DTOConverter;
 import org.sinekartads.share.ShareConfiguration;
 import org.sinekartads.share.util.AlfrescoException;
@@ -139,7 +133,6 @@ public abstract class WSController<DTO extends WizardDTO> extends BaseWS {
 	// --- Shared tools and data
 	// -
 	
-	private static 	final Logger tracer = Logger.getLogger(WSController.class);
 	protected final ShareConfiguration conf = ShareConfiguration.getInstance();
 	protected final DTOConverter converter = DTOConverter.getInstance();
 	
@@ -180,9 +173,6 @@ public abstract class WSController<DTO extends WizardDTO> extends BaseWS {
 			Cache cache ) {
 		
 		Map<String, Object> model = new HashMap<String, Object>();
-		fieldErrors = new HashMap<String, List<String>>();
-		actionErrors = new ArrayList<String>();
-
 		String jscWizardData = getParameter ( req, IO_WIZARDJSON );
 		String htmlid 		 = getParameter ( req, IO_HTMLID );
 		DTO    wizardData	 = null;
@@ -194,25 +184,20 @@ public abstract class WSController<DTO extends WizardDTO> extends BaseWS {
 			// Process the wizardData
 			processData ( wizardData );
 		} catch(Exception e) {
-			processError ( e );
+			processError ( wizardData, e );
 		} finally {
-			
 			// Select the currentForm to be displayed by the JS controller 
-			String currentForm;
-			boolean success =  fieldErrors.isEmpty() && actionErrors.isEmpty();
-			String resultCode;
+			WizardStep currentForm;
+			boolean success =  StringUtils.equals ( 
+					wizardData.getResultCode(), WizardDTO.SUCCESS );
 			if ( success ) {
-				currentForm = nextForm ( currentForm() );
-				resultCode = RC_SUCCESS;
+				currentForm = nextStep ( currentStep() );
 			} else {
-				currentForm = currentForm();
-				resultCode =  RC_ERROR;
+				currentForm = currentStep();
 			}
-			wizardData.setResultCode ( resultCode );
-			wizardData.setCurrentForm ( currentForm );
+			wizardData.setCurrentStep ( toWizardStepDTO(currentForm) );
+			wizardData.setWizardSteps ( toWizardStepDTO(getWizardSteps()) );
 			wizardData.setWizardForms ( getWizardForms() );
-			wizardData.setActionErrors ( actionErrors );
-			wizardData.setFieldErrors ( fieldErrors );
 			
 			// Send the htmlid back only if it has been previously populated by Alfresco share
 			if ( StringUtils.isNotBlank(htmlid) ) {
@@ -226,15 +211,15 @@ public abstract class WSController<DTO extends WizardDTO> extends BaseWS {
 		return model;
 	}
 	
-	protected void processError ( String errorMessage ) {
-		processError ( errorMessage, null );
+	protected void processError ( DTO wizardData, String errorMessage ) {
+		processError ( wizardData, errorMessage, null );
 	}
 	
-	protected void processError ( Exception errorCause ) {
-		processError ( null, errorCause );
+	protected void processError ( DTO wizardData, Exception errorCause ) {
+		processError ( wizardData, null, errorCause );
 	}
 	
-	protected void processError ( String errorMessage, Exception errorCause ) {
+	protected void processError ( DTO wizardData, String errorMessage, Exception errorCause ) {
 		if ( StringUtils.isBlank(errorMessage) ) {
 			if ( errorCause instanceof AlfrescoException ) { 
 				errorMessage = errorCause.getMessage();
@@ -245,39 +230,72 @@ public abstract class WSController<DTO extends WizardDTO> extends BaseWS {
 			}
 		}
 		
-		addActionError ( errorMessage, errorCause, true );
+		wizardData.addActionError ( errorMessage, errorCause );
 	}
 
 	protected abstract void processData ( 
 			DTO wizardDto ) 
 					throws AlfrescoException ;
 	
-	protected String nextForm ( String currentForm ) {
-		if ( StringUtils.isBlank(currentForm) )											return null; 
-		int formIndex = formIndex ( currentForm );
-		int prevIdx = formIndex < getWizardForms().length-1 ? formIndex+1 : formIndex;   
-		return getWizardForms() [ prevIdx ];
+	protected WizardStep nextStep ( WizardStep step ) {
+		if ( step == null )											return null; 
+		int stepIndex = stepIndex ( step );
+		int prevIdx = stepIndex < getWizardSteps().length-1 ? stepIndex+1 : stepIndex;   
+		return getWizardSteps() [ prevIdx ];
 	}
 	
-	private int formIndex ( String currentForm ) {
-		String[] wizardForms = getWizardForms();
-		int formIndex = -1;
-		for ( int idx=0; idx<wizardForms.length && formIndex==-1; idx++ ) {
-			if ( StringUtils.equals(currentForm, wizardForms[idx]) ) {
-				formIndex = idx;
+	private int stepIndex ( WizardStep step ) {
+		WizardStep[] wizardSteps = getWizardSteps();
+		int stepIndex = -1;
+		for ( int idx=0; idx<wizardSteps.length && stepIndex==-1; idx++ ) {
+			if ( step.equals(wizardSteps[idx]) ) {
+				stepIndex = idx;
 			}
 		}
-		if ( formIndex == -1 ) {
+		if ( stepIndex == -1 ) {
 			throw new UnsupportedOperationException ( 
 					String.format ( "Page form not found - %s \nThe known wizard steps are: %s", 
-								    currentForm, StringUtils.join ( wizardForms) ) );
+								    step, StringUtils.join(wizardSteps) ) );
 		}
-		return formIndex;
+		return stepIndex;
 	}
-	
+
+	public static class WizardStep {
+		
+		public WizardStep ( String name, String form ) {
+			this.name = name;
+			this.form = form;
+		}
+		
+		public boolean equals ( WizardStep step ) {
+			return StringUtils.equals ( name, step.name );
+		}
+		
+		final String name;
+		final String form; 
+	}
+
 	protected abstract String[] getWizardForms ( ) ;
 	
-	protected abstract String currentForm ( ) ;
+	protected abstract WizardStep[] getWizardSteps ( ) ;
+	
+	protected abstract WizardStep currentStep ( ) ;
+	
+	private WizardStepDTO[] toWizardStepDTO ( WizardStep[] wizardSteps ) {
+		WizardStepDTO[] dtos  = new WizardStepDTO[wizardSteps.length];
+		for ( int i=0; i<wizardSteps.length; i++ ) {
+			dtos[i] = toWizardStepDTO ( wizardSteps[i] );
+		}
+		return dtos;
+	}
+	
+	private WizardStepDTO toWizardStepDTO ( WizardStep wizardStep ) {
+		if ( wizardStep == null )										return null;
+		WizardStepDTO dto = new WizardStepDTO();
+		dto.setName(wizardStep.name);
+		dto.setForm(wizardStep.form);
+		return dto;
+	}
 	
 	
 	
@@ -304,63 +322,7 @@ public abstract class WSController<DTO extends WizardDTO> extends BaseWS {
 	// --- Error management
 	// -
 	
-	protected List<String> actionErrors;
-	protected Map<String, List<String>> fieldErrors;
-	
-	protected void addFieldError( String field, String error ) {
-		List<String> errors = fieldErrors.get(field);
-		if(errors == null) {
-			errors = new ArrayList<String>();
-			fieldErrors.put(field, errors);
-		}
-		errors.add(error);
-	}
-	
-	protected void addActionError ( String errorMessage ) {
-		addActionError(errorMessage, null, false);
-	}
-	
-	protected void addActionError ( Throwable errorCause ) {
-		addActionError(null, errorCause, true);
-	}
-	
-	protected void addActionError ( 
-			String errorMessage, Throwable errorCause, boolean displayStackTrace ) {
-
-		// Prepare the actionError as a JSON object
-		JSONObject json = new JSONObject();
-		
-		// Push the errorMessage into the actionError 
-		if ( StringUtils.isEmpty(errorMessage) ) {
-			// Evaluate a default errorMessage if missing 			- typically, errorCause-only override
-			if ( errorCause != null ) {
-				errorMessage = errorCause.getMessage();
-				if ( StringUtils.isBlank(errorMessage) ) {
-					json.put ( AE_ERROR_MESSAGE, errorCause.getClass().getName() );
-				} else {
-					json.put ( AE_ERROR_MESSAGE, 
-							String.format("%s - %s", errorCause.getClass().getName(), errorMessage) );
-				}
-			} else {
-				json.put ( AE_ERROR_MESSAGE, getMessage(GENERIC_ERROR) );
-			}
-		} else {
-			// Let the errorMesage as is if provided				- typically, errorMessage-only override
-			json.put ( AE_ERROR_MESSAGE, errorMessage );
-		}
-		
-		// Push the errorCause into the actionError, if provided
-		if ( errorCause != null && displayStackTrace ) {
-			ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
-			PrintWriter writer = new PrintWriter(baos);
-			errorCause.printStackTrace(writer);
-			writer.flush();
-			String stackTrace = new String(baos.toByteArray()); 
-			json.put ( AE_ERROR_CAUSE, stackTrace );
-		}
-		
-		// Add the actionError JSON to the inner list				- it will be sent to form when the webScript ends
-		tracer.error(errorMessage, errorCause);
-		actionErrors.add ( json.toString() );
+	protected void addFieldError( DTO dto, String field, String error ) {
+		dto.addFieldError(field, error);
 	}
 }

@@ -20,10 +20,8 @@
 <!-- FIXME gestire l'actionError dinamicamente al refresh di pagina -->
 <#macro actionError>
 	<#attempt>
-	<#if wscWizardData.actionErrors??>
 		<ul id="${htmlid}-actionErrors">
 		</ul>
-	</#if>
 	<#recover>
 		${.error}
 	</#attempt>

@@ -22,13 +22,26 @@ import org.sinekartads.share.webscripts.WSController;
 
 public abstract class BaseSignController extends WSController<SignWizardDTO> {
 
-	public static final String[] WIZARD_FORMS = {
-		"skdsSignInit", "skdsSignOptions", "skdsSignClient", "skdsSignCallPreSign", "skdsSignCallPostSign", "skdsSignResult"
+	
+	protected static final String[] WIZARD_FORMS = {
+		"skdsSignOptions", "skdsSignClient", "skdsSignResult"
 	};
+	protected static final WizardStep STEP_INIT 	= new WizardStep("skdsSignInit",     "skdsSignOptions");
+	protected static final WizardStep STEP_OPTIONS 	= new WizardStep("skdsSignOptions",  "skdsSignOptions");
+	protected static final WizardStep STEP_CLIENT 	= new WizardStep("skdsSignClient",   "skdsSignClient");
+	protected static final WizardStep STEP_PRESIGN 	= new WizardStep("skdsSignPreSign",  "skdsSignClient");
+	protected static final WizardStep STEP_POSTSIGN = new WizardStep("skdsSignPostSign", "skdsSignClient");
+	protected static final WizardStep STEP_RESULTS 	= new WizardStep("skdsSignResults",  "skdsSignResults");
 	
 	SignatureClientFactory clientFactory = SignatureClientFactory.getInstance();
 	
+	@Override
 	protected String[] getWizardForms() {
 		return WIZARD_FORMS;
+	}
+	
+	@Override
+	protected WizardStep[] getWizardSteps() {
+		return new WizardStep[] { STEP_INIT, STEP_OPTIONS, STEP_CLIENT, STEP_PRESIGN, STEP_POSTSIGN, STEP_RESULTS };
 	}
 }

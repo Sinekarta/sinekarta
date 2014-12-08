@@ -28,13 +28,13 @@ public class SkdsSignOptionsWS extends BaseSignController {
 	
 	@Override
 	protected void processData (
-			SignWizardDTO wizard ) 
+			SignWizardDTO wizardData ) 
 					throws AlfrescoException {
 		
-		DocumentDTO[] 		documents 		 = wizard.getDocuments();
-		SignatureDTO 		signature 		 = wizard.getSignature();
+		DocumentDTO[] 		documents 		 = wizardData.getDocuments();
+		SignatureDTO 		signature 		 = wizardData.getSignature();
 		TimeStampRequestDTO timeStampRequest = signature.getTimeStampRequest();
-		TsSelection 		tsSelection 	 = TsSelection.valueOf ( wizard.getTsSelection() );
+		TsSelection 		tsSelection 	 = TsSelection.valueOf ( wizardData.getTsSelection() );
 
 		String tsUrl 				= timeStampRequest.getTsUrl();
 		String tsUsername 			= timeStampRequest.getTsUsername();
@@ -42,23 +42,23 @@ public class SkdsSignOptionsWS extends BaseSignController {
 		
 		if ( tsSelection == TsSelection.CUSTOM ) {
 			if ( StringUtils.isBlank(tsUrl) ) {
-				addFieldError("tsUrl", getMessage("error.mandatory") );
+				wizardData.addFieldError("tsUrl", getMessage("error.mandatory") );
 			}
 			if ( StringUtils.isBlank(tsUsername) && StringUtils.isNotBlank(tsPassword) ) {
-				addFieldError("tsUrl", getMessage("error.wrongAnonymousUser") );
+				wizardData.addFieldError("tsUrl", getMessage("error.wrongAnonymousUser") );
 			}
 		}
 		
 		// Load the parameters from the form POST 
 		for(DocumentDTO document : documents) {
 			if ( StringUtils.isBlank(document.getDestName()) ) {
-				addFieldError("destName", getMessage("error.mandatory") );
+				wizardData.addFieldError("destName", getMessage("error.mandatory") );
 			}
 		}
 	}
 	
 	@Override
-	protected String currentForm() {
-		return "skdsSignOptions";
+	protected WizardStep currentStep() {
+		return STEP_OPTIONS;
 	}
 }
