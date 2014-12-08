@@ -19,7 +19,6 @@ package org.sinekartads.share.webscripts;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -67,17 +66,8 @@ public abstract class WSController<DTO extends WizardDTO> extends BaseWS {
 	 */
 	public static final String IO_BACKURL = "backUrl";
 	
-	/**
-	 * Page operation required by the JS controller to the WS controller - {@link #OPR_PREPARE} 
-	 * or {@link #OPR_PROCESS}. <br/>
-	 * Default value when unspecified: {@link #OPR_PREPARE}.
-	 * Used as input parameter in order to drive the WS execution. 
-	 */
-	public static final String IN_PAGEOPERATION = "pageOperation";
-	
-	public static final String OPR_PREPARE = "prepare";
-	public static final String OPR_PROCESS = "process";
-
+	public static final String RC_SUCCESS = "SUCCESS";
+	public static final String RC_ERROR = "ERROR";
 	
 	public static final String IO_WIZARDJSON	= "wizardDataJSON";
 	
@@ -185,7 +175,9 @@ public abstract class WSController<DTO extends WizardDTO> extends BaseWS {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Map<String, Object> executeImpl (
-			WebScriptRequest req, Status status, Cache cache ) {
+			WebScriptRequest req, 
+			Status status, 
+			Cache cache ) {
 		
 		Map<String, Object> model = new HashMap<String, Object>();
 		fieldErrors = new HashMap<String, List<String>>();
@@ -193,78 +185,34 @@ public abstract class WSController<DTO extends WizardDTO> extends BaseWS {
 
 		String jscWizardData = getParameter ( req, IO_WIZARDJSON );
 		String htmlid 		 = getParameter ( req, IO_HTMLID );
-		String formOperation = null;
 		DTO    wizardData	 = null;
 
 		try {
-			// Retrieve the WizardDTO instance 						- generate it if missing
-			if ( StringUtils.isBlank(jscWizardData) ) {
-				wizardData = (DTO) dtoClass.getConstructor ( new Class<?>[0]).newInstance(new Object[0] );
-				wizardData.setBackUrl( getParameter(req, IO_BACKURL) );
-			} else {
-				wizardData = (DTO) TemplateUtils.Encoding.deserializeJSON ( dtoClass, jscWizardData );
-			}
-	
-			// Evaluate the input status 							- PREPARE if missing
-			formOperation = wizardData.getFormOperation();
-			if ( StringUtils.isBlank(formOperation) ) {
-				formOperation = OPR_PREPARE;
-			}
-			
-			// Execute the operation required by the JS controller
-			switch ( formOperation ) {
-				case OPR_PROCESS: {
-					// Process the received form data
-					try {
-						processForm ( req, wizardData );
-						break;
-					} catch ( Exception e ) {
-						processError ( e );
-						// If there has been a failure, go on into the switch and prepare the form data again
-					}
-				}
-				case OPR_PREPARE: {
-					// Prepare the data to be sent to the form - if it has not been successfully processed yet
-					try {
-						prepareForm( req, wizardData);
-					} catch ( Exception e ) {
-						processError ( e );
-					}
-					break;
-				}
-				default: {
-					try {
-						performExtraOperation( req, wizardData, formOperation ); 
-					} catch ( Exception e ) {
-						processError ( e );
-					}
-				}
-			}
-		} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-			addActionError ( String.format("invalid wizardDTO - %s", e.getMessage()), e, false );
-		} catch (RuntimeException e) {
-			addActionError ( e );
+			// Retrieve the WizardDTO instance
+			wizardData = (DTO) TemplateUtils.Encoding.deserializeJSON ( dtoClass, jscWizardData );
+
+			// Process the wizardData
+			processData ( wizardData );
+		} catch(Exception e) {
+			processError ( e );
 		} finally {
 			
 			// Select the currentForm to be displayed by the JS controller 
-			String currentForm = currentForm();
+			String currentForm;
 			boolean success =  fieldErrors.isEmpty() && actionErrors.isEmpty();
-			if ( StringUtils.equals(formOperation, OPR_PREPARE) ) {
-				if ( success ) {
-					wizardData.setCurrentForm ( currentForm );
-				} else {
-					wizardData.setCurrentForm ( prevForm(currentForm) );
-				}
-			} else if ( StringUtils.equals(formOperation, OPR_PROCESS) ) {
-				if ( success ) {
-					wizardData.setCurrentForm ( nextForm(currentForm) );
-				} else {
-					wizardData.setCurrentForm ( currentForm );
-				}
+			String resultCode;
+			if ( success ) {
+				currentForm = nextForm ( currentForm() );
+				resultCode = RC_SUCCESS;
+			} else {
+				currentForm = currentForm();
+				resultCode =  RC_ERROR;
 			}
+			wizardData.setResultCode ( resultCode );
+			wizardData.setCurrentForm ( currentForm );
 			wizardData.setWizardForms ( getWizardForms() );
-			wizardData.setActionErrors(actionErrors);
-			wizardData.setFieldErrors(fieldErrors);
+			wizardData.setActionErrors ( actionErrors );
+			wizardData.setFieldErrors ( fieldErrors );
 			
 			// Send the htmlid back only if it has been previously populated by Alfresco share
 			if ( StringUtils.isNotBlank(htmlid) ) {
@@ -272,52 +220,40 @@ public abstract class WSController<DTO extends WizardDTO> extends BaseWS {
 			}
 			
 			// Send the other output parameters to the JS controller
-			// TODO move action and field errors inside the json
 			model.put ( IO_WIZARDJSON,     wizardData.toJSON() );
 			model.put ( OUT_WIZARDDATA,    wizardData );
 		}
 		return model;
 	}
 	
-	protected void processError ( Exception errorCause ) {
-		String errorMessage;
-		if ( errorCause instanceof AlfrescoException ) { 
-			errorMessage = errorCause.getMessage();
-			if ( StringUtils.isBlank(errorMessage) ) {
-				ResultCode resultCode = ((AlfrescoException)errorCause).getResultCode();
-				errorMessage = getMessage ( String.format(RESULT_CODE, resultCode) );
-			}
-			addActionError ( errorMessage, errorCause, true );
-		} else {
-			addActionError ( errorCause );
-		}
+	protected void processError ( String errorMessage ) {
+		processError ( errorMessage, null );
 	}
 	
-	protected abstract void prepareForm (
-			WebScriptRequest req, 
-			DTO wizardDto ) 
-					throws AlfrescoException ;
+	protected void processError ( Exception errorCause ) {
+		processError ( null, errorCause );
+	}
 	
-	protected abstract void processForm ( 
-			WebScriptRequest req, 
-			DTO wizardDto ) 
-					throws AlfrescoException ;
-	
-	protected void performExtraOperation( 
-			WebScriptRequest req, DTO wizardDto, String formOperation ) 
-					throws AlfrescoException  {
-		// Any other input page status comes from a wrong JS controller choice 
-		throw new IllegalArgumentException ( 
-				String.format("unexpected form operation: %s", formOperation) );
+	protected void processError ( String errorMessage, Exception errorCause ) {
+		if ( StringUtils.isBlank(errorMessage) ) {
+			if ( errorCause instanceof AlfrescoException ) { 
+				errorMessage = errorCause.getMessage();
+				if ( StringUtils.isBlank(errorMessage) ) {
+					ResultCode resultCode = ((AlfrescoException)errorCause).getResultCode();
+					errorMessage = getMessage ( String.format(RESULT_CODE, resultCode) );
+				}
+			}
+		}
+		
+		addActionError ( errorMessage, errorCause, true );
 	}
 
-	protected String prevForm ( String currentForm ) {
-		int formIndex = formIndex ( currentForm );
-		int prevIdx = formIndex > 0 ? formIndex-1 : formIndex;   
-		return getWizardForms() [ prevIdx ];
-	}
+	protected abstract void processData ( 
+			DTO wizardDto ) 
+					throws AlfrescoException ;
 	
 	protected String nextForm ( String currentForm ) {
+		if ( StringUtils.isBlank(currentForm) )											return null; 
 		int formIndex = formIndex ( currentForm );
 		int prevIdx = formIndex < getWizardForms().length-1 ? formIndex+1 : formIndex;   
 		return getWizardForms() [ prevIdx ];

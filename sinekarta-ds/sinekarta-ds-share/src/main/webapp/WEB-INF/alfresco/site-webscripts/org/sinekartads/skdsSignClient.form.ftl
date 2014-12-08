@@ -26,42 +26,46 @@
 				<label>${msg("group.clientType.KEYSTORE")}</label>
 		    </div>
 		    <div id="${htmlid}-clientType-KEYSTORE-body" class="skds-group-body">
-		    	<label>${msg("label.clientType.KEYSTORE")}</label>
-		    	
-		    	
-		    	<!-- wscWizardData.ksPin -->
-				<div class="skds-datarow">
-					<span class="skds-data-caption">
-						<label for="${htmlid}-ksPin">${msg("label.ksPin")}</label>
-					</span>
-					<span class="skds-data-input">
-						<input id="${htmlid}-ksPin" type="text" value="${wscWizardData.ksPin}" />
-					</span>
-					<@fieldError field='ksPin' />
+				<div id="${htmlid}-clientType-KEYSTORE-enabled">
+					<label>${msg("label.clientType.KEYSTORE")}</label>
+							    	
+			    	<!-- wscWizardData.ksPin -->
+					<div class="skds-datarow">
+						<span class="skds-data-caption">
+							<label for="${htmlid}-ksPin">${msg("label.ksPin")}</label>
+						</span>
+						<span class="skds-data-input">
+							<input id="${htmlid}-ksPin" type="text" value="${wscWizardData.ksPin}" />
+						</span>
+						<@fieldError field='ksPin' />
+					</div>
+					
+					<!-- wscWizardData.ksUserAlias -->
+					<div class="skds-datarow">
+						<span class="skds-data-caption">
+							<label for="${htmlid}-ksUserAlias">${msg("label.ksUserAlias")}</label>
+						</span>
+						<span class="skds-data-input">
+							<select id="${htmlid}-ksUserAlias">
+								<option value="${msg("select.dummy")}" selected>${msg("select.dummy")}</option>
+							</select>
+						</span>
+						<@fieldError field='ksUserAlias' />
+					</div>
+			    	
+	   				<!-- wscWizardData.ksUserPassword -->
+					<div class="skds-datarow" style="display:none">
+						<span class="skds-data-caption">
+							<label for="${htmlid}-ksUserPassword">${msg("label.ksUserPassword")}</label>
+						</span>
+						<span class="skds-data-input">
+							<input id="${htmlid}-ksUserPassword" type="text" value="${wscWizardData.ksUserPassword}" />
+						</span>
+						<@fieldError field='ksUserPassword' />
+					</div>
 				</div>
-				
-				<!-- wscWizardData.ksUserAlias -->
-				<div class="skds-datarow">
-					<span class="skds-data-caption">
-						<label for="${htmlid}-ksUserAlias">${msg("label.ksUserAlias")}</label>
-					</span>
-					<span class="skds-data-input">
-						<select id="${htmlid}-ksUserAlias">
-							<option value="${msg("select.dummy")}" selected>${msg("select.dummy")}</option>
-						</select>
-					</span>
-					<@fieldError field='ksUserAlias' />
-				</div>
-		    	
-   				<!-- wscWizardData.ksUserPassword -->
-				<div class="skds-datarow" style="display:none">
-					<span class="skds-data-caption">
-						<label for="${htmlid}-ksUserPassword">${msg("label.ksUserPassword")}</label>
-					</span>
-					<span class="skds-data-input">
-						<input id="${htmlid}-ksUserPassword" type="text" value="${wscWizardData.ksUserPassword}" />
-					</span>
-					<@fieldError field='ksUserPassword' />
+				<div id="${htmlid}-clientType-KEYSTORE-disabled" style="display: none">
+					<label>${msg("label.missing.KEYSTORE")}</label>
 				</div>
 		    </div>
 		</div>
@@ -70,30 +74,35 @@
 				<label>${msg("group.clientType.SMARTCARD")}</label>
 		    </div>
 		    <div id="${htmlid}-clientType-SMARTCARD-body" class="skds-group-body">
-		    	<label id="${htmlid}-clientType-SMARTCARD-label">${msg("label.clientType.SMARTCARD")}</label>
+		    	<div id="${htmlid}-clientType-SMARTCARD-enabled">
+		    		<label>${msg("label.clientType.SMARTCARD")}</label>
 		    	
-		    	<!-- wscWizardData.scPin -->
-				<div class="skds-datarow">
-					<span class="skds-data-caption">
-						<label for="${htmlid}-scPin">${msg("label.scPin")}</label>
-					</span>
-					<span class="skds-data-input">
-						<input id="${htmlid}-scPin" type="text" value="${wscWizardData.scPin}" />
-					</span>
-					<@fieldError field='scPin' />
+			    	<!-- wscWizardData.scPin -->
+					<div class="skds-datarow">
+						<span class="skds-data-caption">
+							<label for="${htmlid}-scPin">${msg("label.scPin")}</label>
+						</span>
+						<span class="skds-data-input">
+							<input id="${htmlid}-scPin" type="text" value="${wscWizardData.scPin}" />
+						</span>
+						<@fieldError field='scPin' />
+					</div>
+					
+					<!-- wscWizardData.ksUserAlias -->
+					<div class="skds-datarow">
+						<span class="skds-data-caption">
+							<label for="${htmlid}-scUserAlias">${msg("label.scUserAlias")}</label>
+						</span>
+						<span class="skds-data-input">
+							<select id="${htmlid}-scUserAlias">
+								<option value="${msg("select.dummy")}" selected>${msg("select.dummy")}</option>
+							</select>
+						</span>
+						<@fieldError field='scUserAlias' />
+					</div>
 				</div>
-				
-				<!-- wscWizardData.ksUserAlias -->
-				<div class="skds-datarow">
-					<span class="skds-data-caption">
-						<label for="${htmlid}-scUserAlias">${msg("label.scUserAlias")}</label>
-					</span>
-					<span class="skds-data-input">
-						<select id="${htmlid}-scUserAlias">
-							<option value="${msg("select.dummy")}" selected>${msg("select.dummy")}</option>
-						</select>
-					</span>
-					<@fieldError field='scUserAlias' />
+				<div id="${htmlid}-clientType-SMARTCARD-disabled" style="display: none">
+					<label>${msg("label.missing.SMARTCARD")}</label>
 				</div>
 		    </div>
 		</div>

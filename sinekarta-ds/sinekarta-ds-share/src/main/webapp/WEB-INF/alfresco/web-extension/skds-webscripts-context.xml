@@ -34,20 +34,36 @@
 		<property name="connectorService" 	ref="connector.service" />
   	</bean> 
 
-   	<bean id="webscript.org.sinekartads.skdsSignOptions.get" parent="webscript"
-	      class="org.sinekartads.share.webscripts.sign.SkdsSignOptionsWS">
+   	<bean id="webscript.org.sinekartads.skdsSignWizard.get" parent="webscript"
+	      class="org.sinekartads.share.webscripts.sign.SkdsSignInitWS">
 		<property name="connectorService" 	ref="connector.service" />
-  	</bean>  
+  	</bean>
    	<bean id="webscript.org.sinekartads.skdsSignOptions.post" parent="webscript"
 	      class="org.sinekartads.share.webscripts.sign.SkdsSignOptionsWS">
 		<property name="connectorService" 	ref="connector.service" />
+  	</bean>
+  	<bean id="webscript.org.sinekartads.skdsSignCallKeyStoreOpen.post" parent="webscript"
+	      class="org.sinekartads.share.webscripts.sign.SkdsSignCallKeyStoreOpenWS">
+		<property name="connectorService" 	ref="connector.service" />
   	</bean>    	
+  	<bean id="webscript.org.sinekartads.skdsSignCallKeyStoreRead.post" parent="webscript"
+	      class="org.sinekartads.share.webscripts.sign.SkdsSignCallKeyStoreReadWS">
+		<property name="connectorService" 	ref="connector.service" />
+  	</bean>    	    	
    	<bean id="webscript.org.sinekartads.skdsSignClient.post" parent="webscript"
 	      class="org.sinekartads.share.webscripts.sign.SkdsSignClientWS">
 		<property name="connectorService" 	ref="connector.service" />
   	</bean>    	
-	<bean id="webscript.org.sinekartads.skdsSignResult.post" parent="webscript"
-	      class="org.sinekartads.share.webscripts.sign.SkdsSignResultWS">
+	<bean id="webscript.org.sinekartads.skdsSignCallPreSign.post" parent="webscript"
+	      class="org.sinekartads.share.webscripts.sign.SkdsSignCallPreSignWS">
+		<property name="connectorService" 	ref="connector.service" />
+  	</bean>
+	<bean id="webscript.org.sinekartads.skdsSignCallPostSign.post" parent="webscript"
+	      class="org.sinekartads.share.webscripts.sign.SkdsSignCallPostSignWS">
+		<property name="connectorService" 	ref="connector.service" />
+  	</bean>
+  	<bean id="webscript.org.sinekartads.skdsSignResults.post" parent="webscript"
+	      class="org.sinekartads.share.webscripts.sign.SkdsSignResultsWS">
 		<property name="connectorService" 	ref="connector.service" />
   	</bean>
   	

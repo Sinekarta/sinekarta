@@ -23,7 +23,7 @@ import org.springframework.extensions.webscripts.WebScriptRequest;
 
 public class SkdsVerifyResultWS extends BaseVerifyWS {
 
-	@Override
+//	@Override
 	protected void prepareForm(
 			WebScriptRequest req, VerifyWizardDTO wizardDto ) throws AlfrescoException {
 		
@@ -66,8 +66,8 @@ public class SkdsVerifyResultWS extends BaseVerifyWS {
 	}
  
 	@Override
-	protected void processForm(
-			WebScriptRequest req, VerifyWizardDTO dto) {
+	protected void processData(
+			/*WebScriptRequest req, */VerifyWizardDTO dto) {
 	}
 
 	@Override

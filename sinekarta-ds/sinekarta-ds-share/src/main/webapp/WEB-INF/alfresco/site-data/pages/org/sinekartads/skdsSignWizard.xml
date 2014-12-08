@@ -17,21 +17,10 @@
  *
  */
  -->
-<template-instance>
-	<template-type>org/sinekartads/skdsWizard</template-type>
-
-	<components>
-		<component>
-			<region-id>title</region-id>
-			<url>/components/title/simple-title</url>
-			<properties>
-				<title>sinekarta-ds: signature options</title>
- 			</properties>
-		</component>
-	
-		<component>
-			<region-id>content</region-id>
-			<url>/sinekartads/skdsSignOptions</url>
-		</component>	
-	</components>
-</template-instance>
+<page>
+	<id>skdsSignWizard</id>
+	<title>sinekarta-ds: signature wizard</title>
+	<description>signature application process</description>
+	<template-instance>skdsSignWizard</template-instance>
+	<authentication>user</authentication>
+</page>

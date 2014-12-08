@@ -17,21 +17,7 @@
  *
  */
  -->
-<template-instance>
-	<template-type>org/sinekartads/skdsWizard</template-type>
-
-	<components>
-		<component>
-			<region-id>title</region-id>
-			<url>/components/title/simple-title</url>
-			<properties>
-				<title>sinekarta-ds: signature options</title>
- 			</properties>
-		</component>
-	
-		<component>
-			<region-id>content</region-id>
-			<url>/sinekartads/skdsSignOptions</url>
-		</component>	
-	</components>
-</template-instance>
+<webscript>
+  <shortname>skdsSignCallPostSign</shortname>
+  <url>/sinekartads/skdsSignCallPostSign</url>
+</webscript>

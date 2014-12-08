@@ -19,10 +19,8 @@
  -->
 <page>
 	<id>skdsSignClient</id>
-	<title>Signature client</title>
-	<title-id>page.skdsSignClient.title</title-id>
-	<description>Choose the signature client</description>
-	<description-id>page.skdsSignClient.description</description-id>
+	<title>sinekarta-ds: signature client selection</title>
+	<description>select the client to be used to apply the digital signature</description>
 	<template-instance>skdsSignClient</template-instance>
 	<authentication>user</authentication>
 </page>

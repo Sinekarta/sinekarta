@@ -1,7 +1,6 @@
 package org.sinekartads.share.client;
 
 import java.io.IOException;
-import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,23 +44,7 @@ public class ShareSmartCardClient extends SmartCardClient {
 	@Override
 	protected byte[] doSign(SignatureAlgorithm sigAlgorithm,
 			DigestInfo digestInfo) throws DigitalSignatureException {
-		// TODO method body not implemented yet
-		throw new UnsupportedOperationException ( "method body not implemented yet" );
-	}
-
-	@Override
-	public void receiveSmartCardStatus(SmartCardStatus smartCardStatus) {
-		this.smartCardStatus = smartCardStatus;
-	}
-	
-	@Override
-	public void receiveAliases ( String[] aliases ) {
-		this.aliases = aliases;
-	}
-	
-	@Override
-	public void receiveUntrustedChain ( X509Certificate[] untrustedChain ) {
-		this.untrustedChain = untrustedChain;
+		return digitalSignature;
 	}
 
 	@Override
@@ -69,7 +52,5 @@ public class ShareSmartCardClient extends SmartCardClient {
 		// TODO method body not implemented yet
 		throw new UnsupportedOperationException ( "method body not implemented yet" );
 	}
-
-
 	
 }
