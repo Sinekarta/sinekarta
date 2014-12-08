@@ -171,7 +171,7 @@ public class SignatureDTO extends BaseDTO {
 		this.signCategory = signCat; 
 	}
 	
-	public X509Certificate[] certificateChainToHex() {
+	public X509Certificate[] certificateChainFromHex() {
 		return X509Utils.rawX509CertificatesFromHex(hexCertificateChain);
 	}
 	

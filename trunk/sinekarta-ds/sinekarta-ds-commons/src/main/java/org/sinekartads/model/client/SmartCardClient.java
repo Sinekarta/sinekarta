@@ -18,8 +18,6 @@ package org.sinekartads.model.client;
 
 import java.security.cert.X509Certificate;
 
-import org.sinekartads.util.controller.Controller;
-
 public abstract class SmartCardClient extends SignatureClient {
 	
 	public SmartCardClient ( String sessionId ) {
@@ -45,84 +43,27 @@ public abstract class SmartCardClient extends SignatureClient {
 	
 	public class SmartCardClientCtrl extends SignatureClientCtrl<SmartCardClient> {
 		
-		public SmartCardStatus getSmarCardStatus ( ) {
-			return SmartCardClient.this.smartCardStatus;
-		}
-		
-//		public String[] getDriverList() {
-//			super.verifyInitializationState ( DRIVERS_AVAILABLE );
-//			return SmartCardClient.this.drivers; 
-//		}
-//		
-//		public void selectDriver ( String driver ) {
-//			super.verifyInitializationState ( DRIVERS_AVAILABLE );
-//			SmartCardClient.this.selectDriver ( driver ); 
-//			super.goToInitStep ( DRIVER_SELECTED );
-//		}
-		
-		public void login ( String smartCardPin ) {
-//			super.verifyInitializationState ( DRIVER_SELECTED );
-			SmartCardClient.this.login ( smartCardPin ); 
-			super.goToInitStep ( ALIASES_AVAILABLE );
-		}
-		
-		/**
-		 * @deprecated do not use - this operation is intended to be performed through the applet
-		 */
-		@Override
-		public String[] selectIdentity(String alias, String password) {
-			throw new UnsupportedOperationException ( "this operation is intended to be performed through the applet" );
-		}
-		
-		public X509Certificate[] getUntrustedChain() {
-			return untrustedChain;
+		public void setDigitalSignature ( byte[] digitalSignature ) {
+			SmartCardClient.this.digitalSignature = digitalSignature;
 		}
 	}
 	
 	SmartCardClientCtrl controller = new SmartCardClientCtrl();
+	protected byte[] digitalSignature;
 	
 	@SuppressWarnings("unchecked")
 	public SmartCardClientCtrl getController() {
 		return controller;
 	}
 	
-
 	
 	
 	// -----
 	// --- Communication protocol
 	// -
 
-//	private String smartCardPin;
-//	private String[] allowedSignAlgorithms;
 	protected String[] aliases;
-//	private String userAlias;
 	protected X509Certificate[] untrustedChain;
 	protected SmartCardStatus smartCardStatus;
-	
-	protected abstract void receiveSmartCardStatus ( SmartCardStatus smartCardStatus ) ;
-	
-	protected abstract void receiveAliases ( String[] aliases ) ;
-
-	protected abstract void receiveUntrustedChain(X509Certificate[] untrustedChain) ;
-	
-	protected abstract void login ( String smartCardPin );
-	
-	public class JSController extends Controller {
-		
-		public void receiveSmartCardStatus ( SmartCardStatus smartCardStatus ) {
-			SmartCardClient.this.smartCardStatus = smartCardStatus;
-		}
-		
-		public void receiveAliases ( String[] aliases ) {
-			SmartCardClient.this.aliases = aliases;
-		}
-		
-		public void receiveChain ( X509Certificate[] rawX509CertificateChain ) {
-			
-			SmartCardClient.this.untrustedChain = rawX509CertificateChain;
-		}
-	}
-
 
 }
