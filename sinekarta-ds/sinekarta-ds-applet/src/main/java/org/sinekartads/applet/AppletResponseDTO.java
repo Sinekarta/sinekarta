@@ -2,6 +2,9 @@ package org.sinekartads.applet;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
+
 
 public class AppletResponseDTO implements Serializable {
 
@@ -11,15 +14,41 @@ public class AppletResponseDTO implements Serializable {
 	public static final String ERROR = "ERROR";
 	
 	
+	private String result;
+	/**
+	 * @deprecated ignore this field - fake field for serialization only proposes
+	 */
+	@SuppressWarnings("unused")
+	private String resultCode;
+	private ActionErrorDTO[] actionErrors = new ActionErrorDTO[0];
+	private FieldErrorDTO[] fieldErrors = new FieldErrorDTO[0];
 	
+	public void addFieldError ( String field, String error ) {
+		FieldErrorDTO fieldError = null;
+		for ( FieldErrorDTO fe : fieldErrors ) {
+			if ( StringUtils.equals(fe.field, field) ) {
+				fieldError = fe;
+			}
+		}
+		if ( fieldError == null ) {
+			fieldError = new FieldErrorDTO();
+			fieldError.setField(field);
+			fieldErrors = (FieldErrorDTO[]) ArrayUtils.add ( fieldErrors, fieldError );
+		}
+		fieldError.errors = (String[]) ArrayUtils.add ( fieldError.errors, error );
+	}
+	
+	public void addActionError ( String errorMessage, Exception errorCause ) {
+		ActionErrorDTO actionError = new ActionErrorDTO ( );
+		actionError.errorMessage = errorMessage;
+		// TODO serialize the errorCause to JSON and add it to the actionError
+	}
+	
+
 	// -----
 	// --- Data transport protocol
 	// -
-	
-	private String result;
-	private String resultCode;
-	private String errorMessage;
-	
+		
 	public String getResult() {
 		return result;
 	}
@@ -29,19 +58,75 @@ public class AppletResponseDTO implements Serializable {
 	}
 
 	public String getResultCode() {
-		return resultCode;
+		if ( ArrayUtils.isEmpty(actionErrors) && ArrayUtils.isEmpty(fieldErrors) ) {
+			return "SUCCESS";
+		} else {
+			return "ERROR";
+		}
 	}
 
-	public void setResultCode(String resultCode) {
-		this.resultCode = resultCode;
+	public ActionErrorDTO[] getActionErrors() {
+		return actionErrors;
 	}
 
-	public String getErrorMessage() {
-		return errorMessage;
+	public void setActionErrors(ActionErrorDTO[] actionErrors) {
+		this.actionErrors = actionErrors;
 	}
 
-	public void setErrorMessage(String errorMessage) {
-		this.errorMessage = errorMessage;
+	public FieldErrorDTO[] getFieldErrors() {
+		return fieldErrors;
 	}
 
+	public void setFieldErrors(FieldErrorDTO[] fieldErrors) {
+		this.fieldErrors = fieldErrors;
+	}
+
+
+
+	// FieldError DTO protocol
+	
+	public static class FieldErrorDTO {
+		
+		private String field;
+		private String[] errors;
+		
+		public String getField() {
+			return field;
+		}
+		
+		public void setField(String field) {
+			this.field = field;
+		}
+		
+		public String[] getErrors() {
+			return errors;
+		}
+		
+		public void setErrors(String[] errors) {
+			this.errors = errors;
+		}
+	}
+	
+	public static class ActionErrorDTO {
+		
+		private String errorMessage;
+		private String errorCause;
+		
+		public String getErrorMessage() {
+			return errorMessage;
+		}
+		
+		public void setErrorMessage(String errorMessage) {
+			this.errorMessage = errorMessage;
+		}
+
+		public String getErrorCause() {
+			return errorCause;
+		}
+
+		public void setErrorCause(String errorCause) {
+			this.errorCause = errorCause;
+		}
+		
+	}
 }

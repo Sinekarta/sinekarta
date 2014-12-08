@@ -50,15 +50,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sinekartads.utils.DNParser;
 import org.sinekartads.utils.HexUtils;
-import org.sinekartads.utils.X509Utils;
 
 public class SmartCardAccess {
 		
-	private static final Logger tracer = Logger.getLogger(SmartCardAccess.class); 
-	
 	String pkcs11Driver;
-	
-	String pin; 
 	
 	Module iaikPKCS11Module;
 	
@@ -75,10 +70,13 @@ public class SmartCardAccess {
 	 * need the pkcs11 driver (dll or .so) to work
 	 * the driver must be present in native library path or in system path 
 	 */
-	public void selectDriver(String pkcs11Driver) 
-			throws SmartCardReaderNotFoundException, PKCS11DriverNotFoundException, 
-					InvalidPKCS11DriverException, InvalidSmartCardException, SmartCardAccessException {
-		tracer.info(String.format("selectDriver - %s", pkcs11Driver));
+	public void selectDriver ( String pkcs11Driver ) 
+			throws SmartCardReaderNotFoundException, 
+				   PKCS11DriverNotFoundException, 
+				   InvalidPKCS11DriverException, 
+				   InvalidSmartCardException, 
+				   SmartCardAccessException {
+		
 		this.pkcs11Driver = pkcs11Driver;
 		class MyPrivilegedAction implements PrivilegedAction<Exception> {
 			private String pkcs11Driver;
@@ -170,28 +168,13 @@ public class SmartCardAccess {
 		} catch (TokenException e) {
 			throw new SmartCardAccessException("Unable to open smart card session",e);
 		}
-		
-		tracer.info(String.format("iaikPKCS11Module: %s", iaikPKCS11Module));
-		tracer.info(String.format("iaikSmartCard: %s", iaikSmartCard));
-		tracer.info(String.format("iaikSmartCardInfo: %s", iaikSmartCardInfo));
-		tracer.info(String.format("iaikSession: %s", iaikSession));
-		tracer.info(String.format("selectDriver - success"));
 	}
 	
-	public String[] login ( ) 
-			throws IllegalStateException, 
-					SmartCardAccessException {
-		return login ( getPin() );
-	}
-		
 	public String[] login ( String pin ) 
 			throws IllegalStateException, 
-					SmartCardAccessException {
-		tracer.info(String.format("login - %s", pin));
-		tracer.info(String.format("iaikPKCS11Module: %s", iaikPKCS11Module));
-		tracer.info(String.format("iaikSmartCard: %s", iaikSmartCard));
-		tracer.info(String.format("iaikSmartCardInfo: %s", iaikSmartCardInfo));
-		tracer.info(String.format("iaikSession: %s", iaikSession));
+				   InvalidPinException, 
+				   PinLockedException, 
+				   SmartCardAccessException {
 		// Execute the login
 		if (iaikSmartCardInfo.isLoginRequired()) {
 			try {
@@ -201,18 +184,18 @@ public class SmartCardAccess {
 					iaikSession.login(Session.UserType.USER, pin.toCharArray());
 				}
 			} catch (TokenException e) {
+				Logger.getLogger(getClass()).error(e.getMessage(), e);
 				if (e.getMessage().contains("CKR_PIN_INCORRECT") || e.getMessage().contains("CKR_PIN_INVALID")) {
 					throw new InvalidPinException("Login failed, invalid PIN", e);
 				} else if (e.getMessage().contains("CKR_PIN_LOCKED")) {
 					throw new PinLockedException("Login failed, PIN locked", e);
 				} else if (!e.getMessage().contains("CKR_USER_ALREADY_LOGGED_IN")) {
-					throw new SmartCardAccessException("Login failed", e);
+					throw new SmartCardAccessException("user already logged in", e);
 				}
 			} catch(Exception e) {
 				throw new SmartCardAccessException("Login failed", e);
 			}
 		}
-		this.pin = pin;
 		
 		// Parse the certificate aliases
 		String alias;													StringBuilder buf = new StringBuilder();
@@ -225,22 +208,12 @@ public class SmartCardAccess {
 		}
 		
 		// return the aliases as an array
-		tracer.info(String.format("pin: %s", pin));
-		tracer.info(String.format("aliases: %s", buf.toString()));
-		tracer.info(String.format("login - success"));
 		return aliases.toArray ( new String[aliases.size()] );
 	}
 	
 
 	public X509Certificate selectCertificate(String userAlias) 
-			throws SmartCardAccessException, CertificateException {
-		tracer.info(String.format("selectCertificate - %s", userAlias));
-		tracer.info(String.format("iaikPKCS11Module: %s", iaikPKCS11Module));
-		tracer.info(String.format("iaikSmartCard: %s", iaikSmartCard));
-		tracer.info(String.format("iaikSmartCardInfo: %s", iaikSmartCardInfo));
-		tracer.info(String.format("iaikSession: %s", iaikSession));
-		tracer.info(String.format("pin: %s", pin));
-		tracer.info(String.format("alias: %s", userAlias));
+			throws CertificateListException, CertificateException {
 		if (iaikSession==null) {
 			throw new IllegalStateException("Session not initialized, login before");
 		}
@@ -288,9 +261,6 @@ public class SmartCardAccess {
 		}
 		
 		try {
-			tracer.info(String.format("iaikPrivateKey: %s", iaikPrivateKey));
-			tracer.info(String.format("cert: %s", X509Utils.rawX509CertificateToHex(cert)));
-			tracer.info(String.format("selectCertificate - success"));
 		} catch(Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -375,12 +345,8 @@ public class SmartCardAccess {
 		return SmartCardAccess.this.pkcs11Driver;
 	}
 
-	public String getPin() {
-		return SmartCardAccess.this.pin;
-	}
-	
 	private List<X509PublicKeyCertificate> iaikCertificateList() 
-			throws CertificateListException, SmartCardAccessException {
+			throws CertificateListException {
 		
 		List<X509PublicKeyCertificate> certList = new ArrayList<X509PublicKeyCertificate>();
 		try {
@@ -415,10 +381,8 @@ public class SmartCardAccess {
 			} catch (TokenException e) {
 				throw new CertificateListException("Unable to read certificates from smart card (findObjectsFinal)",e);
 			}
-		} catch(SmartCardAccessException e) {
-			throw e;
 		} catch(Exception e) {
-			throw new SmartCardAccessException(e);
+			throw new CertificateListException(e);
 		}
 		
 		return certList;

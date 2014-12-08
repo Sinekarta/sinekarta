@@ -1,11 +1,20 @@
 package org.sinekartads.applet;
 
 import java.applet.Applet;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.sinekartads.smartcard.InvalidPKCS11DriverException;
+import org.sinekartads.smartcard.InvalidPinException;
+import org.sinekartads.smartcard.InvalidSmartCardException;
+import org.sinekartads.smartcard.PKCS11DriverNotFoundException;
+import org.sinekartads.smartcard.PinLockedException;
 import org.sinekartads.smartcard.SmartCardAccess;
+import org.sinekartads.smartcard.SmartCardAccessException;
+import org.sinekartads.smartcard.SmartCardReaderNotFoundException;
 import org.sinekartads.smartcard.SmartCardUtils;
 import org.sinekartads.utils.HexUtils;
 import org.sinekartads.utils.JSONUtils;
@@ -16,33 +25,13 @@ public class SignApplet extends Applet {
 	private static final long serialVersionUID = -2886113966359858032L;
 	private static final Logger tracer = Logger.getLogger(SignApplet.class);
 	
-	SmartCardAccess sca;
-	String[] matchingDrivers;
+	String driver;
+	String pin;
+	String alias;
 	
 	@Override
 	public void init ( ) {
-		tracer.info("mandi mandi");
-		sca = new SmartCardAccess ( );
-	}
-	
-	public String verifySmartCard ( String knownDriversJSON ) {
-		tracer.info("verifySmartCard");
-		tracer.info(String.format("knownDriversJSON: %s", knownDriversJSON));
-		
-		AppletResponseDTO resp = new AppletResponseDTO ( );
-		try {
-			String[] knownDrivers = (String[]) JSONUtils.fromJSONArray(String[].class, knownDriversJSON);
-			matchingDrivers = SmartCardUtils.detectDrivers(knownDrivers);
-			String driver = matchingDrivers[0];
-			sca.selectDriver ( driver );
-			resp.setResult ( JSONUtils.toJSONArray(matchingDrivers) );
-			resp.setResultCode(AppletResponseDTO.SUCCESS);
-		} catch(Exception e) {
-			processError(resp, e);
-		}
-		
-		tracer.info(String.format("respJSON: %s", JSONUtils.toJSON ( resp )));
-		return JSONUtils.toJSON ( resp );
+		tracer.info("initializing the SignApplet");
 	}
 	
 	public String selectDriver ( String driver ) {
@@ -50,19 +39,13 @@ public class SignApplet extends Applet {
 		tracer.info(String.format("driver: %s", driver));
 		
 		AppletResponseDTO resp = new AppletResponseDTO ( );
+		SmartCardAccess sca = new SmartCardAccess ( );
 		try {
-//			boolean missing = true;
-//			for ( int i=0; i<matchingDrivers.length && missing; i++ ) {
-//				missing = StringUtils.equalsIgnoreCase(driver, matchingDrivers[i]);
-//			}
-//			if ( missing ) {
-//				throw new DriverNotFoundException(String.format ( "indivalid driver", driver ));
-//			}
-			sca.selectDriver ( driver );
-			resp.setResult(driver);
-			resp.setResultCode(AppletResponseDTO.SUCCESS);
-		} catch(Exception e) {
-			processError ( resp, e );
+			if ( verifyDriver(resp, sca, driver) ) {
+				resp.setResult(this.driver);
+			}
+		} finally {
+			SmartCardUtils.finalizeQuietly ( sca );
 		}
 		
 		tracer.info(String.format("respJSON: %s", JSONUtils.toJSON ( resp )));
@@ -71,58 +54,73 @@ public class SignApplet extends Applet {
 	
 	public String login ( String pin ) {
 		tracer.info("login");
-		tracer.info(String.format("pin: %s", pin));
+		tracer.info(String.format("driver: %s", driver));
+		tracer.info(String.format("pin:    %s", pin));
 		
 		AppletResponseDTO resp = new AppletResponseDTO ( );
+		SmartCardAccess sca = new SmartCardAccess ( );
+		
 		try {
-			String[] aliases = sca.login ( pin );
-			sca.logout();
-			String aliasesJSON = JSONUtils.toJSONArray(aliases);
-			resp.setResult ( aliasesJSON );
-			resp.setResultCode(AppletResponseDTO.SUCCESS);
-		} catch(Exception e) {
-			processError ( resp, e );
+			if ( verifyDriver(resp, sca, driver) ) {
+				String[] aliases = loginWithPin ( resp, sca, pin );
+				if ( ArrayUtils.isNotEmpty(aliases) ) {
+					String aliasesJSON = JSONUtils.toJSONArray ( aliases );
+					resp.setResult ( aliasesJSON );
+				}
+			}
+		} finally {
+			SmartCardUtils.finalizeQuietly ( sca );
 		}
 		
 		tracer.info(String.format("respJSON: %s", JSONUtils.toJSON ( resp )));
 		return JSONUtils.toJSON ( resp );
 	}
 	
-	public String selectCertificate(String alias) {
+	public String selectCertificate ( String alias ) {
 		tracer.info("selectCertificate");
-		tracer.info(String.format("alias: %s", alias));
+		tracer.info(String.format("driver: %s", driver));
+		tracer.info(String.format("pin:    %s", pin));
+		tracer.info(String.format("alias:  %s", alias));
 		
 		AppletResponseDTO resp = new AppletResponseDTO ( );
+		SmartCardAccess sca = new SmartCardAccess ( );
 		try {
-			X509Certificate signingCertificate;
-			sca.login();
-			signingCertificate = sca.selectCertificate ( alias );
-			sca.logout();
-			resp.setResult ( X509Utils.rawX509CertificateToHex(signingCertificate) );
-			resp.setResultCode(AppletResponseDTO.SUCCESS);
+			X509Certificate signingCertificate = loginWithAlias(resp, sca, pin, alias);
+			if ( signingCertificate != null ) {
+				resp.setResult ( X509Utils.rawX509CertificateToHex(signingCertificate) );
+			}
+		} catch(CertificateException e) {
+			// never thrown - the certificate stored into the smartCard is expected to be corrected 
+			processError ( resp, "impossibile reperire il certificato per l'identità %s", e );
 		} catch(Exception e) {
-			processError(resp, e);
+			processError ( resp, "impossibile reperire il certificato per l'identità %s", e );
+		} finally {
+			SmartCardUtils.finalizeQuietly ( sca );
 		}
 		
 		tracer.info(String.format("respJSON: %s", JSONUtils.toJSON ( resp )));
 		return JSONUtils.toJSON(resp);
 	}
 	
-	public String signDigest(String digestEnc) {
+	public String signDigest ( String hexDigest ) {
 		tracer.info("signDigest");
-		tracer.info(String.format("digestEnc: %s", digestEnc));
+		tracer.info(String.format("driver: %s", driver));
+		tracer.info(String.format("pin:    %s", pin));
+		tracer.info(String.format("alias:  %s", alias));
+		tracer.info(String.format("digest: %s", hexDigest));
 		
 		AppletResponseDTO resp = new AppletResponseDTO ( );
+		SmartCardAccess sca = new SmartCardAccess ( );
 		try {
-			byte[] digest = HexUtils.decodeHex(digestEnc);
-			byte[] digitalSignature;
-			sca.login();
-			digitalSignature = sca.signFingerPrint(digest);
-			sca.logout();
-			resp.setResult ( HexUtils.encodeHex(digitalSignature) );
-			resp.setResultCode(AppletResponseDTO.SUCCESS);
-		} catch(Exception e) {
-			processError(resp, e);
+			if (loginWithAlias ( resp, sca, pin, alias ) != null ) {
+				byte[] digest = HexUtils.decodeHex(hexDigest);
+				byte[] digitalSignature = sca.signFingerPrint(digest);
+				resp.setResult ( HexUtils.encodeHex(digitalSignature) );
+			}
+		} catch (Exception e) {
+			processError ( resp, "errore rilevato nell'applicazione della firma digitale da SmartCard", e);
+		} finally {
+			SmartCardUtils.finalizeQuietly ( sca );
 		}
 		
 		tracer.info(String.format("respJSON: %s", JSONUtils.toJSON ( resp )));
@@ -130,21 +128,115 @@ public class SignApplet extends Applet {
 	}
 	
 	public void destroy() {
-		SmartCardUtils.finalizeQuietly ( sca );
+		tracer.info("destroying the signing applet");
 	}
 	
+	
+	private boolean verifyDriver (
+			AppletResponseDTO resp,
+			SmartCardAccess sca,
+			String driver ) {
+		
+		boolean validDriver = false;
+		try {
+			sca.selectDriver ( driver );
+			validDriver = true;
+		} catch (SmartCardReaderNotFoundException e) {
+			resp.addActionError("Impossibile trovare il lettore di SmartCard", e);
+		} catch (InvalidSmartCardException e) {
+			resp.addActionError("SmartCard non riconosciuta", e);
+		} catch (PKCS11DriverNotFoundException e) {
+			resp.addActionError("Driver SmartCard non trovato", e);
+		} catch (InvalidPKCS11DriverException e) {
+			resp.addActionError("Driver SmartCard non riconosciuto", e);
+		} catch (SmartCardAccessException e) {
+			resp.addActionError("Error SmartCard", e);
+		}
+		
+		if ( validDriver ) {
+			this.driver = driver;
+		} else {
+			this.driver = null;
+		}
+		return validDriver;
+	}
+	
+	private String[] loginWithPin ( 
+			AppletResponseDTO resp,
+			SmartCardAccess sca,
+			String pin ) {
+
+		String[] aliases = null;
+		if ( verifyDriver(resp, sca, driver) ) {
+			boolean validPin = false;
+			tracer.info(String.format("loginWithPin"));
+			tracer.info(String.format("pin:    %s", pin));
+			try {
+				aliases = sca.login ( pin );
+				validPin = true;
+			} catch (InvalidPinException e) {
+				tracer.error(e.getMessage(), e);
+				resp.addFieldError("scPin", "pin non riconosciuto");
+			} catch (PinLockedException e) {
+				tracer.error(e.getMessage(), e);
+				resp.addFieldError("scPin", "pin bloccato");
+			} catch (Exception e) {
+				tracer.error(e.getMessage(), e);
+				resp.addFieldError("scPin", "login fallito a causa di un errore interno");
+				tracer.error(e.getMessage(), e);
+			}
+			if ( validPin ) {
+				this.pin = pin;
+			} else {
+				this.pin = null;
+			}
+		}
+		return aliases;
+	}
+	
+	private X509Certificate loginWithAlias ( 
+			AppletResponseDTO resp,
+			SmartCardAccess sca,
+			String pin,
+			String alias ) {
+		
+		boolean validAlias = false;
+		X509Certificate signingCertificate = null;
+		String[] aliases = loginWithPin ( resp, sca, pin );
+		if ( ArrayUtils.isNotEmpty(aliases) ) {
+			if ( ArrayUtils.contains(aliases, alias) ) {
+				try {
+					signingCertificate = sca.selectCertificate ( alias );
+					validAlias = true;
+				} catch(CertificateException e) {
+					// never thrown - the certificate stored into the smartCard is expected to be corrected 
+					processError ( resp, "impossibile reperire il certificato per l'identità %s", e );
+				} catch(Exception e) {
+					processError ( resp, "impossibile reperire il certificato per l'identità %s", e );
+				}
+			} else {
+				resp.addFieldError("scUserAlias", "alias non riconosciuto");
+			}
+		}
+		
+		if ( validAlias) {
+			this.alias = alias;
+		} else {
+			this.alias = null;
+		}
+		
+		return signingCertificate;
+	}
 	
 	// -----
 	// --- Error management
 	// -
 	
-	public void processError ( AppletResponseDTO resp, Exception e ) {
-		String errorMessage = e.getMessage();
+	private void processError ( AppletResponseDTO resp, String errorMessage, Exception errorCause ) {
 		if ( StringUtils.isBlank(errorMessage) ) {
-			errorMessage = e.getClass().getName();
+			errorMessage = errorCause.getClass().getName();
 		}
-		resp.setErrorMessage ( errorMessage );
-		resp.setResultCode(AppletResponseDTO.ERROR);
-		tracer.error(errorMessage, e);
+		resp.addActionError(errorMessage, errorCause);
+		tracer.error(errorMessage, errorCause);
 	}
 }
