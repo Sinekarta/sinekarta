@@ -18,11 +18,11 @@ public abstract class SkdsBaseSignWS
 				  Response extends BaseResponse > extends BaseAlfrescoWS<Request, Response> {
 
 	protected <DTO extends BaseDTO> DTO extractResult(Class<DTO> dtoClass, String respHex) throws Exception {
-		JclResponseDTO resp = BaseDTO.deserializeHex(JclResponseDTO.class, respHex);
+		JclResponseDTO resp = BaseDTO.deserializeBase64(JclResponseDTO.class, respHex);
 		ResultCode resultCode = resp.resultCodeFromString();
 		DTO dto;
 		if ( resultCode == ResultCode.SUCCESS ) {
-			dto = BaseDTO.deserializeHex(dtoClass, resp.getResult());
+			dto = BaseDTO.deserializeBase64(dtoClass, resp.getResult());
 		} else {
 			throw new Exception ( resp.getErrorMessage() );
 		}

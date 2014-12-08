@@ -66,12 +66,11 @@ public class SkdsPreSignWS
 				try {
 					// Retrieve the content
 					contentHex = loadFromNode ( document.getBaseDocument() );
-					FileUtils.writeByteArrayToFile(new java.io.File("/home/adeprato/hex.txt"), BaseDTO.serializeJSON(chainSignature).getBytes());
-//					FileUtils.writeByteArrayToFile(new java.io.File("/home/adeprato/hex.txt"), SerializationUtils.serialize(chainSignature));
+					FileUtils.writeByteArrayToFile(new java.io.File("/home/adeprato/chainSignature.base64"), BaseDTO.serializeBase64(chainSignature).getBytes());
 					// Perform the pre-sign phase
 					try {
-						String responseHex = signatureService.preSign(chainSignature.toHex(), contentHex);
-						digestSignature = extractResult ( SignatureDTO.class, responseHex );
+						String responseBase64 = signatureService.preSign(chainSignature.toBase64(), contentHex);
+						digestSignature = extractResult ( SignatureDTO.class, responseBase64 );
 					} catch(Exception e) {
 						tracer.error("error during the pre sign phase", e);
 						throw e;
