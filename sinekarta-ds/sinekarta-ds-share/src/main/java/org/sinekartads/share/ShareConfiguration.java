@@ -45,9 +45,10 @@ public class ShareConfiguration extends SystemConfiguration {
 	// -
 	
 	// General - optional properties
-	public static final String TSA_URL 							= "TSA_URL";
-	public static final String TSA_USER 						= "TSA_USER";
-	public static final String TSA_PASSWORD 					= "TSA_PASSWORD";
+	public static final String SMARTCARD_DRIVERS	= "SMARTCARD_DRIVERS";
+	public static final String TSA_URL 				= "TSA_URL";
+	public static final String TSA_USER 			= "TSA_USER";
+	public static final String TSA_PASSWORD 		= "TSA_PASSWORD";
 	
 	
 	
@@ -59,6 +60,20 @@ public class ShareConfiguration extends SystemConfiguration {
 	protected void loadProperties() {
 
 		try {
+			String property = getMandatoryProperty ( SMARTCARD_DRIVERS );
+			String[] drivers = property.split(",");
+			String[] nameDescr;
+			
+			driverNames = new String [ drivers.length+1 ];
+			driverDescriptions = new String [ drivers.length+1 ];
+			for ( int i=0; i<drivers.length; i++ ) {
+				nameDescr = drivers[i].split(":");
+				driverNames[i+1] = nameDescr[0];
+				driverDescriptions[i+1] = nameDescr[1];
+			}
+			driverNames[0] = "fake";
+			driverDescriptions[0] = "fake smartcard - pin: \"fake\"";
+			
 			tsaUrl = getProperty ( TSA_URL );
 			tsaUser = getProperty ( TSA_USER );
 			tsaPassword = getProperty ( TSA_PASSWORD );
@@ -78,10 +93,28 @@ public class ShareConfiguration extends SystemConfiguration {
 	// --- Mandatory settings
 	// -
 
+	private String[] driverNames;
+	private String[] driverDescriptions;
 	private String tsaUrl;
 	private String tsaUser;
 	private String tsaPassword;
 	
+	public String[] getDriverNames() {
+		return driverNames;
+	}
+
+	public void setDriverNames(String[] driverNames) {
+		this.driverNames = driverNames;
+	}
+	
+	public String[] getDriverDescriptions() {
+		return driverDescriptions;
+	}
+
+	public void setDriverDescriptions(String[] driverDescriptions) {
+		this.driverDescriptions = driverDescriptions;
+	}
+
 	public String getTsaUser() throws IllegalStateException {
 		super.verifyControllerState();
 		return tsaUser;

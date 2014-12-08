@@ -71,7 +71,7 @@ public class SkdsVerifyResultWS extends BaseVerifyWS {
 	}
 
 	@Override
-	protected String currentForm() {
-		return "skdsVerifyResult";
+	protected WizardStep currentStep() {
+		return STEP_RESULTS;
 	}
 }

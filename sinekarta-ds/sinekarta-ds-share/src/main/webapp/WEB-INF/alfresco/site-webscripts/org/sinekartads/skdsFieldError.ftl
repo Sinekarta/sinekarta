@@ -20,6 +20,6 @@
 <#assign el=htmlid?js_string>
 <!-- FIXME gestire il fieldError dinamicamente al refresh di pagina -->
 <#macro fieldError field>
-	<div id="${htmlid}-${field}-error">
-	</div>
+	<p id="${htmlid}-${field}-error" class="skds-error">
+	</p>
 </#macro>  

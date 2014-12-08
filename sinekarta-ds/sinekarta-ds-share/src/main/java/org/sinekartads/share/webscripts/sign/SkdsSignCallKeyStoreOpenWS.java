@@ -16,7 +16,6 @@
  */
 package org.sinekartads.share.webscripts.sign;
 
-import org.sinekartads.dto.domain.SignatureDTO;
 import org.sinekartads.dto.share.SignWizardDTO;
 import org.sinekartads.model.client.KeyStoreClient.KeyStoreClientCtrl;
 import org.sinekartads.share.util.AlfrescoException;
@@ -28,7 +27,7 @@ public class SkdsSignCallKeyStoreOpenWS extends BaseSignController {
 			SignWizardDTO dto ) 
 					throws AlfrescoException {
 		
-		SignatureDTO signature = dto.getSignature();
+//		SignatureDTO signature = dto.getSignature();
 		String sessionId = dto.getSessionId();
 		String keyStorePin = dto.getKsPin();
 		KeyStoreClientCtrl keyStoreClient = clientFactory.getKeyStoreCtrl ( sessionId );
@@ -41,7 +40,7 @@ public class SkdsSignCallKeyStoreOpenWS extends BaseSignController {
 	}
 
 	@Override
-	protected String currentForm() {
+	protected WizardStep currentStep() {
 		return null;
 	}
 }

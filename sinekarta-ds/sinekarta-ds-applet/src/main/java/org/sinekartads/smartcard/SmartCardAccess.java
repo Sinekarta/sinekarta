@@ -53,8 +53,6 @@ import org.sinekartads.utils.HexUtils;
 
 public class SmartCardAccess {
 		
-	String pkcs11Driver;
-	
 	Module iaikPKCS11Module;
 	
 	Token iaikSmartCard;
@@ -77,7 +75,6 @@ public class SmartCardAccess {
 				   InvalidSmartCardException, 
 				   SmartCardAccessException {
 		
-		this.pkcs11Driver = pkcs11Driver;
 		class MyPrivilegedAction implements PrivilegedAction<Exception> {
 			private String pkcs11Driver;
 		 	public MyPrivilegedAction(String pkcs11Driver) {
@@ -341,10 +338,6 @@ public class SmartCardAccess {
 		}
 	}
 
-	public String getPKCS11Driver() {
-		return SmartCardAccess.this.pkcs11Driver;
-	}
-
 	private List<X509PublicKeyCertificate> iaikCertificateList() 
 			throws CertificateListException {
 		
@@ -388,7 +381,7 @@ public class SmartCardAccess {
 		return certList;
 	}
 	
-	private X509Certificate toX509Certificate ( X509PublicKeyCertificate iaikCert ) throws CertificateException {
+	protected X509Certificate toX509Certificate ( X509PublicKeyCertificate iaikCert ) throws CertificateException {
 		X509Certificate cert;
 		try {
 			CertificateFactory cf = CertificateFactory.getInstance("X.509");

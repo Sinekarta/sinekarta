@@ -55,7 +55,7 @@ public class SkdsSignResultsWS extends BaseSignController {
 	}
 
 	@Override
-	protected String currentForm() {
-		return "skdsSignResult";
+	protected WizardStep currentStep() {
+		return STEP_RESULTS;
 	}
 }

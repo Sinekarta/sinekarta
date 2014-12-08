@@ -39,7 +39,7 @@ public class SkdsSignCallKeyStoreReadWS extends BaseSignController {
 	}
 
 	@Override
-	protected String currentForm() {
+	protected WizardStep currentStep() {
 		return null;
 	}
 }

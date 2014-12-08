@@ -7,6 +7,7 @@ import java.security.cert.X509Certificate;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.sinekartads.smartcard.FakeSmartCardAccess;
 import org.sinekartads.smartcard.InvalidPKCS11DriverException;
 import org.sinekartads.smartcard.InvalidPinException;
 import org.sinekartads.smartcard.InvalidSmartCardException;
@@ -39,7 +40,7 @@ public class SignApplet extends Applet {
 		tracer.info(String.format("driver: %s", driver));
 		
 		AppletResponseDTO resp = new AppletResponseDTO ( );
-		SmartCardAccess sca = new SmartCardAccess ( );
+		SmartCardAccess sca = createSmartCardAccess ( driver );
 		try {
 			if ( verifyDriver(resp, sca, driver) ) {
 				resp.setResult(this.driver);
@@ -58,8 +59,7 @@ public class SignApplet extends Applet {
 		tracer.info(String.format("pin:    %s", pin));
 		
 		AppletResponseDTO resp = new AppletResponseDTO ( );
-		SmartCardAccess sca = new SmartCardAccess ( );
-		
+		SmartCardAccess sca = createSmartCardAccess ( driver );
 		try {
 			if ( verifyDriver(resp, sca, driver) ) {
 				String[] aliases = loginWithPin ( resp, sca, pin );
@@ -83,7 +83,7 @@ public class SignApplet extends Applet {
 		tracer.info(String.format("alias:  %s", alias));
 		
 		AppletResponseDTO resp = new AppletResponseDTO ( );
-		SmartCardAccess sca = new SmartCardAccess ( );
+		SmartCardAccess sca = createSmartCardAccess ( driver );
 		try {
 			X509Certificate signingCertificate = loginWithAlias(resp, sca, pin, alias);
 			if ( signingCertificate != null ) {
@@ -104,13 +104,8 @@ public class SignApplet extends Applet {
 	
 	public String signDigest ( String hexDigest ) {
 		tracer.info("signDigest");
-		tracer.info(String.format("driver: %s", driver));
-		tracer.info(String.format("pin:    %s", pin));
-		tracer.info(String.format("alias:  %s", alias));
-		tracer.info(String.format("digest: %s", hexDigest));
-		
 		AppletResponseDTO resp = new AppletResponseDTO ( );
-		SmartCardAccess sca = new SmartCardAccess ( );
+		SmartCardAccess sca = createSmartCardAccess ( driver );
 		try {
 			if (loginWithAlias ( resp, sca, pin, alias ) != null ) {
 				byte[] digest = HexUtils.decodeHex(hexDigest);
@@ -146,9 +141,9 @@ public class SignApplet extends Applet {
 		} catch (InvalidSmartCardException e) {
 			resp.addActionError("SmartCard non riconosciuta", e);
 		} catch (PKCS11DriverNotFoundException e) {
-			resp.addActionError("Driver SmartCard non trovato", e);
+			resp.addFieldError("scDriver", "Driver SmartCard non trovato");
 		} catch (InvalidPKCS11DriverException e) {
-			resp.addActionError("Driver SmartCard non riconosciuto", e);
+			resp.addFieldError("scDriver", "Driver SmartCard non riconosciuto");
 		} catch (SmartCardAccessException e) {
 			resp.addActionError("Error SmartCard", e);
 		}
@@ -176,7 +171,11 @@ public class SignApplet extends Applet {
 				validPin = true;
 			} catch (InvalidPinException e) {
 				tracer.error(e.getMessage(), e);
-				resp.addFieldError("scPin", "pin non riconosciuto");
+				if ( StringUtils.equals(driver, FakeSmartCardAccess.FAKE_DRIVER) ) {
+					resp.addFieldError("scPin", String.format("il pin della fake smartCard è: \"%s\"", FakeSmartCardAccess.FAKE_PIN));
+				} else {
+					resp.addFieldError("scPin", "pin non riconosciuto");
+				}
 			} catch (PinLockedException e) {
 				tracer.error(e.getMessage(), e);
 				resp.addFieldError("scPin", "pin bloccato");
@@ -227,10 +226,25 @@ public class SignApplet extends Applet {
 		
 		return signingCertificate;
 	}
+
+	
+	
+	
+	
 	
 	// -----
-	// --- Error management
+	// --- Utility protocol
 	// -
+	
+	private SmartCardAccess createSmartCardAccess ( String driver ) {
+		SmartCardAccess sca;
+		if ( StringUtils.equals(driver, FakeSmartCardAccess.FAKE_DRIVER) ) {
+			sca = new FakeSmartCardAccess ( );
+		} else {
+			sca = new SmartCardAccess ( );
+		}
+		return sca;
+	}
 	
 	private void processError ( AppletResponseDTO resp, String errorMessage, Exception errorCause ) {
 		if ( StringUtils.isBlank(errorMessage) ) {

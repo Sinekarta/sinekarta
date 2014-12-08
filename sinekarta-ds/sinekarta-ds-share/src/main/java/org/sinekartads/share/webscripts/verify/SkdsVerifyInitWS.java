@@ -111,7 +111,7 @@ public class SkdsVerifyInitWS extends BaseVerifyWS {
 	}
  
 	@Override
-	protected String currentForm() {
-		return "skdsVerifyInit";
+	protected WizardStep currentStep() {
+		return STEP_INIT;
 	}
 }

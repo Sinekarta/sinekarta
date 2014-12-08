@@ -77,6 +77,19 @@
 		    	<div id="${htmlid}-clientType-SMARTCARD-enabled">
 		    		<label>${msg("label.clientType.SMARTCARD")}</label>
 		    	
+					<!-- wscWizardData.scDriver -->
+					<div class="skds-datarow">
+						<span class="skds-data-caption">
+							<label for="${htmlid}-scDriver">${msg("label.scDriver")}</label>
+						</span>
+						<span class="skds-data-input">
+							<select id="${htmlid}-scDriver">
+								<option value="${msg("select.dummy")}" selected>${msg("select.dummy")}</option>
+							</select>
+						</span>
+						<@fieldError field='scDriver' />
+					</div>
+		    	
 			    	<!-- wscWizardData.scPin -->
 					<div class="skds-datarow">
 						<span class="skds-data-caption">

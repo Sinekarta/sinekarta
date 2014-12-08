@@ -64,7 +64,7 @@ public class SkdsSignCallPostSignWS extends BaseSignController {
 	}
 
 	@Override
-	protected String currentForm() {
-		return "skdsSignCallPostSign";
+	protected WizardStep currentStep() {
+		return STEP_POSTSIGN;
 	}
 }

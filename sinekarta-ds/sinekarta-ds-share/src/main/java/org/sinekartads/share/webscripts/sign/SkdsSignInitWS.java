@@ -137,17 +137,16 @@ public class SkdsSignInitWS extends BaseSignController {
 		signature.setLocation(getMessage("signature.location"));
 		signature.setReason(getMessage("signature.reason"));
 		
+		// Set the known driver names and descriptions
+		signWizard.setScDriverNames(conf.getDriverNames());
+		signWizard.setScDriverDescriptions(conf.getDriverDescriptions());
+		
 		// set KEYSTORE as default clientType
 		signWizard.setClientType(SignatureClientType.KEYSTORE.name());
 	}
 	
 	@Override
-	protected String currentForm() {
-		return "skdsSignInit";
-	}
-	
-	@Override
-	protected String nextForm ( String currentForm ) {
-		return "skdsSignOptions";
+	protected WizardStep currentStep() {
+		return STEP_INIT;
 	}
 }
