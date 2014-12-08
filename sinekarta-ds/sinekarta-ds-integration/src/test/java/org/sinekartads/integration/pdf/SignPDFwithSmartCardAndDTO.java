@@ -11,12 +11,13 @@ import java.util.Date;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Test;
 import org.sinekartads.applet.AppletResponseDTO;
+import org.sinekartads.applet.AppletResponseDTO.ActionErrorDTO;
+import org.sinekartads.applet.AppletResponseDTO.FieldErrorDTO;
 import org.sinekartads.applet.SignApplet;
 import org.sinekartads.core.service.PDFSignatureService;
 import org.sinekartads.core.service.TimeStampService;
@@ -52,7 +53,6 @@ import org.sinekartads.util.HexUtils;
 import org.sinekartads.util.TemplateUtils;
 import org.sinekartads.util.x509.X509Utils;
 import org.sinekartads.utils.JSONUtils;
-import org.springframework.util.Assert;
 import org.springframework.util.SerializationUtils;
 
 public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
@@ -91,6 +91,7 @@ public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 			boolean applyMark = false;
 			
 			// Test products
+			String driver = "libbit4ipki.so";
 			String[] aliases;
 			String alias;
 			X509Certificate certificate;
@@ -121,13 +122,13 @@ public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 			// Init the applet
 			try {
 				applet.init();
-				jsonResp = applet.verifySmartCard ( knownDriversJSON );
-				appletResponse = (AppletResponseDTO) JSONUtils.fromJSON(AppletResponseDTO.class, jsonResp);
-				String[] matchingDrivers = (String[]) 
-						JSONUtils.fromJSONArray ( String[].class, extractJSON(appletResponse) );
-				Assert.isTrue( ArrayUtils.isNotEmpty(matchingDrivers) );
+//				jsonResp = applet.verifySmartCard ( knownDriversJSON );
+//				appletResponse = (AppletResponseDTO) JSONUtils.fromJSON(AppletResponseDTO.class, jsonResp);
+//				String[] matchingDrivers = (String[]) 
+//						JSONUtils.fromJSONArray ( String[].class, extractJSON(appletResponse) );
+//				Assert.isTrue( ArrayUtils.isNotEmpty(matchingDrivers) );
 //				String driver = matchingDrivers[0];
-//				applet.selectDriver ( driver );
+				applet.selectDriver ( driver );
 			} catch(Exception e) {
 				tracer.error("error during the applet initialization", e);
 				throw e;
@@ -148,7 +149,7 @@ public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 			for ( String a : aliases ) {
 				buf.append(a).append(" ");
 			}
-			alias = aliases[1];
+			alias = aliases[0];
 			tracer.info(String.format ( "available aliases:   %s", buf ));
 			tracer.info(String.format ( "signing alias:       %s", alias ));
 			
@@ -390,7 +391,16 @@ public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 		if ( StringUtils.equals(resultCode, AppletResponseDTO.SUCCESS) ) {
 			json = resp.getResult();
 		} else {
-			throw new Exception ( resp.getErrorMessage() );
+			StringBuilder buf = new StringBuilder();
+			for ( FieldErrorDTO fieldError : resp.getFieldErrors() ) {
+				for ( String errorMessage : fieldError.getErrors() ) {
+					buf.append ( String.format("fieldError  - %s: %s\n", fieldError.getField(), errorMessage) );
+				}
+			}
+			for ( ActionErrorDTO actionError : resp.getActionErrors() ) {
+				buf.append ( String.format("actionError - %s\n", actionError.getErrorMessage()) );
+			}
+			throw new Exception ( buf.toString() );
 		}
 		return json;
 	}

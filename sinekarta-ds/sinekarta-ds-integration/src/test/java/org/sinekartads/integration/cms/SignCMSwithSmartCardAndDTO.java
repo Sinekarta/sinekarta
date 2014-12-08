@@ -11,12 +11,13 @@ import java.util.Date;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Test;
 import org.sinekartads.applet.AppletResponseDTO;
+import org.sinekartads.applet.AppletResponseDTO.ActionErrorDTO;
+import org.sinekartads.applet.AppletResponseDTO.FieldErrorDTO;
 import org.sinekartads.applet.SignApplet;
 import org.sinekartads.core.service.CMSSignatureService;
 import org.sinekartads.core.service.TimeStampService;
@@ -52,7 +53,6 @@ import org.sinekartads.util.HexUtils;
 import org.sinekartads.util.TemplateUtils;
 import org.sinekartads.util.x509.X509Utils;
 import org.sinekartads.utils.JSONUtils;
-import org.springframework.util.Assert;
 
 public class SignCMSwithSmartCardAndDTO extends BaseIntegrationTC {
 
@@ -148,7 +148,7 @@ public class SignCMSwithSmartCardAndDTO extends BaseIntegrationTC {
 			for ( String a : aliases ) {
 				buf.append(a).append(" ");
 			}
-			alias = aliases[1];
+			alias = aliases[0];
 			tracer.info(String.format ( "available aliases:   %s", buf ));
 			tracer.info(String.format ( "signing alias:       %s", alias ));
 			
@@ -390,7 +390,16 @@ public class SignCMSwithSmartCardAndDTO extends BaseIntegrationTC {
 		if ( StringUtils.equals(resultCode, AppletResponseDTO.SUCCESS) ) {
 			json = resp.getResult();
 		} else {
-			throw new Exception ( resp.getErrorMessage() );
+			StringBuilder buf = new StringBuilder();
+			for ( FieldErrorDTO fieldError : resp.getFieldErrors() ) {
+				for ( String errorMessage : fieldError.getErrors() ) {
+					buf.append ( String.format("fieldError  - %s: %s\n", fieldError.getField(), errorMessage) );
+				}
+			}
+			for ( ActionErrorDTO actionError : resp.getActionErrors() ) {
+				buf.append ( String.format("actionError - %s\n", actionError.getErrorMessage()) );
+			}
+			throw new Exception ( buf.toString() );
 		}
 		return json;
 	}
