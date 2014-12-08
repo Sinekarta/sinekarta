@@ -18,6 +18,7 @@ public class SmartCardAccessTest extends TestCase {
 
 		// The allowedDrivers are received from the html page
 //		String[] knownDrivers = new String[] { "libbit4ipki.so", "libASEP11.so" };
+		String pin = "18071971";
 		// Input: fingerPrint - arbitrary 64 byte sequence (SHA256)
 		byte[] fingerPrint = HexUtils.decodeHex("2f265c664c0aa544a5c07b95b2e2e7756b7fddc9f4cdbce23befe35f755fcbf0");
 		// Output: digitalSignature evaluated by the smartCard
@@ -53,7 +54,7 @@ public class SmartCardAccessTest extends TestCase {
 			
 			// SmartCard login - received the pin, return the signing alias list
 			try {
-				aliases = sca.login("18071971");
+				aliases = sca.login ( pin );
 				sca.logout();
 				
 				StringBuilder buf = new StringBuilder();
@@ -69,7 +70,7 @@ public class SmartCardAccessTest extends TestCase {
 			
 			// Certificate selection - received the alias, choose the privateKey and return the certificate
 			try {
-				sca.login();
+				sca.login(pin);
 				signingCertificate = sca.selectCertificate ( alias );
 				sca.logout();
 				tracer.info(String.format ( "signing certificate: %s", signingCertificate ));
@@ -80,7 +81,7 @@ public class SmartCardAccessTest extends TestCase {
 			
 			// Digital Signature evaluation - sign the received digest with the smartCard
 			try {
-				sca.login();
+				sca.login ( pin );
 				tracer.info(String.format ( "fingerPrint:         %s", HexUtils.encodeHex(fingerPrint) ));
 				digitalSignature = sca.signFingerPrint(fingerPrint);
 				tracer.info(String.format ( "digitalSignature:    %s", HexUtils.encodeHex(digitalSignature) ));
