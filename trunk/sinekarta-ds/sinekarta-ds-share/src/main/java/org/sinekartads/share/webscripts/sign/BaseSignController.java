@@ -20,10 +20,10 @@ import org.sinekartads.dto.share.SignWizardDTO;
 import org.sinekartads.model.client.SignatureClientFactory;
 import org.sinekartads.share.webscripts.WSController;
 
-public abstract class SignController extends WSController<SignWizardDTO> {
+public abstract class BaseSignController extends WSController<SignWizardDTO> {
 
 	public static final String[] WIZARD_FORMS = {
-		"skdsSignOptions", "skdsSignClient", "skdsSignResult"
+		"skdsSignInit", "skdsSignOptions", "skdsSignClient", "skdsSignCallPreSign", "skdsSignCallPostSign", "skdsSignResult"
 	};
 	
 	SignatureClientFactory clientFactory = SignatureClientFactory.getInstance();
