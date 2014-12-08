@@ -17,21 +17,10 @@
  *
  */
  -->
-<template-instance>
-	<template-type>org/sinekartads/skdsWizard</template-type>
-
-	<components>
-		<component>
-			<region-id>title</region-id>
-			<url>/components/title/simple-title</url>
-			<properties>
-				<title>sinekarta-ds: signature options</title>
- 			</properties>
-		</component>
-	
-		<component>
-			<region-id>content</region-id>
-			<url>/sinekartads/skdsSignOptions</url>
-		</component>	
-	</components>
-</template-instance>
+<page>
+	<id>skdsSignCallPostSign</id>
+	<title>sinekarta-ds: post-sign phase</title>
+	<description>add the digital signature evaluated by the signature client to the signed enveloped and store it to the destination node</description>
+	<template-instance>skdsSignCallPostSign</template-instance>
+	<authentication>user</authentication>
+</page>

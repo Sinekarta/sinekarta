@@ -19,10 +19,8 @@
  -->
 <page>
 	<id>skdsSignOptions</id>
-	<title>Signature options</title>
-	<title-id>page.skdsSignOptions.title</title-id>
-	<description>Choose the signature type and the specify the timestamp credentials</description>
-	<description-id>page.skdsSignOptions.description</description-id>
+	<title>sinekarta-ds: signature options</title>
+	<description>set the general signature options - type, timeStamp, destination file details</description>
 	<template-instance>skdsSignOptions</template-instance>
 	<authentication>user</authentication>
 </page>

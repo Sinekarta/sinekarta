@@ -68,28 +68,33 @@
    	YAHOO.Bubbling.fire("registerAction",  { 
 		actionName: "onActionSkdsSign", 
 		fn: function DL_onActionSkdsSign(asset) {
-			var url = Alfresco.constants.URL_CONTEXT+"page/skdsSignOptions";
-			var parameters = new Array();
-			parameters["step"] = "prepare";
-			parameters["nodeRef"] = asset.nodeRef;
-			parameters["applyMark"] = "false";
-			parameters["backUrl"] = escape(window.location.href);
+			var url = Alfresco.constants.URL_CONTEXT+"page/skdsSignWizard";
+			
+			var wizardData = {};
+			wizardData.nodeRefs = [asset.nodeRef];
+			wizardData.tsSelection = "NONE";
+			wizardData.backUrl = escape(window.location.href);
+
+			var parameters = {};
+			parameters.wizardDataJSON = JSON.stringify(wizardData);
+			alert('wizardData.nodeRefs: ' + wizardData.nodeRefs + ', parameters.wizardDataJSON: ' + JSON.stringify(parameters.wizardDataJSON));
 			location.href = buildUrl(url, parameters);
 		}
    	});
-  
+   	
    	YAHOO.Bubbling.fire("registerAction",  { 
 		actionName: "onActionSkdsSignAndMark", 
 		fn: function DL_onActionSkdsSignAndMark(asset) {
-			var url = Alfresco.constants.URL_CONTEXT+"page/skdsSignOptions";
-			var parameters = new Array();
-			parameters["step"] = "prepare";
-			parameters["nodeRef"] = asset.nodeRef;
-			parameters["applyMark"] = "true";
-			parameters["backUrl"] = escape(window.location.href);
-			location.href = buildUrl(url, parameters);
+			var url = Alfresco.constants.URL_CONTEXT+"page/skdsSignWizard";
 			
-			//Alfresco.util.navigateTo($siteURL(url), "POST", parameters);
+			var wizardData = {};
+			wizardData.nodeRefs = [asset.nodeRef];
+			wizardData.tsSelection = "DEFAULT";
+			wizardData.backUrl = escape(window.location.href);
+
+			var parameters = {};
+			parameters.wizardDataJSON = JSON.stringify(wizardData);
+			location.href = buildUrl(url, parameters);
 		}
    	});
    	
@@ -98,7 +103,7 @@
 		fn: function DL_onActionSkdsVerify(asset) {
 			var url = Alfresco.constants.URL_CONTEXT+"page/skdsVerifyPrepare";
 			var parameters = new Array();
-			parameters["nodeRef"] = asset.nodeRef;
+			parameters["nodeRefs"] = [asset.nodeRef];
 			parameters["backUrl"] = escape(window.location.href);
 			location.href = buildUrl(url, parameters);
 		}

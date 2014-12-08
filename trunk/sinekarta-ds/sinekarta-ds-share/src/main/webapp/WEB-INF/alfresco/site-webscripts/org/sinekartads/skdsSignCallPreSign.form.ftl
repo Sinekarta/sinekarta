@@ -1,5 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!-- 
+<#--
 /*
  * Copyright (C) 2010 - 2012 Jenia Software.
  *
@@ -16,22 +15,8 @@
  * GNU General Public License for more details.
  *
  */
- -->
-<template-instance>
-	<template-type>org/sinekartads/skdsWizard</template-type>
+-->
 
-	<components>
-		<component>
-			<region-id>title</region-id>
-			<url>/components/title/simple-title</url>
-			<properties>
-				<title>sinekarta-ds: signature options</title>
- 			</properties>
-		</component>
-	
-		<component>
-			<region-id>content</region-id>
-			<url>/sinekartads/skdsSignOptions</url>
-		</component>	
-	</components>
-</template-instance>
+<#--
+ | No content to be displayed - this file is only needed to allow the wizard initialization 
+ |-->

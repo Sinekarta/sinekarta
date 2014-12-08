@@ -25,13 +25,12 @@ import org.sinekartads.dto.request.SkdsDocumentDetailsRequest;
 import org.sinekartads.dto.response.SkdsDocumentDetailsResponse;
 import org.sinekartads.dto.share.VerifyWizardDTO;
 import org.sinekartads.share.util.AlfrescoException;
-import org.sinekartads.share.util.JavaWebscriptTools;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 
 
 public class SkdsVerifyInitWS extends BaseVerifyWS {
 
-	@Override
+//	@Override
 	protected void prepareForm(
 			WebScriptRequest req, VerifyWizardDTO wizardDto ) throws AlfrescoException {
 		
@@ -88,27 +87,27 @@ public class SkdsVerifyInitWS extends BaseVerifyWS {
 	}
 
 	@Override
-	protected void processForm(WebScriptRequest req, VerifyWizardDTO wizardDto) {
+	protected void processData(/*WebScriptRequest req, */VerifyWizardDTO wizardDto) {
 
-		String verifyOperation = (String)JavaWebscriptTools.getRequestParameter(req, "verifyOperation");
-		String pathChoice = (String)JavaWebscriptTools.getRequestParameter(req, "pathChoice");
-//		String destName = (String)JavaWebscriptTools.getRequestParameter(req, "destName"); 
-//		String description = (String)JavaWebscriptTools.getRequestParameter(req, "description");
-		String flagReplaceFile = (String)JavaWebscriptTools.getRequestParameter(req, "flagReplaceFile");
-		
-		DocumentDTO document = wizardDto.getDocument();
-		try {
-			if(StringUtils.equals(verifyOperation, "verifyAndExtract")) {
-				// TODO copy file details
-//				document.setDestName(destName);
-//				document.setDescription(description);
-			}
-		} finally {
-			wizardDto.setDocument(document);
-			wizardDto.setVerifyOperation(verifyOperation);
-			wizardDto.setPathChoice(pathChoice);
-			wizardDto.setReplaceFiles(flagReplaceFile);
-		}
+//		String verifyOperation = (String)JavaWebscriptTools.getRequestParameter(req, "verifyOperation");
+//		String pathChoice = (String)JavaWebscriptTools.getRequestParameter(req, "pathChoice");
+////		String destName = (String)JavaWebscriptTools.getRequestParameter(req, "destName"); 
+////		String description = (String)JavaWebscriptTools.getRequestParameter(req, "description");
+//		String flagReplaceFile = (String)JavaWebscriptTools.getRequestParameter(req, "flagReplaceFile");
+//		
+//		DocumentDTO document = wizardDto.getDocument();
+//		try {
+//			if(StringUtils.equals(verifyOperation, "verifyAndExtract")) {
+//				// TODO copy file details
+////				document.setDestName(destName);
+////				document.setDescription(description);
+//			}
+//		} finally {
+//			wizardDto.setDocument(document);
+//			wizardDto.setVerifyOperation(verifyOperation);
+//			wizardDto.setPathChoice(pathChoice);
+//			wizardDto.setReplaceFiles(flagReplaceFile);
+//		}
 	}
  
 	@Override

@@ -25,13 +25,13 @@
 			<region-id>title</region-id>
 			<url>/components/title/simple-title</url>
 			<properties>
-				<title>sinekarta-ds: signature options</title>
+				<title>sinekarta-ds: signature wizard</title>
  			</properties>
 		</component>
 	
 		<component>
 			<region-id>content</region-id>
-			<url>/sinekartads/skdsSignOptions</url>
+			<url>/sinekartads/skdsSignWizard</url>
 		</component>	
 	</components>
 </template-instance>

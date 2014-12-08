@@ -85,17 +85,17 @@ public class ShareConnector {
 			switch ( property ) {
 				case STATUS: {
 					SmartCardStatus smartCardStatus = SmartCardStatus.valueOf ( value );
-					client.receiveSmartCardStatus(smartCardStatus);
+//					client.receiveSmartCardStatus(smartCardStatus);
 					break;
 				}
 				case ALIASES: {
 					String[] aliases = mapper.readValue(value, String[].class);
-					client.receiveAliases(aliases);
+//					client.receiveAliases(aliases);
 					break;
 				}
 				case CHAIN: {
 					X509Certificate[] untrustedChain = mapper.readValue(value, X509Certificate[].class);
-					client.receiveUntrustedChain(untrustedChain);
+//					client.receiveUntrustedChain(untrustedChain);
 					break;
 				}
 				case DIG_SIGN: {
