@@ -12,7 +12,7 @@ public abstract class WizardDTO extends BaseDTO {
 	private String backUrl;
 	private String[] wizardForms;
 	private String currentForm;
-	private String formOperation;
+	private String resultCode;
 	private List<String> actionErrors;
 	private Map<String, List<String>> fieldErrors;
 
@@ -40,12 +40,12 @@ public abstract class WizardDTO extends BaseDTO {
 		this.currentForm = currentForm;
 	}
 
-	public String getFormOperation() {
-		return formOperation;
+	public String getResultCode() {
+		return resultCode;
 	}
 
-	public void setFormOperation(String formOperation) {
-		this.formOperation = formOperation;
+	public void setResultCode(String resultCode) {
+		this.resultCode = resultCode;
 	}
 
 	public List<String> getActionErrors() {
