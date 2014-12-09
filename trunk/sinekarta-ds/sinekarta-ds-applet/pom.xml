@@ -100,7 +100,10 @@
 						</manifest>
 						<manifestEntries>
 							<Trusted-Library>true</Trusted-Library>
-					    	<Permissions>all-permissions</Permissions>
+							<Permissions>all-permissions</Permissions>
+							<!-- Application-Name>*</Application-Name>
+							<Caller-Allowable-Codebase>*</Caller-Allowable-Codebase -->
+					    	
 					 	</manifestEntries>
 					</archive>
 				</configuration>

@@ -17,10 +17,8 @@
  *
  */
  -->
-<page>
-	<id>skdsSignResult</id>
-	<title>sinekarta-ds: signature results</title>
-	<description>display to the user a feedback and allows it to see the signed document</description>
-	<template-instance>skdsSignResults</template-instance>
-	<authentication>user</authentication>
-</page>
+<webscript>
+  <shortname>skdsSignResults</shortname>
+  <description>apply the digital signature</description>
+  <url>/sinekartads/skdsSignResults</url>
+</webscript>

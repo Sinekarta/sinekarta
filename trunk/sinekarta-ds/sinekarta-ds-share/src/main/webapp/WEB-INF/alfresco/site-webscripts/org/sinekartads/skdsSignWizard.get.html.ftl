@@ -162,8 +162,7 @@
 						</span>
 					</div>
 				
-					<div>
-						${msg("header")}
+					<div id="${htmlid}-header">
 					</div>
 				</div>
 				
@@ -171,11 +170,8 @@
 					<@actionError />
 				</div>
 			
-				<#if msg("description")??>
-					<div class="skds-header-bar">
-						${msg("description")}
-					</div>
-				</#if>
+				<div id="${htmlid}-description" class="skds-header-bar">
+				</div>
 			</div>
 		<#recover>
 			<div class="skds-error">

@@ -31,7 +31,7 @@
 	
 		<component>
 			<region-id>content</region-id>
-			<url>/sinekartads/skdsSignResult</url>
+			<url>/sinekartads/skdsSignResults</url>
 		</component>	
 	</components>
 </template-instance>

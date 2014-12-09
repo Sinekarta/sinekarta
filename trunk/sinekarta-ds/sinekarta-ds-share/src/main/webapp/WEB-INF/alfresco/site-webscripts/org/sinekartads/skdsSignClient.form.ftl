@@ -35,7 +35,7 @@
 							<label for="${htmlid}-ksPin">${msg("label.ksPin")}</label>
 						</span>
 						<span class="skds-data-input">
-							<input id="${htmlid}-ksPin" type="text" value="${wscWizardData.ksPin}" />
+							<input id="${htmlid}-ksPin" type="password" value="${wscWizardData.ksPin}" />
 						</span>
 						<@fieldError field='ksPin' />
 					</div>
@@ -96,7 +96,7 @@
 							<label for="${htmlid}-scPin">${msg("label.scPin")}</label>
 						</span>
 						<span class="skds-data-input">
-							<input id="${htmlid}-scPin" type="text" value="${wscWizardData.scPin}" />
+							<input id="${htmlid}-scPin" type="password" value="${wscWizardData.scPin}" />
 						</span>
 						<@fieldError field='scPin' />
 					</div>

@@ -134,6 +134,7 @@ public class SignApplet extends Applet {
 		
 		boolean validDriver = false;
 		try {
+			tracer.info(String.format("verifying driver %s with %s", driver, sca));
 			sca.selectDriver ( driver );
 			validDriver = true;
 		} catch (SmartCardReaderNotFoundException e) {
@@ -141,8 +142,10 @@ public class SignApplet extends Applet {
 		} catch (InvalidSmartCardException e) {
 			resp.addActionError("SmartCard non riconosciuta", e);
 		} catch (PKCS11DriverNotFoundException e) {
+			tracer.error(e.getMessage(), e);
 			resp.addFieldError("scDriver", "Driver SmartCard non trovato");
 		} catch (InvalidPKCS11DriverException e) {
+			tracer.error(e.getMessage(), e);
 			resp.addFieldError("scDriver", "Driver SmartCard non riconosciuto");
 		} catch (SmartCardAccessException e) {
 			resp.addActionError("Error SmartCard", e);

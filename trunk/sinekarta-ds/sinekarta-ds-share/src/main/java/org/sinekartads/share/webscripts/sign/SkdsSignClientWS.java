@@ -35,12 +35,13 @@ public class SkdsSignClientWS extends BaseSignController {
 			Assert.isTrue ( ArrayUtils.isNotEmpty(dto.getSignature().getHexCertificateChain()) );
 			for ( String hexCertificate : dto.getSignature().getHexCertificateChain() ) {
 				if ( StringUtils.isBlank(hexCertificate) ) {
-					throw new NullPointerException();
+					addFieldError(dto, "ksUserAlias", "campo obbligatorio");
+				} else {
+					X509Utils.rawX509CertificateFromHex ( hexCertificate );
 				}
-				X509Utils.rawX509CertificateFromHex ( hexCertificate );
 			}
 		} catch(Exception e) {
-			processError ( dto, getMessage("error.invalidCertificateChain") );
+			processError ( dto, e.getMessage() );
 		}
 		
 //		String sessionId = dto.getSessionId();

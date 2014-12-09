@@ -27,10 +27,6 @@ import org.sinekartads.dto.domain.DocumentDTO;
 import org.sinekartads.dto.domain.SignatureDTO;
 import org.sinekartads.dto.tools.DTOConverter;
 import org.sinekartads.model.domain.DigestInfo;
-import org.sinekartads.model.domain.SecurityLevel.VerifyResult;
-import org.sinekartads.model.domain.SignatureInfo;
-import org.sinekartads.model.domain.Transitions.DigestSignature;
-import org.sinekartads.model.domain.Transitions.SignedSignature;
 import org.sinekartads.model.oid.SignatureAlgorithm;
 import org.sinekartads.util.TemplateUtils;
 import org.sinekartads.util.controller.Controller;
@@ -197,7 +193,7 @@ public abstract class SignatureClient {
 	protected abstract String[] selectIdentity(String alias, String password);
 	
 	private DocumentDTO doSign(DocumentDTO document) throws DigitalSignatureException {
-		for(SignatureListener listener : listeners) listener.startSigning(document);
+//		for(SignatureListener listener : listeners) listener.startSigning(document);
 
 		SignatureDTO[] signatures = document.getSignatures();
 		Assert.isTrue( ArrayUtils.isNotEmpty(signatures) );
@@ -205,18 +201,15 @@ public abstract class SignatureClient {
 		SignatureAlgorithm signatureAlgorithm;
 		DigestInfo digestInfo;
 		byte[] digitalSignature;
-		final int LAST = signatures.length;
+		final int LAST = signatures.length - 1;
 		
-		DigestSignature<?,?,VerifyResult,?> digestSignature;
-		SignedSignature<?,?,VerifyResult,?> signedSignature;
-		digestSignature = converter.toSignatureInfo(signatures[LAST]);
-		signatureAlgorithm = digestSignature.getSignAlgorithm();
-		digestInfo = digestSignature.getDigest();
+		SignatureDTO signature = signatures[LAST];
+		signatureAlgorithm = signature.signAlgorithmFromString();
+		digestInfo = converter.toDigestInfo(signature.getDigest());
 		digitalSignature = doSign ( signatureAlgorithm, digestInfo );
-		signedSignature = digestSignature.toSignedSignature(digitalSignature);
-		signatures[LAST] = converter.fromSignatureInfo ( (SignatureInfo<?,?,VerifyResult,?>) signedSignature );
+		signature.digitalSignatureToHex(digitalSignature);
 		
-		for(SignatureListener listener : listeners) listener.endSigning(document);
+//		for(SignatureListener listener : listeners) listener.endSigning(document);
 		return document;
 	}
 	
