@@ -26,6 +26,8 @@ import org.apache.commons.lang.StringUtils;
 import org.sinekartads.dto.DTOFormatter;
 import org.sinekartads.dto.ResultCode;
 import org.sinekartads.dto.share.WizardDTO;
+import org.sinekartads.dto.share.WizardDTO.ActionErrorDTO;
+import org.sinekartads.dto.share.WizardDTO.FieldErrorDTO;
 import org.sinekartads.dto.share.WizardDTO.WizardStepDTO;
 import org.sinekartads.dto.tools.DTOConverter;
 import org.sinekartads.share.ShareConfiguration;
@@ -180,6 +182,8 @@ public abstract class WSController<DTO extends WizardDTO> extends BaseWS {
 		try {
 			// Retrieve the WizardDTO instance
 			wizardData = (DTO) TemplateUtils.Encoding.deserializeJSON ( dtoClass, jscWizardData );
+			wizardData.setActionErrors ( new ActionErrorDTO[0] );
+			wizardData.setFieldErrors ( new FieldErrorDTO[0] );
 
 			// Process the wizardData
 			processData ( wizardData );
@@ -187,16 +191,20 @@ public abstract class WSController<DTO extends WizardDTO> extends BaseWS {
 			processError ( wizardData, e );
 		} finally {
 			// Select the currentForm to be displayed by the JS controller 
-			WizardStep currentForm;
+			WizardStep currentStep;
 			boolean success =  StringUtils.equals ( 
 					wizardData.getResultCode(), WizardDTO.SUCCESS );
 			if ( success ) {
-				currentForm = nextStep ( currentStep() );
+				currentStep = nextStep ( currentStep() );
 			} else {
-				currentForm = currentStep();
+				currentStep = currentStep();
 			}
-			wizardData.setCurrentStep ( toWizardStepDTO(currentForm) );
-			wizardData.setWizardSteps ( toWizardStepDTO(getWizardSteps()) );
+			wizardData.setCurrentStep ( toWizardStepDTO(currentStep) );
+			Map<String, WizardStepDTO> wizardSteps = new HashMap<String, WizardStepDTO>(); 
+			for ( WizardStep wizardStep : getWizardSteps() ) {
+				wizardSteps.put ( wizardStep.name, toWizardStepDTO(wizardStep) );
+			}
+			wizardData.setWizardSteps ( wizardSteps );
 			wizardData.setWizardForms ( getWizardForms() );
 			
 			// Send the htmlid back only if it has been previously populated by Alfresco share
@@ -231,6 +239,7 @@ public abstract class WSController<DTO extends WizardDTO> extends BaseWS {
 		}
 		
 		wizardData.addActionError ( errorMessage, errorCause );
+		tracer.error(errorMessage, errorCause);
 	}
 
 	protected abstract void processData ( 
@@ -238,10 +247,15 @@ public abstract class WSController<DTO extends WizardDTO> extends BaseWS {
 					throws AlfrescoException ;
 	
 	protected WizardStep nextStep ( WizardStep step ) {
-		if ( step == null )											return null; 
-		int stepIndex = stepIndex ( step );
-		int prevIdx = stepIndex < getWizardSteps().length-1 ? stepIndex+1 : stepIndex;   
-		return getWizardSteps() [ prevIdx ];
+		if ( !step.stepsOver )										return step; 
+		int index = stepIndex ( step );
+		WizardStep nextStep = step;
+		while ( StringUtils.equals(step.form, nextStep.form) && 
+				index < getWizardSteps().length-1 ) {
+			index ++;
+			nextStep = getWizardSteps() [ index ];
+		}
+		return nextStep;
 	}
 	
 	private int stepIndex ( WizardStep step ) {
@@ -262,9 +276,10 @@ public abstract class WSController<DTO extends WizardDTO> extends BaseWS {
 
 	public static class WizardStep {
 		
-		public WizardStep ( String name, String form ) {
+		public WizardStep ( String name, String form, boolean stepsOver ) {
 			this.name = name;
 			this.form = form;
+			this.stepsOver = stepsOver;
 		}
 		
 		public boolean equals ( WizardStep step ) {
@@ -273,6 +288,7 @@ public abstract class WSController<DTO extends WizardDTO> extends BaseWS {
 		
 		final String name;
 		final String form; 
+		final boolean stepsOver;
 	}
 
 	protected abstract String[] getWizardForms ( ) ;
@@ -281,16 +297,15 @@ public abstract class WSController<DTO extends WizardDTO> extends BaseWS {
 	
 	protected abstract WizardStep currentStep ( ) ;
 	
-	private WizardStepDTO[] toWizardStepDTO ( WizardStep[] wizardSteps ) {
-		WizardStepDTO[] dtos  = new WizardStepDTO[wizardSteps.length];
-		for ( int i=0; i<wizardSteps.length; i++ ) {
-			dtos[i] = toWizardStepDTO ( wizardSteps[i] );
-		}
-		return dtos;
-	}
+//	private WizardStepDTO[] toWizardStepDTO ( WizardStep[] wizardSteps ) {
+//		WizardStepDTO[] dtos  = new WizardStepDTO[wizardSteps.length];
+//		for ( int i=0; i<wizardSteps.length; i++ ) {
+//			dtos[i] = toWizardStepDTO ( wizardSteps[i] );
+//		}
+//		return dtos;
+//	}
 	
 	private WizardStepDTO toWizardStepDTO ( WizardStep wizardStep ) {
-		if ( wizardStep == null )										return null;
 		WizardStepDTO dto = new WizardStepDTO();
 		dto.setName(wizardStep.name);
 		dto.setForm(wizardStep.form);

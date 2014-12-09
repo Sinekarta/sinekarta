@@ -1,5 +1,7 @@
 package org.sinekartads.dto.share;
 
+import java.util.Map;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sinekartads.dto.BaseDTO;
@@ -37,7 +39,7 @@ public abstract class WizardDTO extends BaseDTO {
 	
 	private String backUrl;
 	private String[] wizardForms;
-	private WizardStepDTO[] wizardSteps;
+	private Map<String, WizardStepDTO> wizardSteps;
 	private WizardStepDTO currentStep;
 
 	/**
@@ -64,11 +66,11 @@ public abstract class WizardDTO extends BaseDTO {
 		this.wizardForms = wizardForms;
 	}
 
-	public WizardStepDTO[] getWizardSteps() {
+	public Map<String, WizardStepDTO> getWizardSteps() {
 		return wizardSteps;
 	}
 
-	public void setWizardSteps(WizardStepDTO[] wizardSteps) {
+	public void setWizardSteps(Map<String, WizardStepDTO> wizardSteps) {
 		this.wizardSteps = wizardSteps;
 	}
 

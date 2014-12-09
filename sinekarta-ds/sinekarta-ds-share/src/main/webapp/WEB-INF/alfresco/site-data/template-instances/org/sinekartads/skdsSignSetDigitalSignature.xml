@@ -17,8 +17,21 @@
  *
  */
  -->
-<webscript>
-  <shortname>skdsSignResult</shortname>
-  <description>apply the digital signature</description>
-  <url>/sinekartads/skdsSignResult</url>
-</webscript>
+<template-instance>
+	<template-type>org/sinekartads/skdsWizard</template-type>
+
+	<components>
+		<component>
+			<region-id>title</region-id>
+			<url>/components/title/simple-title</url>
+			<properties>
+				<title>sinekarta-ds: digitalSignature retrieving</title>
+ 			</properties>
+		</component>
+	
+		<component>
+			<region-id>content</region-id>
+			<url>/sinekartads/skdsSignSetDigitalSignature</url>
+		</component>	
+	</components>
+</template-instance>

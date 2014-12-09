@@ -213,7 +213,11 @@ public class JavaWebscriptTools {
 				message = e.toString();
 			}
 			cause = e;
-			code = ResultCode.INTERNAL_CLIENT_ERROR;
+			try {
+				code = ResultCode.valueOf(e.getMessage());
+			} catch(Exception e1) {
+				code = ResultCode.INTERNAL_CLIENT_ERROR;
+			}
 			tracer.error(message, e);
 			throw new AlfrescoException(message, cause, code);
 		}

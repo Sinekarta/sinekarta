@@ -2,6 +2,7 @@ package org.sinekartads.share.client;
 
 import java.security.cert.X509Certificate;
 
+import org.apache.commons.lang.StringUtils;
 import org.sinekartads.dto.ResultCode;
 import org.sinekartads.dto.request.SkdsKeyStoreRequest.SkdsKeyStoreOpenRequest;
 import org.sinekartads.dto.request.SkdsKeyStoreRequest.SkdsKeyStoreReadRequest;
@@ -61,38 +62,43 @@ public class ShareKeyStoreClient extends KeyStoreClient {
 
 	@Override
 	protected String[] selectIdentity(String userAlias, String userPassword) {
-		// Retrieve from the repository-tier the document details
-		SkdsKeyStoreReadRequest ksrreq = new SkdsKeyStoreReadRequest();
-		ksrreq.setKeyStore ( keyStore );
-		ksrreq.setUserAlias(userAlias);
-		ksrreq.setUserPassword(userPassword);
-		SkdsKeyStoreReadResponse ksrresp;
-		try {
-			ksrresp = JavaWebscriptTools.postJsonRequest ( 
-					ksrreq, SkdsKeyStoreReadResponse.class, connectorService );
-		} catch(AlfrescoException e) {
-			throw new RuntimeException(e);
-		}
-		ResultCode resultCode = ResultCode.valueOf(ksrresp.getResultCode());
-		switch ( resultCode ) {
-			case SUCCESS: {
-				try {
-					X509Certificate certificate = X509Utils.rawX509CertificateFromHex(ksrresp.getCertificate());
-					EncryptionAlgorithm encAlgorithm = SignatureAlgorithm.getInstance ( 
-							certificate.getSigAlgName() ).getEncryptionAlgorithm();
-					certificateChain = ksrresp.getCertificateChain();
-					privateKey = X509Utils.privateKeyFromHex(ksrresp.getPrivateKey(), encAlgorithm);
-				} catch(Exception e) {
-					throw new RuntimeException ( e ); 
+		if ( StringUtils.isNotBlank(userAlias) ) {
+			// Retrieve from the repository-tier the document details
+			SkdsKeyStoreReadRequest ksrreq = new SkdsKeyStoreReadRequest();
+			ksrreq.setKeyStore ( keyStore );
+			ksrreq.setUserAlias(userAlias);
+			ksrreq.setUserPassword(userPassword);
+			SkdsKeyStoreReadResponse ksrresp;
+			try {
+				ksrresp = JavaWebscriptTools.postJsonRequest ( 
+						ksrreq, SkdsKeyStoreReadResponse.class, connectorService );
+			} catch(AlfrescoException e) {
+				throw new RuntimeException(e);
+			}
+			ResultCode resultCode = ResultCode.valueOf(ksrresp.getResultCode());
+			switch ( resultCode ) {
+				case SUCCESS: {
+					try {
+						X509Certificate certificate = X509Utils.rawX509CertificateFromHex(ksrresp.getCertificate());
+						EncryptionAlgorithm encAlgorithm = SignatureAlgorithm.getInstance ( 
+								certificate.getSigAlgName() ).getEncryptionAlgorithm();
+						certificateChain = ksrresp.getCertificateChain();
+						privateKey = X509Utils.privateKeyFromHex(ksrresp.getPrivateKey(), encAlgorithm);
+					} catch(Exception e) {
+						throw new RuntimeException ( e ); 
+					}
+					break;
 				}
-				break;
+				case BAD_REQUEST: {
+					throw new IllegalArgumentException ( "invalid keystore structure or password" );
+				}
+				default: {
+					throw new RuntimeException ( resultCode.name() );
+				}
 			}
-			case BAD_REQUEST: {
-				throw new IllegalArgumentException ( "invalid keystore structre or password" );
-			}
-			default: {
-				throw new RuntimeException ( resultCode.name() );
-			}
+		} else {
+			certificateChain = null;
+			privateKey = null;
 		}
 		return certificateChain;
 	}

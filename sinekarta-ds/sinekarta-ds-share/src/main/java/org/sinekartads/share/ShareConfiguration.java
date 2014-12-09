@@ -72,7 +72,7 @@ public class ShareConfiguration extends SystemConfiguration {
 				driverDescriptions[i+1] = nameDescr[1];
 			}
 			driverNames[0] = "fake";
-			driverDescriptions[0] = "fake smartcard - pin: \"fake\"";
+			driverDescriptions[0] = "fake smartcard - pin: \"123\"";
 			
 			tsaUrl = getProperty ( TSA_URL );
 			tsaUser = getProperty ( TSA_USER );

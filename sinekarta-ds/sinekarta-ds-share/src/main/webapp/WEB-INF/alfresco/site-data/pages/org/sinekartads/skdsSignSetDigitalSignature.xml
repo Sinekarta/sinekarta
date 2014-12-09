@@ -17,8 +17,10 @@
  *
  */
  -->
-<webscript>
-  <shortname>skdsSignOptions</shortname>
-  <description>choose the signature type to apply</description>
-  <url>/sinekartads/skdsSignOptions</url>
-</webscript>
+<page>
+	<id>skdsSignSetDigitalSignature</id>
+	<title>sinekarta-ds: digitalSignature retrieving</title>
+	<description>load the digitalSignature evaluated by the smartCard</description>
+	<template-instance>skdsSignSetDigitalSignature</template-instance>
+	<authentication>user</authentication>
+</page>

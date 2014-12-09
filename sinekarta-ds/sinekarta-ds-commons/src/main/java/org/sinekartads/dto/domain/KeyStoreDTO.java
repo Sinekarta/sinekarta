@@ -16,7 +16,7 @@ public class KeyStoreDTO extends BaseDTO {
 	private String type;
 	private String provider;
 	private String password;
-	private String[] aliases;
+	private String[] aliases = new String[0];
 		
 	@Override
 	public boolean isEmpty ( ) {

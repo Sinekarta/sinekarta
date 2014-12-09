@@ -29,7 +29,7 @@ import org.sinekartads.utils.X509Utils;
 public class FakeSmartCardAccess extends SmartCardAccess {
 
 	public static String FAKE_DRIVER = "fake";
-	public static String FAKE_PIN	 = "fake";
+	public static String FAKE_PIN	 = "123";
 	
 	Map<String, String> privateKeys = new HashMap<String, String>();
 	Map<String, String> certChains  = new HashMap<String, String>();

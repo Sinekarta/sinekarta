@@ -28,7 +28,8 @@ public class SkdsSignSetDigitalSignatureWS extends BaseSignController {
 			SignWizardDTO dto ) 
 					throws AlfrescoException {
 		
-		SignatureDTO signature = dto.getSignature();
+		int LAST = dto.getDocuments()[0].getSignatures().length - 1;
+		SignatureDTO signature = dto.getDocuments()[0].getSignatures()[LAST];
 		String sessionId = dto.getSessionId();
 		SmartCardClientCtrl keyStoreClient = clientFactory.getSmartCardCtrl ( sessionId );
 		keyStoreClient.setDigitalSignature ( signature.digitalSignatureFromHex() );
@@ -36,6 +37,6 @@ public class SkdsSignSetDigitalSignatureWS extends BaseSignController {
 
 	@Override
 	protected WizardStep currentStep() {
-		return null;
+		return STEP_DIGSIG;
 	}
 }

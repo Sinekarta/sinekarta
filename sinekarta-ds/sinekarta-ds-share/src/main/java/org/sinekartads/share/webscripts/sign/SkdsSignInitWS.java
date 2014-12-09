@@ -143,6 +143,9 @@ public class SkdsSignInitWS extends BaseSignController {
 		
 		// set KEYSTORE as default clientType
 		signWizard.setClientType(SignatureClientType.KEYSTORE.name());
+		
+		// TODO delete this test shortcat
+		signWizard.setScDriver ( "libbit4ipki.so" );
 	}
 	
 	@Override

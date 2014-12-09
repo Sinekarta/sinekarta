@@ -41,6 +41,6 @@ public class SkdsSignCallKeyStoreOpenWS extends BaseSignController {
 
 	@Override
 	protected WizardStep currentStep() {
-		return null;
+		return STEP_KSOPEN;
 	}
 }

@@ -59,7 +59,7 @@ public class SkdsSignCallPostSignWS extends BaseSignController {
 	    	dto.setDocuments(documents);
     	
 		} catch ( DigitalSignatureException e ) {
-			tracer.error(e.getMessage(), e);
+			processError(dto, e);
 		}
 	}
 

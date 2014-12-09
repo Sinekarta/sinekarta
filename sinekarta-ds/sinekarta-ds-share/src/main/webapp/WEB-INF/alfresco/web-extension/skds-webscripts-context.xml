@@ -54,6 +54,10 @@
 	      class="org.sinekartads.share.webscripts.sign.SkdsSignClientWS">
 		<property name="connectorService" 	ref="connector.service" />
   	</bean>    	
+  	<bean id="webscript.org.sinekartads.skdsSignSetDigitalSignature.post" parent="webscript"
+	      class="org.sinekartads.share.webscripts.sign.SkdsSignSetDigitalSignatureWS">
+		<property name="connectorService" 	ref="connector.service" />
+  	</bean>    	
 	<bean id="webscript.org.sinekartads.skdsSignCallPreSign.post" parent="webscript"
 	      class="org.sinekartads.share.webscripts.sign.SkdsSignCallPreSignWS">
 		<property name="connectorService" 	ref="connector.service" />

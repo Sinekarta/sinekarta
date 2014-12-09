@@ -252,6 +252,7 @@
 			wizardForms:	new Array(),
 			currentStep:	{},
 			backupDataJSON: '',
+			signApplet: 	document.sinekartaApplet,
 			
 			activeGroups: 	{
 				tsSelection: '',
@@ -355,20 +356,25 @@
 			// --- Form Operations
 			// - 
 			
-			callFormOperation: function skds_callFormOperation ( targetStep ) {
-				this.callFormOperation ( targetStep, undefined );
+			callFormOperation: function skds_callFormOperation ( stepName ) {
+				this.callFormOperation ( stepName, undefined );
 			},
 			
-			callFormOperation: function skds_callFormOperation ( targetStep, nextForms ) {
+			callFormOperation: function skds_callFormOperation ( stepName, nextForms ) {
 				
+				var targetStep = this.wizardData.wizardSteps [ stepName ];
+				this.info ( 'callFormOperation', 'stepName: ' + stepName );
+				this.info ( 'callFormOperation', 
+						'targetStep: ' + this.formatJSON(targetStep) );
 				document.getElementById("${htmlid}-wizardDataJSON").value = this.formatJSON ( this.wizardData );
 				
 				Alfresco.util.Ajax.jsonPost({ 
 					method : 'POST',
-					url : Alfresco.constants.URL_SERVICECONTEXT + 'sinekartads/' + targetStep,
+					url : Alfresco.constants.URL_SERVICECONTEXT + 'sinekartads/' + stepName,
 					dataForm : Dom.get("${htmlid}-form"),
 					successCallback : {
 						fn : function(res) {
+							this.info ( 'callFormOperation', 'targetStep: ' + this.formatJSON(targetStep) );
 							this.refresh ( res.serverResponse.responseText );
 							// Recursivelly call on the next forms
 							if ( this.wizardData.resultCode === 'SUCCESS' ) {
@@ -379,11 +385,15 @@
 										forms[i-1] = nextForms[i];
 									}
 									this.info('callFormOperation', 
-											'targetStep: '+targetStep + '\n' +
+											'stepName:   '+stepName + '\n' +
 											'nextForms:  '+nextForms + '\n' +
 											'target:     '+target + '\n' +
 											'forms:      '+forms + '\n');
-									this.callFormOperation ( target, forms );
+									if ( typeof target === 'string' ) {
+										this.callFormOperation ( target, forms );
+									} else {
+										target.call ( this );
+									}
 								}
 							}
 						}, 
@@ -541,6 +551,7 @@
 		    },
 		    
 		    displayTestHTML: function skds_displayTestHTML ( html ) {
+		    	
 		    	document.getElementById('${htmlid}-jsConsole-console').innerHTML += html;
 		    },
 
@@ -552,15 +563,23 @@
 			
 			onCancelClick: function skds_onCancelClick(e) 
 			{
+				this.info ( 'onCancelClick',
+						'backUrl: ' + this.wizardData.backUrl );
 				location.href = this.wizardData.backUrl;
 			},
 			
 			onBackClick: function skds_onBackClick(e) 
 			{
 				// Determinate the previous form into the wizard
-				var prevForm = this.wizardData.currentStep;
+				var prevForm = this.wizardData.wizardForms[0];
 				for ( i=0; i<this.wizardForms.length; i++ ) {
-					if ( this.wizardForms[i+1].form === this.wizardData.currentStep.form ) {
+					this.info ( 'onBackClick',
+							'prevForm: ' + prevForm + '\n' +
+							'i:        ' + this.wizardForms[i] + '\n' +
+							'i+1:      ' + this.wizardForms[i+1] + '\n' + 
+							'current:  ' + this.wizardData.currentStep.form + '\n' +
+							'match:    ' + (this.wizardForms[i+1] === this.wizardData.currentStep.form));
+					if ( this.wizardStep[i+1] === this.wizardData.currentStep.form ) {
 						prevForm = this.wizardForms [ i ];
 					}
 				}
@@ -603,11 +622,17 @@
 			
 			refresh: function skds_refresh ( wizardDataJSON, targetStep ) 
 			{
+				this.info ( 'refresh', 'targetStep: ' + this.formatJSON(targetStep) );
+				
 				// update the wizard data view box 
 				this.updateWizardDataView ( );
 				
 				// jsConsole refresh
 				//this.clearJsConsole ( );
+				
+				// update the header and title bar
+				<#-- document.getElementById('${htmlid}-header').value = "${msg('header.'+this.wizardData.currentStep.form)}";
+				document.getElementById('${htmlid}-description').value = "${msg('description.'+this.wizardData.currentStep.form)}"; -->
 				
 				// wizardData parsing and backup
 				this.backupDataJSON = wizardDataJSON;
@@ -730,17 +755,16 @@
 			
 			applySignatureSmartCard: function skds_applySignatureSmartCard ( ) {
 				this.info ( 'applySignatureSmartCard', 'start' );
-				var document = this.wizardData.documents[0];
-				var last = document.signatures.length-1;
-				var signature = document.signatures[last];
-				var hexFingerPrint = signature.digest.fingerPrint;
-				this.info ( 'applySignatureSmartCard', 'fingerPrint' + signature.digest.fingerPrint );
-				var appletResponseJSON = document.sinekartaApplet.signDigest ( fingerPrint );
+				var last = this.wizardData.documents[0].signatures.length-1;
+				var signature = this.wizardData.documents[0].signatures[last];
+				var hexFingerPrint = signature.digest.hexFingerPrint;
+				this.info ( 'applySignatureSmartCard', 'fingerPrint: ' + signature.digest.hexFingerPrint );
+				var appletResponseJSON = document.sinekartaApplet.signDigest ( hexFingerPrint );
 				var appletResultJSON = this.parseAppletResponse ( appletResponseJSON );
 				if ( appletResultJSON !== undefined ) {
 					signature.hexDigitalSignature = appletResultJSON;  
-					updateWizardDataView ( );
-					this.info ( 'applySignatureSmartCard', 'fingerPrint' + signature.hexDigitalSignature );
+					this.updateWizardDataView ( );
+					this.info ( 'applySignatureSmartCard', 'digsig:    ' + signature.hexDigitalSignature );
 					this.callFormOperation ( 'skdsSignSetDigitalSignature', 
 							['skdsSignCallPostSign', 'skdsSignResults'] );
 				} else {
@@ -926,6 +950,9 @@
 		    // -
 		    
 		    updateKsUserAliasSelect: function skds_updateKsUserAliasSelect ( ) {
+		    	this.info ( '', 
+		    			'ksAliases: ' + this.wizardData.ksAliases + '\n' +
+		    			'ksUserAlias: ' + this.wizardData.ksUserAlias );
 		    	this.updateSelect ( 'ksUserAlias', this.wizardData.ksAliases, this.wizardData.ksUserAlias );
 		    },
 		    
