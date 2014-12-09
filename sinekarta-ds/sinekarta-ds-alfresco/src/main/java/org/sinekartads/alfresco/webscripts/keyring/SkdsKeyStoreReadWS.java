@@ -77,8 +77,9 @@ public class SkdsKeyStoreReadWS
 			resp.setPrivateKey ( X509Utils.privateKeyToHex(privateKey) );
 			resp.resultCodeToString(ResultCode.SUCCESS);
 		} catch(Exception e) {
-			Logger.getLogger(getClass()).error(e.getMessage(), e);
-			resp.resultCodeToString(ResultCode.INTERNAL_SERVER_ERROR);
+			resp.setCertificate ( null );
+			resp.setCertificateChain ( null );
+			resp.setPrivateKey ( null );
 		} 
 		
 		return resp;

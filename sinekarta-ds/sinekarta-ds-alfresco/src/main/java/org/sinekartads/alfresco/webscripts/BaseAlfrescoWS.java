@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.ServiceRegistry;
@@ -12,6 +14,7 @@ import org.alfresco.service.cmr.action.ActionService;
 import org.alfresco.service.cmr.repository.ContentReader;
 import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.ContentWriter;
+import org.alfresco.service.cmr.repository.DuplicateChildNodeNameException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthenticationService;
@@ -112,6 +115,9 @@ public abstract class BaseAlfrescoWS<Request extends BaseRequest, Response exten
 			
 			// Esegue la business logic per generare il response
 			resp = executeImpl(req, status, cache);
+			if ( StringUtils.isBlank(resp.getResultCode()) ) {
+				resp.resultCodeToString(ResultCode.SUCCESS);
+			}
 		} catch(Exception e) {
 			processError(resp, e);
 		} finally {
@@ -176,10 +182,29 @@ public abstract class BaseAlfrescoWS<Request extends BaseRequest, Response exten
 			NodeRef nodeRef;
 			Assert.isTrue( StringUtils.isNotBlank(node.getFileName()) );
 			if ( StringUtils.isBlank(node.getNodeRef()) ) {
-				Assert.isTrue( StringUtils.isNotBlank(node.getParentRef()) );
-				NodeRef parentRef = new NodeRef ( node.getParentRef() ); 
-				nodeRef = NodeTools.createNode ( nodeService, parentRef, node.getFileName() );
-				node.setNodeRef ( nodeRef.getId() );
+				nodeRef = null;
+				String fileName;
+				int attempt = 0;
+				do {
+					fileName = node.getFileName();
+					if ( attempt > 0) {
+						Matcher mtc = Pattern.compile("^(\\.*[^\\.]+)(\\..*)$").matcher(fileName);
+						if ( mtc.find() ) {
+							fileName = String.format("%s_%d%s", mtc.group(1), attempt, mtc.group(2));
+						} else {
+							fileName = String.format("%s_%d", fileName, attempt);
+						}
+						node.setFileName(fileName);
+					}
+					try {
+						Assert.isTrue( StringUtils.isNotBlank(node.getParentRef()) );
+						NodeRef parentRef = new NodeRef ( node.getParentRef() ); 
+						nodeRef = NodeTools.createNode ( nodeService, parentRef, fileName );
+						node.setNodeRef ( nodeRef.getId() );
+					} catch(DuplicateChildNodeNameException e) {
+						attempt++;
+					}
+				} while ( nodeRef == null);
 			} else {
 				nodeRef = new NodeRef ( node.getNodeRef() );
 				Assert.isTrue ( nodeService.exists(nodeRef) );
