@@ -69,8 +69,8 @@ public class SkdsKeyStoreOpenWS
 				}
 			}
 			
+			KeyStoreDTO ksDto = new KeyStoreDTO();
 			if ( keyStore != null ) {
-				KeyStoreDTO ksDto = new KeyStoreDTO();
 				ksDto.setName(keyStoreName);
 				ksDto.setPin(keyStorePin);
 				ksDto.setSupport(KeyRingSupport.ALFRESCO.name());
@@ -79,10 +79,8 @@ public class SkdsKeyStoreOpenWS
 				ksDto.setAliases ( TemplateUtils.Conversion.enumerationToArray(keyStore.aliases()) );
 				ksDto.setReference(keyStoreRef.toString());
 				resp.setKeyStore(ksDto);
-				resp.resultCodeToString(ResultCode.SUCCESS);
-			} else {
-				resp.resultCodeToString(ResultCode.BAD_REQUEST);
-			}
+			} 
+			resp.resultCodeToString(ResultCode.SUCCESS);
 		} catch(Exception e) {
 			Logger.getLogger(getClass()).error(e.getMessage(), e);
 			resp.resultCodeToString(ResultCode.INTERNAL_SERVER_ERROR);

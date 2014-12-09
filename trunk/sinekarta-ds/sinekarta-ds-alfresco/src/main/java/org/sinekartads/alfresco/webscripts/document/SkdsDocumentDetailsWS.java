@@ -44,7 +44,6 @@ public class SkdsDocumentDetailsWS
 				nodeRef = new NodeRef(ref);
 				props = nodeService.getProperties(nodeRef);
 				fileName = (String)props.get(ContentModel.PROP_NAME);
-				
 				baseDocument = new NodeDTO();
 				baseDocument.setNodeRef(ref);
 				baseDocument.setFileName(fileName);

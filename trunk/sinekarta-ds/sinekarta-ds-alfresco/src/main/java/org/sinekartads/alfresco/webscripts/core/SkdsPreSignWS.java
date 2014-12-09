@@ -21,6 +21,7 @@ import java.security.SignatureException;
 
 import org.apache.commons.io.FileUtils;
 import org.sinekartads.dto.BaseDTO;
+import org.sinekartads.dto.ResultCode;
 import org.sinekartads.dto.domain.DocumentDTO;
 import org.sinekartads.dto.domain.SignatureDTO;
 import org.sinekartads.dto.request.SkdsSignRequest.SkdsPreSignRequest;
@@ -78,6 +79,7 @@ public class SkdsPreSignWS
 					
 					// Replace the chainSignature with the evaluated digestSignature
 					signatures [ lastIndex ] = digestSignature;
+					resp.resultCodeToString(ResultCode.SUCCESS);
 				} catch (SignatureException | IOException e) {
 					processError ( resp, e, "error during the fingerPrint evaluation: %s" );
 				} catch (Exception e) {

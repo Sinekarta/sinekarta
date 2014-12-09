@@ -114,9 +114,11 @@ public class NodeTools {
 			properties = new HashMap<QName, Serializable>();
 		}
 		properties.put(ContentModel.PROP_NAME, name);
-		return nodeService.createNode(parentRef, ContentModel.ASSOC_CONTAINS, 
-	            QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, name),	            
-	            ContentModel.TYPE_CONTENT, properties).getChildRef();
+		return nodeService.createNode ( parentRef, 
+										ContentModel.ASSOC_CONTAINS, 
+										QName.createQName(NamespaceService.CONTENT_MODEL_PREFIX, name),	            
+										ContentModel.TYPE_CONTENT, 
+										properties ).getChildRef();
 	}
 
 	/**
