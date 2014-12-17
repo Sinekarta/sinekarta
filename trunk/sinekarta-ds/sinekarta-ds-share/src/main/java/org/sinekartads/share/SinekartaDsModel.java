@@ -16,7 +16,6 @@
  */
 package org.sinekartads.share;
 
-import org.alfresco.service.namespace.QName;
 
 
 public class SinekartaDsModel {
@@ -34,14 +33,6 @@ public class SinekartaDsModel {
 	// generic content
 	public static final String TYPE_CONTENT = ALFRESCO_PREFIX+"content";
 
-	static QName sinekartaQName(String localName) {
-		try {
-			return QName.createQName("{"+NAMESPACE_SINEKARTADS_CONTENT_MODEL+"}"+localName);
-		} catch(Exception e) {
-			throw new RuntimeException(e.getMessage(), e);
-		}
-	}
-	
 	static String sinekartaName(String localName) {
 		return SINEKARTADS_PREFIX+localName;
 	}
@@ -52,81 +43,29 @@ public class SinekartaDsModel {
 	
 	public static final String DOCUMENT_ACQUIRING = "documentAcquiring";
 	public static final String ASPECT_DOCUMENT_ACQUIRING = sinekartaName(DOCUMENT_ACQUIRING);
-	public static final QName ASPECT_QNAME_DOCUMENT_ACQUIRING = sinekartaQName(DOCUMENT_ACQUIRING);		
 	
 	public static final String SIGNED_DOCUMENT = "signedDocument";
 	public static final String ASPECT_SIGNED_DOCUMENT = sinekartaName(SIGNED_DOCUMENT);
-	public static final QName ASPECT_QNAME_SIGNED_DOCUMENT = sinekartaQName(SIGNED_DOCUMENT);	
 	
 	public static final String SIGNED_DOCUMENT_CMS = "signedDocumentCms";
 	public static final String ASPECT_SIGNED_DOCUMENT_CMS = sinekartaName(SIGNED_DOCUMENT_CMS);
-	public static final QName ASPECT_QNAME_SIGNED_DOCUMENT_CMS = sinekartaQName(SIGNED_DOCUMENT_CMS);
 	
 	public static final String SIGNED_DOCUMENT_XML = "signedDocumentXml";
 	public static final String ASPECT_SIGNED_DOCUMENT_XML = sinekartaName(SIGNED_DOCUMENT_XML);
-	public static final QName ASPECT_QNAME_SIGNED_DOCUMENT_XML = sinekartaQName(SIGNED_DOCUMENT_XML);
 	
 	public static final String SIGNED_DOCUMENT_PDF = "signedDocumentPdf";
 	public static final String ASPECT_SIGNED_DOCUMENT_PDF = sinekartaName(SIGNED_DOCUMENT_PDF);
-	public static final QName ASPECT_QNAME_SIGNED_DOCUMENT_PDF = sinekartaQName(SIGNED_DOCUMENT_PDF);
 	
 	public static final String TIMESTAMP_MARK = "timestampMark";
 	public static final String ASPECT_TIMESTAMP_MARK = sinekartaName(TIMESTAMP_MARK);
-	public static final QName ASPECT_QNAME_TIMESTAMP_MARK = sinekartaQName(TIMESTAMP_MARK);
 	
 	public static final String EXTRACTED_DOCUMENT = "extractedDocument";
 	public static final String ASPECT_EXTRACTED_DOCUMENT = sinekartaName(EXTRACTED_DOCUMENT);
-	public static final QName ASPECT_QNAME_EXTRACTED_DOCUMENT = sinekartaQName(EXTRACTED_DOCUMENT);
 	
 	public static final String TEMPORARY_FILE = "temporaryFile";
 	public static final String ASPECT_TEMPORARY_FILE = sinekartaName(TEMPORARY_FILE);
-	public static final QName ASPECT_QNAME_TEMPORARY_FILE = sinekartaQName(TEMPORARY_FILE);
 
 	
-	
-	// aspect SIGNED_DOCUMENT
-	
-	public static final QName PROP_QNAME_SIGNATURE_TYPE = sinekartaQName("signatureType");
-	
-	public static final QName PROP_QNAME_SIGNATURE_DISPOSITION = sinekartaQName("signatureDisposition");
-	
-	public static final QName PROP_QNAME_DATA_FILE = sinekartaQName("dataFile");
-	
-	
-	
-	// aspect EXTRACTED_DOCUMENT
-	
-	public static final QName PROP_QNAME_SOURCE_FILE = sinekartaQName("sourceFile");
-	
-	public static final QName PROP_QNAME_EXTRACTION_DATE = sinekartaQName("extractionDate");
-	
-	
-	
-	// aspect TEMPORARY_FILE
-	
-	public static final QName PROP_QNAME_CREATION_DATE = sinekartaQName("creationDate");
-	
-	public static final QName PROP_QNAME_TIME_TO_LIVE = sinekartaQName("timeToLive");
-	
-	public static final QName PROP_QNAME_EXPIRING_DATE = sinekartaQName("expiringDate");
-	
-	
-
-	// aspect timestampMark
-
-	public static final QName PROP_MARK_DOCUMENT_DESCRIPTION = sinekartaQName("markDocumentDescription");
-
-	public static final QName PROP_MARK_DOCUMENT_REFERENCE_ID = sinekartaQName("markDocumentReferenceId");
-	
-	public static final QName PROP_MARK_TIMESTAMP_RCS_SIGNATURE = sinekartaQName("markTimestampRCSSignature");
-	
-	public static final QName ASSOCIATION_MARKED_DOCUMENT_LIST = sinekartaQName("markedDocumentList");
-	
-	public static final QName PROP_MARK_FINGER_PRINT = sinekartaQName("markFingerPrint");
-
-	public static final QName PROP_MARK_TIMESTAMP_TOKEN = sinekartaQName("markTimestampToken");
-	
-	public static final QName PROP_MARK_DOCUMENT_TYPE = sinekartaQName("markDocumentType");
 	
 /*		
 	// Aspects
