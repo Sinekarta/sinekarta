@@ -11,12 +11,13 @@
  * we use eclipse as development environment. We also use jboss tools for maven integration
  * import following maven projects : 
   * sinekarta-ds/itext-jdk16 (patch to itext for bouncycastle jdk16 support)
+  * sinekarta-ds/sinekarta-ds-applet (sign applet)
   * sinekarta-ds (super project)
    * sinekarta-ds/sinekarta-ds-alfresco (Alfresco core plugin)
    * sinekarta-ds/sinekarta-ds-commons (commons tools and utilities)
    * sinekarta-ds/sinekarta-ds-core (core signature algorithms)
    * sinekarta-ds/sinekarta-ds-share (alfresco share plugin)
-  * sinekarta-ds-applet (sign applet)
+   * sinekarta-ds/sinekarta-ds-integration (integration test)
 
  === now you should have a running eclipse workspace (no compilation problems) ===
 
@@ -27,6 +28,8 @@ These are projects :
  * sinekarta-ds-commons (java project)
  * sinekarta-ds-core (java project)
  * sinekarta-ds-share (java project)
+ * sinekarta-ds-applet (java project)
+ * sinekarta-ds-integration (java project)
 
 == running the build ==
 
