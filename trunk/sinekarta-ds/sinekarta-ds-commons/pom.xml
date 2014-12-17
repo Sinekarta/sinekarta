@@ -13,30 +13,11 @@
 	</parent>
 
 	<dependencies>
-		<!-- alfresco -->
-		<dependency>
-			<groupId>org.alfresco</groupId>
-			<artifactId>alfresco-web-client</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.alfresco</groupId>
-			<artifactId>alfresco-share</artifactId>
-			<exclusions>
-				<exclusion>
-	                  <groupId>org.alfresco</groupId>
-	                  <artifactId>alfresco-web-framework-commons</artifactId>
-	              </exclusion>
-			</exclusions>
-		</dependency>
 		
 		<!-- cryptography and security -->
 		<dependency>
 			<groupId>javax.security</groupId>
 			<artifactId>jacc</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>it.jenia</groupId>
-			<artifactId>itext-jdk16</artifactId>
 		</dependency>
 		
 		<!-- spring -->
@@ -77,6 +58,12 @@
 		<dependency>
 			<groupId>commons-digester</groupId>
 			<artifactId>commons-digester</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>xml-apis</groupId>
+		  			<artifactId>xml-apis</artifactId>
+		  		</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>

@@ -9,8 +9,6 @@ import org.sinekartads.model.oid.DigestAlgorithm;
 import org.sinekartads.model.oid.SignatureAlgorithm;
 import org.sinekartads.util.TemplateUtils;
 
-import com.itextpdf.text.pdf.security.MakeSignature.CryptoStandard;
-
 public class PDFSignatureInfo 
 		extends SignatureInfo	<	SignCategory,
 									SignDisposition.PDF,
@@ -19,6 +17,11 @@ public class PDFSignatureInfo
 	
 	private static final long serialVersionUID = 4457611880685240489L;
 
+	public static enum Subfilter {
+		CADES,
+		CMS
+	}
+	
 	public PDFSignatureInfo (
 			String name, 
 			SignatureAlgorithm signAlgorithm,
@@ -34,7 +37,7 @@ public class PDFSignatureInfo
 	// -----
 	// --- PDF signature extra properties
 	// -
-
+	
 	private final String name;
 	private Boolean coversWholeDocument;
 	private String revision;
@@ -43,18 +46,18 @@ public class PDFSignatureInfo
 		return name;
 	}
 
-	public CryptoStandard getSubfilter() {
-		CryptoStandard subfilter = CryptoStandard.CADES;;
+	public String getSubfilter() {
+		Subfilter subfilter = Subfilter.CADES;
 //		CryptoStandard subfilter
 //		switch ( (SignatureType.PDF)type ) {
 //			case PDF: 
 //			case PDF_T: {
-//				subfilter = CryptoStandard.CMS;
+//				subfilter = Subfilter.CMS;
 //				break;
 //			}
 //			case PAdES: 
 //			case PAdES_T: {
-//				subfilter = CryptoStandard.CADES;
+//				subfilter = Subfilter.CADES;
 //				break;
 //			}
 //			default: {
@@ -62,7 +65,7 @@ public class PDFSignatureInfo
 //						"unable to recognize a subfilter for a %s signature", type  ));
 //			} 
 //		} 
-		return subfilter;
+		return subfilter.name();
 	}
 
 	public Boolean getCoversWholeDocument() {

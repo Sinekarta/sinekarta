@@ -24,8 +24,8 @@
 			<artifactId>alfresco-web-client</artifactId>
 			<exclusions>
 				<exclusion>
-	                <groupId>org.alfresco</groupId>
-	                <artifactId>alfresco-web-framework-commons</artifactId>
+	           		<groupId>xml-apis</groupId>
+  					<artifactId>xmlParserAPIs</artifactId>
 	            </exclusion>
 			</exclusions>
 		</dependency>
@@ -34,11 +34,15 @@
 			<artifactId>alfresco-share</artifactId>
 			<exclusions>
 				<exclusion>
-					<groupId>org.alfresco</groupId>
-					<artifactId>alfresco-web-framework-commons</artifactId>
-				</exclusion>
+	           		<groupId>org.alfresco</groupId>
+	                <artifactId>alfresco-web-framework-commons</artifactId>
+	            </exclusion>
+	            <exclusion>
+	           		<groupId>xml-apis</groupId>
+  					<artifactId>xmlParserAPIs</artifactId>
+	            </exclusion>
 			</exclusions>
-		</dependency>		
+		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-core</artifactId>

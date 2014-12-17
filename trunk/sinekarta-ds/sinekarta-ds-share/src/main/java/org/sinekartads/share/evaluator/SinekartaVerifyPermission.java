@@ -21,7 +21,7 @@ import org.alfresco.web.evaluator.BaseEvaluator;
 import org.alfresco.web.scripts.DictionaryQuery;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.sinekartads.conf.SinekartaDsModel;
+import org.sinekartads.share.SinekartaDsModel;
 
 public class SinekartaVerifyPermission extends BaseEvaluator{
 

@@ -107,7 +107,7 @@ public class PDFSignatureService
 			
 			// Create the stamper
 			ByteArrayOutputStream os = new ByteArrayOutputStream(); 
-			CryptoStandard subfilter = pdfSignature.getSubfilter();
+			CryptoStandard subfilter = CryptoStandard.valueOf(pdfSignature.getSubfilter());
 			reader = new PdfReader(contentIs);
 			stamper = PdfStamper.createSignature(reader, os, '\0');
 			
@@ -206,8 +206,8 @@ public class PDFSignatureService
 		TSAClient tsaClient = null;
 		TsRequestInfo tsRequest = signedSignature.getTsRequest();
 		if ( tsRequest!=null && StringUtils.isNotBlank(tsRequest.getTsUrl()) ) {
-			tsaClient = new TSAClientBouncyCastle(
-					tsRequest.getTsUrl(), tsRequest.getTsUsername(), tsRequest.getTsPassword());
+			tsaClient = new TSAClientBouncyCastle (
+					tsRequest.getTsUrl(), tsRequest.getTsUsername(), tsRequest.getTsPassword() );
 		}
 		
 		// Apply the digitalSignature to the PDF document
@@ -217,7 +217,7 @@ public class PDFSignatureService
 		try {
 			// Convert the signedSignature to a PDFSignatureInfo to use its own protocol
 			PDFSignatureInfo pdfSignature = (PDFSignatureInfo) signedSignature;
-			CryptoStandard subfilter = pdfSignature.getSubfilter();
+			CryptoStandard subfilter = CryptoStandard.valueOf(pdfSignature.getSubfilter());
 			
 			// Create the stamper
 			ByteArrayOutputStream baos = new ByteArrayOutputStream(); 

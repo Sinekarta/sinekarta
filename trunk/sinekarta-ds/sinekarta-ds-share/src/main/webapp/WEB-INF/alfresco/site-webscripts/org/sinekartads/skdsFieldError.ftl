@@ -18,7 +18,6 @@
 -->
 <#include "/org/alfresco/include/alfresco-macros.lib.ftl" />
 <#assign el=htmlid?js_string>
-<!-- FIXME gestire il fieldError dinamicamente al refresh di pagina -->
 <#macro fieldError field>
 	<p id="${htmlid}-${field}-error" class="skds-error">
 	</p>

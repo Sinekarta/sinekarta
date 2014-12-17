@@ -1,12 +1,11 @@
 package org.sinekartads.model.domain;
 
-import org.alfresco.service.cmr.repository.NodeRef;
 
 
 public class KeyStoreDescriptor {
 	public KeyStoreDescriptor (				
 			String keystoreName,
-			NodeRef keystoreRef, 
+			String keystoreRef, 
 			KeyStoreType keystoreType, 		
 			String keystorePassword ) {
 		this.keyStoreName 	= keystoreName;
@@ -16,7 +15,7 @@ public class KeyStoreDescriptor {
 	}
 	
 	private final String keyStoreName;
-	private final NodeRef reference;
+	private final String reference;
 	private final KeyStoreType type;
 	private final String password;
 	private String[] aliases;
@@ -25,7 +24,7 @@ public class KeyStoreDescriptor {
 		return keyStoreName;
 	}
 
-	public NodeRef getReference() {
+	public String getReference() {
 		return reference;
 	}
 

@@ -2,7 +2,6 @@ package org.sinekartads.dto.tools;
 
 import java.security.cert.CertificateException;
 
-import org.alfresco.service.cmr.repository.NodeRef;
 import org.apache.commons.lang3.ArrayUtils;
 import org.sinekartads.dto.BaseDTO;
 import org.sinekartads.dto.domain.CertificateDTO;
@@ -39,6 +38,7 @@ import org.sinekartads.model.domain.Transitions.VerifiedTimeStamp;
 import org.sinekartads.model.domain.TsRequestInfo;
 import org.sinekartads.model.domain.TsRequestInfo.TsRequestStatus;
 import org.sinekartads.model.domain.VerifyInfo;
+import org.sinekartads.model.domain.XMLSignatureInfo;
 import org.sinekartads.util.HexUtils;
 import org.sinekartads.util.TemplateUtils;
 import org.sinekartads.util.x509.X509Utils;
@@ -160,7 +160,7 @@ public class DTOConverter {
 		ksDto.setName(ksDescriptor.getName());
 		ksDto.setPin(ksDescriptor.getPin());
 		ksDto.typeToString(ksDescriptor.getType());
-		ksDto.setReference(ksDescriptor.getReference().toString());
+		ksDto.setReference(ksDescriptor.getReference());
 		ksDto.setAliases(ksDescriptor.getAliases());
 		return ksDto;
 	}
@@ -212,9 +212,10 @@ public class DTOConverter {
 		if ( signature == null)									 					return null;
 		
 		SignatureType<?> signatureType = signature.getSignType();
-		SignatureDTO dto = new SignatureDTO();
+		SignatureDTO dto;
 		switch ( signatureType.getCategory() ) {
 			case CMS: {
+				dto = new SignatureDTO();
 				break;
 			}
 			case PDF: {
@@ -227,6 +228,7 @@ public class DTOConverter {
 				break;
 			}
 			case XML: {
+				dto = new SignatureDTO();
 				break;
 			} 
 			default: {
@@ -379,7 +381,7 @@ public class DTOConverter {
 		if ( BaseDTO.isEmpty(dto) )						 							return null;
 		KeyStoreDescriptor ksDescriptor = new KeyStoreDescriptor (
 				dto.getName(), 
-				new NodeRef(dto.getReference()), 
+				dto.getReference(), 
 				dto.typeFromString(), 
 				dto.getPin() );
 		ksDescriptor.setAliases(ksDescriptor.getAliases());
@@ -420,8 +422,8 @@ public class DTOConverter {
 					break;
 				}
 				default: {
-					throw new UnsupportedOperationException(String.format ( 
-							"unable to convert to a %s signature", signCategory ));
+					rawSignature = new XMLSignatureInfo ( dto.signAlgorithmFromString(), dto.digestAlgorithmFromName() );
+					break;
 				}
 			}
 		} catch(CertificateException e) {
@@ -433,6 +435,10 @@ public class DTOConverter {
 		emptySignature.setReason ( dto.getReason() );
 		emptySignature.setLocation ( dto.getLocation() );
 		emptySignature.setSigningTime ( dto.signingTimeFromString() );
+		
+		if ( BaseDTO.isNotEmpty(dto.getTimeStampRequest()) ) {
+			emptySignature.setTsRequest(toTsRequestInfo(dto.getTimeStampRequest()));
+		}
 		
 		ChainSignature<?,?,VerifyResult,?> chainSignature = null;
 		if ( hasPropertyAccess(dto, SignatureStatus.SignProcess.CHAIN) ) {

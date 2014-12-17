@@ -13,6 +13,18 @@
 	</parent>
 
 	<dependencies>
+		<!-- alfresco -->
+		<dependency>
+			<groupId>org.alfresco</groupId>
+			<artifactId>alfresco-web-client</artifactId>
+			<exclusions>
+				<exclusion>
+	           		<groupId>xml-apis</groupId>
+  					<artifactId>xmlParserAPIs</artifactId>
+	            </exclusion>
+			</exclusions>
+		</dependency>
+	
 		<!-- jcl - java class loader -->
 		<dependency>
 			<groupId>org.xeustechnologies</groupId>

@@ -107,6 +107,10 @@ public abstract class TemplateUtils {
 			return first;
 		}
 		
+		public static <T> Enumeration<T> collectionToEnumeration(Collection<T> col) {
+			return Collections.enumeration ( col );
+		}
+		
 		public static <T> Enumeration<T> arrayToEnumeration(T ... items) {
 			return Collections.enumeration ( arrayToList(items) );
 		}

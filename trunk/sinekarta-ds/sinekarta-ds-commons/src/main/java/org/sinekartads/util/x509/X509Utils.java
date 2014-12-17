@@ -98,13 +98,18 @@ public class X509Utils {
 	
 	public static PrivateKey privateKeyFromHex (
 			String privateKeyHex, EncryptionAlgorithm encryptionAlgorithm ) {
+		return privateKeyFromHex(privateKeyHex, encryptionAlgorithm.getName());
+	}
+	
+	public static PrivateKey privateKeyFromHex (
+			String privateKeyHex, String encryptionAlgorithm ) {
 
 		byte[] privateKeyEnc = HexUtils.decodeHex ( privateKeyHex );
 		
 		PrivateKey privateKey;
 		try {
 	    	//create a keyfactory - use whichever algorithm and provider
-	    	KeyFactory kf = KeyFactory.getInstance(encryptionAlgorithm.getName(), "SunJSSE");
+	    	KeyFactory kf = KeyFactory.getInstance(encryptionAlgorithm, "SunJSSE");
 	    	//for private keys use PKCS8EncodedKeySpec; for public keys use X509EncodedKeySpec
 	    	PKCS8EncodedKeySpec ks = new PKCS8EncodedKeySpec(privateKeyEnc);
 	    	privateKey = kf.generatePrivate(ks);

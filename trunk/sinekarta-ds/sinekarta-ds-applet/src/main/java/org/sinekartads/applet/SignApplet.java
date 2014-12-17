@@ -32,7 +32,7 @@ public class SignApplet extends Applet {
 	
 	@Override
 	public void init ( ) {
-		tracer.info("initializing the SignApplet");
+		tracer.info("initializing the signing applet");
 	}
 	
 	public String selectDriver ( String driver ) {
