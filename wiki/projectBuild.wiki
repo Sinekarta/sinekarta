@@ -16,6 +16,7 @@
    * sinekarta-ds/sinekarta-ds-commons (commons tools and utilities)
    * sinekarta-ds/sinekarta-ds-core (core signature algorithms)
    * sinekarta-ds/sinekarta-ds-share (alfresco share plugin)
+  * sinekarta-ds-applet (sign applet)
 
  === now you should have a running eclipse workspace (no compilation problems) ===
 
