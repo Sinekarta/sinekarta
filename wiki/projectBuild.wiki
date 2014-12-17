@@ -34,7 +34,11 @@ These are projects :
 
 == running the build ==
 
- * install itext-jdk16  on local repository : 
+ * install itext-jdk16 on local repository : 
+  * right click on /itext-jdk16/pom.xml
+  * Run As -> Maven install
+  * wait for "BUILD SUCCESS" in eclipse console
+ * install sinekarta-ds-applet on local repository : 
   * right click on /itext-jdk16/pom.xml
   * Run As -> Maven install
   * wait for "BUILD SUCCESS" in eclipse console
