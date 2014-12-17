@@ -3,7 +3,7 @@ package org.sinekartads.utils;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Set;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,9 +15,9 @@ public class DNParser {
 	// --- Utility methods
 	// -
 	
-	public static Set<String> getDns(String dn) {
+	public static Map<String, String> getDns(String dn) {
 		DNParser parser = new DNParser(dn);
-		return parser.values.keySet();
+		return parser.values;
 	}
 	
 	public static String parse(String dn, String id) {
@@ -48,7 +48,7 @@ public class DNParser {
 	// --- DN parsing implementation
 	// -
 
-	private static final String REGEX_DN = "([A-Za-z ]*)=([A-Za-z0-9: /]*)[,]?";
+	private static final String REGEX_DN = "([^=]*)=([^,]*)[,]?";
 	private HashMap<String, String> values = new HashMap<String, String>();
 
 	public DNParser(String dn) {

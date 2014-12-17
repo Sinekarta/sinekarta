@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.net.URL;
 import java.security.KeyStore;
 import java.security.PrivateKey;
-import java.security.Security;
 import java.security.cert.X509Certificate;
 
 import junit.framework.TestCase;
@@ -15,9 +14,6 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.apache.log4j.helpers.Loader;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.sinekartads.util.verification.UserPermissionsLevel;
-import org.sinekartads.util.verification.UserPermissionsVerifier;
 
 public abstract class SkdsTestCase extends TestCase {
 	
@@ -26,35 +22,6 @@ public abstract class SkdsTestCase extends TestCase {
 	// -----
 	// --- Test configurations
 	// -
-	
-	/**
-	 * Dummy UserPermissionsVerifier implementation which allows test cases to use an user 
-	 * verifier in which the permissionsLevel is a customizable externally-set value.
-	 * Every JUnit test will be executed by default with SYSTEM_PROCESS permissions.
-	 */
-	static class FixedPermissionsVerifier extends UserPermissionsVerifier {
-		
-		// Breaking the singleton protocol
-		
-		FixedPermissionsVerifier(UserPermissionsLevel permissionsLevel) {
-			this.permissionsLevel = permissionsLevel;
-		}
-		
-		UserPermissionsLevel permissionsLevel; 
-		
-		public UserPermissionsLevel getUserRightsLevel() {
-			return permissionsLevel;
-		}
-		
-		public void setUserPermissionsLevel(UserPermissionsLevel permissionsLevel) {
-			this.permissionsLevel = permissionsLevel;
-		}
-	};
-	
-	// test UserPermissionsVerifier - the user permission level is configurable runtime as needed 
-	protected static UserPermissionsVerifier junitPermissionsVerifier = 
-			new FixedPermissionsVerifier(UserPermissionsLevel.SYSTEM_PROCESS);
-			
 		
 	/**
 	 * Shared JUnit test setup - log4j configuration
@@ -65,7 +32,6 @@ public abstract class SkdsTestCase extends TestCase {
 	 */
 	@Override
 	protected void setUp() {
-		Security.addProvider(new BouncyCastleProvider());
 		URL configUrl = null;
 		String customLog4jConfiguration = System.getProperty("log4j.configuration");
 		String resource = customLog4jConfiguration;

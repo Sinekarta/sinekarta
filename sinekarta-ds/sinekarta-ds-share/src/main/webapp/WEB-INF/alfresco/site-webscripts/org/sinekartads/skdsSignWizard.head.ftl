@@ -719,13 +719,6 @@
 
 			displayErrors: function skds_displayErrors ( actionErrors, fieldErrors ) {
 
-				var html;
-				html = '';
-				for ( i=0; i<actionErrors.length; i++ ) {
-					html += '<li>' + actionErrors[i].errorMessage + '</li>'; 
-				}
-				document.getElementById('${htmlid}-actionErrors').innerHTML = html;
-				
 				document.getElementById('${htmlid}-tsUrl-error').innerHTML = '';
 				document.getElementById('${htmlid}-tsUsername-error').innerHTML = '';
 				document.getElementById('${htmlid}-tsPassword-error').innerHTML = '';
@@ -738,6 +731,14 @@
 				document.getElementById('${htmlid}-scDriver-error').innerHTML = '';
 				document.getElementById('${htmlid}-scPin-error').innerHTML = '';
 				document.getElementById('${htmlid}-scUserAlias-error').innerHTML = '';
+				
+				var html;
+				html = '';
+				for ( i=0; i<actionErrors.length; i++ ) {
+					html += '<li>' + actionErrors[i].errorMessage + '</li>'; 
+				}
+				document.getElementById('${htmlid}-actionErrors').innerHTML = html;
+				
 				var field;
 				var errors;
 				for ( i=0; i<fieldErrors.length; i++ ) {

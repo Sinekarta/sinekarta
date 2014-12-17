@@ -14,7 +14,7 @@
  * GNU General Public License for more details.
  *
  */
-package org.sinekartads.conf;
+package org.sinekartads.share;
 
 import org.alfresco.service.namespace.QName;
 

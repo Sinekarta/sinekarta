@@ -185,7 +185,7 @@
 		<!-- 
 		 | Form body, displays the structure inside the included htmlTemplate.
 		 | The htmlTemplate to be displayed is provided by the WSController into the currentStep property of the  
-		 | wizard DTO. If any form data is wrong, or if any process error occurs, this value will be equal to the 
+		 | wizard DTO. If any form data is wrong, or if any process error occurs, this value will be equal to the
 		 | form that has caused the error.
 		 | Any FreeMarker error will be caught and displayed into the recover statement. 
 		 -->
@@ -194,18 +194,17 @@
 				<div id="${htmlid}-${form}-form">
 					<#include form + '.form.ftl' />
 				</div>	
-			</#list>
+			</#list>	
 		<#recover>
 			<div class="skds-error">
 				${.error}
 			</div>
 		</#attempt>
-		
-		<applet name="sinekartaApplet" code="org.sinekartads.applet.SignApplet.class"   
-			style="width: 50em; height: 35em" class="skds-panel"
-			codebase="${page.url.context}/res/components/sinekarta-ds/applet/lib" 
-			archive="sinekarta-ds-applet.jar">                
-		</applet>
 	</form>
 	
+	<applet name="sinekartaApplet" code="org.sinekartads.applet.SignApplet.class"   
+		WIDTH="60" HEIGHT="35"
+		codebase="${page.url.context}/res/components/sinekarta-ds/applet/lib" 
+		archive="sinekarta-ds-applet.jar">                
+	</applet>
 </div>

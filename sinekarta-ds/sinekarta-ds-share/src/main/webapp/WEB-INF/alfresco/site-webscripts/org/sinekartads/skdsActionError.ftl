@@ -17,7 +17,6 @@
  */
 -->
 <#include "/org/alfresco/include/alfresco-macros.lib.ftl" />
-<!-- FIXME gestire l'actionError dinamicamente al refresh di pagina -->
 <#macro actionError>
 	<#attempt>
 		<ul id="${htmlid}-actionErrors">

@@ -385,7 +385,7 @@ public class SignatureInfo<ST extends SignatureType<ST>,
 	public void appendTimeStamp ( VerifiedTimeStamp verifiedTimeStamp,
 								  SignDisposition.TimeStamp disposition ) {
 
-		assertStatus ( SignatureStatus.SignProcess.MARKED );
+//		assertStatus ( SignatureStatus.SignProcess.MARKED );
 		Assert.notNull( verifiedTimeStamp );
 		Assert.notNull( disposition );
 		

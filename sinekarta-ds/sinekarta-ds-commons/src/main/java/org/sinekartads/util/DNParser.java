@@ -32,6 +32,10 @@ public class DNParser {
 		return parser.get(id);
 	}
 	
+	public static String parseAlias(Principal principal) {
+		return parse ( principal, DomainName.commonName );
+	}
+	
 	public static String parseName(Principal principal) {
 		return parseName ( principal.getName() );
 	}
