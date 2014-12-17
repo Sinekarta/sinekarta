@@ -18,6 +18,7 @@
    * sinekarta-ds/sinekarta-ds-core (core signature algorithms)
    * sinekarta-ds/sinekarta-ds-share (alfresco share plugin)
    * sinekarta-ds/sinekarta-ds-integration (integration test)
+ * select all projects, right click and run maven update (force update of snapshot if necessary)
 
  === now you should have a running eclipse workspace (no compilation problems) ===
 
