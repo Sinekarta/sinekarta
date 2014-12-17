@@ -91,7 +91,7 @@ public class SmartCardAccessTest extends TestCase {
 			}
 		} catch(Exception e) {
 			Throwable cause = e.getCause();
-			if ( cause != null && cause instanceof SmartCardReaderNotFoundException ) {
+			if ( cause != null && (cause instanceof SmartCardReaderNotFoundException || cause instanceof InvalidPKCS11DriverException) ) {
 				tracer.info("unable to run the test because the smart card reader has not been found");
 			}
 		} finally {

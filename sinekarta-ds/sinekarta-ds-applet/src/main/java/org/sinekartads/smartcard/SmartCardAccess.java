@@ -88,7 +88,7 @@ public class SmartCardAccess {
         			return null;
         		} catch (IOException e) {
         			return new PKCS11DriverNotFoundException("Unable to find driver: " + pkcs11Driver, e);
-        		} catch (Exception e) {
+        		} catch (Throwable e) {
         			return new InvalidPKCS11DriverException("Invalid pkcs11 driver: " + pkcs11Driver, e);
         		}
             }
