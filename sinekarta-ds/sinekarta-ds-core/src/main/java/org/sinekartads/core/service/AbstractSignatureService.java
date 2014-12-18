@@ -72,11 +72,11 @@ public abstract class AbstractSignatureService < ST extends SignatureType<ST>,
 		if ( StringUtils.isBlank(errorMessage) ) {
 			errorMessage = e.getClass().getName();
 		}
+		tracer.error(String.format("error detected into the %s response - %s", resp.getClass(), errorMessage), e);
 		resp.setError ( TemplateUtils.Encoding.serializeHex(e) );
 		resp.setErrorType ( e.getClass().getName() );
 		resp.setErrorMessage ( errorMessage );
 		resp.resultCodeToString ( ResultCode.INTERNAL_SERVER_ERROR );
-		tracer.error(String.format("error detected into the %s response - %s", resp.getClass(), errorMessage), e);
 	}
 	
 	

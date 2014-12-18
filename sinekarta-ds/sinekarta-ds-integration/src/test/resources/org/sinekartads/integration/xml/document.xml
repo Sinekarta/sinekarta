@@ -1,30 +1,137 @@
-﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<collection Id="root">
-	<album>
-		<title>Questions, unanswered</title>
-		<artist>Steve and the flubberblubs</artist>
-		<year>1989</year>
-		<t:tracks xmlns:t="http://test.xades4j/tracks">
-			<t:song tracknumber="1" length="4:05">
-				<t:title>What do you know?</t:title>
-				<t:artist>Steve and the flubberblubs</t:artist>
-				<t:lastplayed>2006-10-17-08:31</t:lastplayed>
-			</t:song>
-			<t:song tracknumber="2" length="3:45">
-				<t:title>Who do you know?</t:title>
-				<t:artist>Steve and the flubberblubs</t:artist>
-				<t:lastplayed>2006-10-17-08:35</t:lastplayed>
-			</t:song>
-			<t:song tracknumber="3" length="5:14">
-				<t:title>When do you know?</t:title>
-				<t:artist>Steve and the flubberblubs</t:artist>
-				<t:lastplayed>2006-10-17-08:39</t:lastplayed>
-			</t:song>
-			<t:song tracknumber="4" length="4:19">
-				<t:title>Do you know?</t:title>
-				<t:artist>Steve and the flubberblubs</t:artist>
-				<t:lastplayed>2006-10-17-08:44</t:lastplayed>
-			</t:song>
-		</t:tracks>
-	</album>
-</collection>
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<p:FatturaElettronica xmlns:p="http://www.fatturapa.gov.it/sdi/fatturapa/v1.0"
+	xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	versione="1.0">
+	<FatturaElettronicaHeader>
+		<DatiTrasmissione>
+			<IdTrasmittente>
+				<IdPaese>IT</IdPaese>
+				<IdCodice>01234567890</IdCodice>
+			</IdTrasmittente>
+			<ProgressivoInvio>00001</ProgressivoInvio>
+			<FormatoTrasmissione>SDI10</FormatoTrasmissione>
+			<CodiceDestinatario>AAAAAA</CodiceDestinatario>
+			<ContattiTrasmittente>
+				<Telefono>060601</Telefono>
+				<Email>prova@mail.it</Email>
+			</ContattiTrasmittente>
+		</DatiTrasmissione>
+		<CedentePrestatore>
+			<DatiAnagrafici>
+				<IdFiscaleIVA>
+					<IdPaese>IT</IdPaese>
+					<IdCodice>01234567890</IdCodice>
+				</IdFiscaleIVA>
+				<Anagrafica>
+					<Denominazione>Societa' alpha S.r.l.</Denominazione>
+				</Anagrafica>
+				<RegimeFiscale>RF01</RegimeFiscale>
+			</DatiAnagrafici>
+			<Sede>
+				<Indirizzo>Via Roma</Indirizzo>
+				<CAP>00166</CAP>
+				<Comune>Roma</Comune>
+				<Provincia>RM</Provincia>
+				<Nazione>IT</Nazione>
+			</Sede>
+			<StabileOrganizzazione>
+				<Indirizzo>Piazza Garibaldi</Indirizzo>
+				<CAP>00100</CAP>
+				<Comune>Roma</Comune>
+				<Provincia>RM</Provincia>
+				<Nazione>IT</Nazione>
+			</StabileOrganizzazione>
+		</CedentePrestatore>
+		<CessionarioCommittente>
+			<DatiAnagrafici>
+				<CodiceFiscale>09876543210</CodiceFiscale>
+				<Anagrafica>
+					<Denominazione>Societa beta' S.r.l.</Denominazione>
+				</Anagrafica>
+			</DatiAnagrafici>
+			<Sede>
+				<Indirizzo>Via Milano</Indirizzo>
+				<CAP>00100</CAP>
+				<Comune>Roma</Comune>
+				<Provincia>RM</Provincia>
+				<Nazione>IT</Nazione>
+			</Sede>
+		</CessionarioCommittente>
+		<SoggettoEmittente>CC</SoggettoEmittente>
+	</FatturaElettronicaHeader>
+	<FatturaElettronicaBody>
+		<DatiGenerali>
+			<DatiGeneraliDocumento>
+				<TipoDocumento>TD01</TipoDocumento>
+				<Divisa>EUR</Divisa>
+				<Data>2012-11-27</Data>
+				<Numero>00001</Numero>
+				<Art73>SI</Art73>
+			</DatiGeneraliDocumento>
+			<DatiOrdineAcquisto>
+				<RiferimentoNumeroLinea>1</RiferimentoNumeroLinea>
+				<IdDocumento>123</IdDocumento>
+				<CodiceCUP>123abc</CodiceCUP>
+				<CodiceCIG>456def</CodiceCIG>
+			</DatiOrdineAcquisto>
+			<DatiContratto>
+				<RiferimentoNumeroLinea>1</RiferimentoNumeroLinea>
+				<IdDocumento>123</IdDocumento>
+				<Data>2012-09-01</Data>
+				<NumItem>5</NumItem>
+				<CodiceCUP>123abc</CodiceCUP>
+				<CodiceCIG>456def</CodiceCIG>
+			</DatiContratto>
+			<DatiConvenzione>
+				<RiferimentoNumeroLinea>1</RiferimentoNumeroLinea>
+				<IdDocumento>123</IdDocumento>
+				<Data>2012-09-01</Data>
+				<NumItem>5</NumItem>
+				<CodiceCUP>123abc</CodiceCUP>
+				<CodiceCIG>456def</CodiceCIG>
+			</DatiConvenzione>
+			<DatiRicezione>
+				<RiferimentoNumeroLinea>1</RiferimentoNumeroLinea>
+				<IdDocumento>123</IdDocumento>
+				<Data>2012-09-01</Data>
+				<NumItem>5</NumItem>
+				<CodiceCUP>123abc</CodiceCUP>
+				<CodiceCIG>456def</CodiceCIG>
+			</DatiRicezione>
+			<DatiTrasporto>
+				<DatiAnagraficiVettore>
+					<IdFiscaleIVA>
+						<IdPaese>IT</IdPaese>
+						<IdCodice>24681012141</IdCodice>
+					</IdFiscaleIVA>
+					<Anagrafica>
+						<Denominazione>Trasporto spa</Denominazione>
+					</Anagrafica>
+				</DatiAnagraficiVettore>
+				<DataOraConsegna>2012-10-22T16:46:12.000+02:00</DataOraConsegna>
+			</DatiTrasporto>
+		</DatiGenerali>
+		<DatiBeniServizi>
+			<DettaglioLinee>
+				<NumeroLinea>1</NumeroLinea>
+				<Descrizione>BADGES MAGNETICI - PVC laminato bianco</Descrizione>
+				<PrezzoUnitario>3.00000000</PrezzoUnitario>
+				<PrezzoTotale>3.00</PrezzoTotale>
+				<AliquotaIVA>22.00</AliquotaIVA>
+			</DettaglioLinee>
+			<DatiRiepilogo>
+				<AliquotaIVA>22.00</AliquotaIVA>
+				<ImponibileImporto>3.00</ImponibileImporto>
+				<Imposta>0.66</Imposta>
+			</DatiRiepilogo>
+		</DatiBeniServizi>
+		<DatiPagamento>
+			<CondizioniPagamento>TP01</CondizioniPagamento>
+			<DettaglioPagamento>
+				<ModalitaPagamento>MP01</ModalitaPagamento>
+				<DataScadenzaPagamento>2012-12-31</DataScadenzaPagamento>
+				<ImportoPagamento>3.66</ImportoPagamento>
+			</DettaglioPagamento>
+		</DatiPagamento>
+	</FatturaElettronicaBody>
+</p:FatturaElettronica>
