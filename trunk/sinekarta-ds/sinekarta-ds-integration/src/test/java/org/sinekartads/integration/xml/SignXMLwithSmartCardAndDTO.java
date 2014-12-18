@@ -1,4 +1,4 @@
-package org.sinekartads.integration.pdf;
+package org.sinekartads.integration.xml;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,9 +18,9 @@ import org.junit.Test;
 import org.sinekartads.applet.AppletResponseDTO;
 import org.sinekartads.applet.AppletResponseDTO.ActionErrorDTO;
 import org.sinekartads.applet.AppletResponseDTO.FieldErrorDTO;
-import org.sinekartads.applet.OldSignApplet;
-import org.sinekartads.core.service.PDFSignatureService;
+import org.sinekartads.applet.SignApplet;
 import org.sinekartads.core.service.TimeStampService;
+import org.sinekartads.core.service.XMLSignatureService;
 import org.sinekartads.dto.BaseDTO;
 import org.sinekartads.dto.ResultCode;
 import org.sinekartads.dto.domain.SignatureDTO;
@@ -32,7 +32,6 @@ import org.sinekartads.dto.jcl.VerifyResponseDTO;
 import org.sinekartads.dto.tools.DTOConverter;
 import org.sinekartads.integration.BaseIntegrationTC;
 import org.sinekartads.model.domain.DigestInfo;
-import org.sinekartads.model.domain.PDFSignatureInfo;
 import org.sinekartads.model.domain.SecurityLevel.VerifyResult;
 import org.sinekartads.model.domain.SignDisposition;
 import org.sinekartads.model.domain.SignatureInfo;
@@ -46,6 +45,7 @@ import org.sinekartads.model.domain.Transitions.SignedSignature;
 import org.sinekartads.model.domain.Transitions.VerifiedSignature;
 import org.sinekartads.model.domain.TsRequestInfo;
 import org.sinekartads.model.domain.VerifyInfo;
+import org.sinekartads.model.domain.XMLSignatureInfo;
 import org.sinekartads.model.oid.DigestAlgorithm;
 import org.sinekartads.model.oid.SinekartaDsObjectIdentifiers;
 import org.sinekartads.util.DNParser;
@@ -54,14 +54,12 @@ import org.sinekartads.util.TemplateUtils;
 import org.sinekartads.util.x509.X509Utils;
 import org.sinekartads.utils.JSONUtils;
 
-public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
+public class SignXMLwithSmartCardAndDTO extends BaseIntegrationTC {
 
-	public static final String KEYSTORE_FILE	= "JENIA.p12";
-	public static final String KEYSTORE_PIN 	= "skdscip";
-	public static final String SOURCE_FILE 		= "pippo.pdf";
-	public static final String SIGNED_FILE 		= "pippo_sgn.pdf";
-	public static final String MARKED_FILE 		= "pippo_mrk.pdf";
-	public static final String EXTRACTED_FILE 	= "pippo_ext.pdf";
+	public static final String SOURCE_FILE 		= "document.xml";
+	public static final String SIGNED_FILE 		= "document_extbes.xml";
+	public static final String MARKED_FILE 		= "document_t.xml";
+	public static final String EXTRACTED_FILE 	= "document_cnt.xml";
 	
 	static final DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 	
@@ -69,7 +67,7 @@ public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 		0x30, 0x2f, 0x30, 0x0b, 0x06, 0x09, 0x60, (byte)0x86,  
 		0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01, 0x04, 0x20 };
 
-	static Logger tracer = Logger.getLogger(SignPDFwithSmartCardAndDTO.class);
+	static Logger tracer = Logger.getLogger(SignXMLwithSmartCardAndDTO.class);
 	
 	
 	
@@ -79,7 +77,7 @@ public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 			Security.addProvider(new BouncyCastleProvider());
 		}
 		
-		OldSignApplet applet = new OldSignApplet();
+		SignApplet applet = new SignApplet();
 		try {
 			
 			// Main options
@@ -122,7 +120,7 @@ public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 			VerifyDTO verifyDTO;
 			
 			// Prepare the signature service
-			PDFSignatureService signatureService = new PDFSignatureService();
+			XMLSignatureService signatureService = new XMLSignatureService();
 			TimeStampService timeStampService = new TimeStampService();
 			signatureService.setTimeStampService(timeStampService);
 			
@@ -168,20 +166,20 @@ public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 			}
 			
 			// Declare the signature state variables
-			EmptySignature 		  	  < SignCategory, SignDisposition.PDF, 
-										VerifyResult, PDFSignatureInfo 	   > emptySignature = null; 
-			ChainSignature	  		  < SignCategory, SignDisposition.PDF, 
-										VerifyResult, PDFSignatureInfo 	   > chainSignature = null;
-			DigestSignature	  		  < SignCategory, SignDisposition.PDF, 
-										VerifyResult, PDFSignatureInfo 	   > digestSignature = null;
-			SignedSignature	  		  < SignCategory, SignDisposition.PDF, 
-										VerifyResult, PDFSignatureInfo 	   > signedSignature = null;
-			FinalizedSignature		  < SignCategory, SignDisposition.PDF, 
-										VerifyResult, PDFSignatureInfo 	   > finalizedSignature = null;
+			EmptySignature 		  	  < SignCategory, SignDisposition.XML, 
+										VerifyResult, XMLSignatureInfo 	   > emptySignature = null; 
+			ChainSignature	  		  < SignCategory, SignDisposition.XML, 
+										VerifyResult, XMLSignatureInfo 	   > chainSignature = null;
+			DigestSignature	  		  < SignCategory, SignDisposition.XML, 
+										VerifyResult, XMLSignatureInfo 	   > digestSignature = null;
+			SignedSignature	  		  < SignCategory, SignDisposition.XML, 
+										VerifyResult, XMLSignatureInfo 	   > signedSignature = null;
+			FinalizedSignature		  < SignCategory, SignDisposition.XML, 
+										VerifyResult, XMLSignatureInfo 	   > finalizedSignature = null;
 			VerifyInfo verifyResult = null;
 			
 			// empty signature - initialized with the SHA256withRSA and RSA algorithms
-			emptySignature = new PDFSignatureInfo ( "signature", conf.getSignatureAlgorithm(), conf.getDigestAlgorithm() ); 
+			emptySignature = new XMLSignatureInfo ( conf.getSignatureAlgorithm(), conf.getDigestAlgorithm() ); 
 			
 			// Add to the empty signature the timeStamp request if needed
 			TsRequestInfo tsRequest = null;
@@ -199,8 +197,8 @@ public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 			// Convert the chainSignature to a DTO
 			try {
 				chainSignatureDTO = (SignatureDTO) converter.fromSignatureInfo ( 
-						(SignatureInfo < SignCategory, SignDisposition.PDF, 
-									     VerifyResult, PDFSignatureInfo >) chainSignature );
+						(SignatureInfo < SignCategory, SignDisposition.XML, 
+									     VerifyResult, XMLSignatureInfo >) chainSignature );
 			} catch(Exception e) {
 				tracer.error("unable to convert the chainSignature to the DTO", e);
 				throw e;
@@ -223,8 +221,8 @@ public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 			
 			// digest signature - contains the envelope digest 
 			try {
-				digestSignature = (DigestSignature < SignCategory, SignDisposition.PDF, 
-					     							 VerifyResult, PDFSignatureInfo >) converter.toSignatureInfo(digestSignatureDTO);
+				digestSignature = (DigestSignature < SignCategory, SignDisposition.XML, 
+					     							 VerifyResult, XMLSignatureInfo >) converter.toSignatureInfo(digestSignatureDTO);
 			} catch(Exception e) {
 				tracer.error("unable to obtain the digestSignature from the DTO", e);
 				throw e;
@@ -248,8 +246,8 @@ public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 			// Convert the signedSignature to a DTO
 			try {
 				signedSignatureDTO = (SignatureDTO) converter.fromSignatureInfo ( 
-						(SignatureInfo < SignCategory, SignDisposition.PDF, 
-									  	 VerifyResult, PDFSignatureInfo >) signedSignature );
+						(SignatureInfo < SignCategory, SignDisposition.XML, 
+									  	 VerifyResult, XMLSignatureInfo >) signedSignature );
 			} catch(Exception e) {
 				tracer.error("unable to convert the chainSignature to a DTO", e);
 				throw e;
@@ -267,8 +265,8 @@ public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 			
 			// finalized signature - enveloped signed and eventually marked, not modifiable anymore
 			try {
-				finalizedSignature = (FinalizedSignature < SignCategory, SignDisposition.PDF, 
-					     								   VerifyResult, PDFSignatureInfo >) converter.toSignatureInfo ( finalizedSignatureDTO );
+				finalizedSignature = (FinalizedSignature < SignCategory, SignDisposition.XML, 
+					     								   VerifyResult, XMLSignatureInfo >) converter.toSignatureInfo ( finalizedSignatureDTO );
 			} catch(Exception e) {
 				tracer.error("unable to obtain the digestSignature from the DTO", e);
 				throw e;
@@ -296,8 +294,8 @@ public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 			// Convert the finalizedSignature to a DTO
 			try {
 				finalizedSignatureDTO = (SignatureDTO) converter.fromSignatureInfo ( 
-						(SignatureInfo < SignCategory, SignDisposition.PDF, 
-									  	 VerifyResult, PDFSignatureInfo >) finalizedSignature );
+						(SignatureInfo < SignCategory, SignDisposition.XML, 
+									  	 VerifyResult, XMLSignatureInfo >) finalizedSignature );
 			} catch(Exception e) {
 				tracer.error("unable to convert the chainSignature to a DTO", e);
 				throw e;
@@ -311,7 +309,7 @@ public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 				throw e;
 			}
 			
-//			// Verify phase - load the envelope content and verify the nested signature 
+			// Verify phase - load the envelope content and verify the nested signature 
 //			try {
 //				jsonResp = signatureService.verify ( envelopeHex, null, null, VerifyResult.VALID.name() );
 //				verifyDTO = extractResult ( VerifyDTO.class, jsonResp );
@@ -370,6 +368,9 @@ public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 //				throw e;
 //			}
 			
+		} catch(Exception e) {
+			tracer.error(e.getMessage(), e);
+			throw e;
 		} finally {
 			applet.destroy();
 		}

@@ -81,15 +81,22 @@ public class SignCMSwithSmartCardAndDTO extends BaseIntegrationTC {
 		
 		SignApplet applet = new SignApplet();
 		try {
+			
 			// Main options
-			String driver = "fake";
-//			String driver = "libbit4ipki.so";
-//			String knownDriversJSON = "[\"libbit4ipki.so\",\"libASEP11.so\"]";
 			String contentHex = HexUtils.encodeHex (
 					FileUtils.readFileToByteArray ( 
 							getTestResource ( SOURCE_FILE ) ) );
-			String scPin = "18071971";
-			boolean applyMark = false;
+			boolean applyMark = true;
+			boolean useFakeSmartCard = false;
+			String driver;
+			String scPin;
+			if ( useFakeSmartCard ) {
+				driver = "fake";
+				scPin = "123";
+			} else {
+				driver = "libbit4ipki.so";
+				scPin = "18071971";
+			}
 			
 			// Test products
 			String[] aliases;
@@ -122,12 +129,6 @@ public class SignCMSwithSmartCardAndDTO extends BaseIntegrationTC {
 			// Init the applet
 			try {
 				applet.init();
-//				jsonResp = applet.verifySmartCard ( knownDriversJSON );
-//				appletResponse = (AppletResponseDTO) JSONUtils.fromJSON(AppletResponseDTO.class, jsonResp);
-//				String[] matchingDrivers = (String[]) 
-//						JSONUtils.fromJSONArray ( String[].class, extractJSON(appletResponse) );
-//				Assert.isTrue( ArrayUtils.isNotEmpty(matchingDrivers) );
-//				String driver = matchingDrivers[0];
 				jsonResp = applet.selectDriver ( driver );
 				appletResponse = (AppletResponseDTO) JSONUtils.fromJSON(AppletResponseDTO.class, jsonResp);
 			} catch(Exception e) {
@@ -185,7 +186,7 @@ public class SignCMSwithSmartCardAndDTO extends BaseIntegrationTC {
 			// Add to the empty signature the timeStamp request if needed
 			TsRequestInfo tsRequest = null;
 			if ( applyMark ) {
-				tsRequest = new TsRequestInfo ( SignDisposition.TimeStamp.ATTRIBUTE,
+				tsRequest = new TsRequestInfo ( SignDisposition.TimeStamp.ENVELOPING,
 											    DigestAlgorithm.SHA256,
 											    BigInteger.TEN,
 											    "http://ca.signfiles.com/TSAServer.aspx", "", "" );
