@@ -1,8 +1,12 @@
 package xades4j.xml.sign;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -18,10 +22,13 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.xml.security.signature.XMLSignature;
 import org.apache.xml.security.utils.ElementProxy;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 public class DOMUtils {
 
@@ -32,7 +39,7 @@ public class DOMUtils {
 		try {
 			transformer = TransformerFactory.newInstance().newTransformer();
 			docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			xPath =  XPathFactory.newInstance().newXPath();
+			xPath = XPathFactory.newInstance().newXPath();
 		} catch(Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -143,23 +150,17 @@ public class DOMUtils {
 	}
 	
 	
+	public static List<Element> searchElements(Element root, String expression) throws XPathExpressionException {
+		NodeList nodeList = (NodeList) xPath.compile(expression).evaluate(root, XPathConstants.NODESET);
+		List<Element> elements = new ArrayList<Element>();
+		for ( int i=0; i<nodeList.getLength(); i++ ) {
+			elements.add ( (Element)nodeList.item(i) );
+		}
+		return elements;
+	}
 	
-	public static Element searchElement(Element root, String tagName) throws XPathExpressionException {
-		Queue<Node> q = new LinkedList<Node>();
-	    q.add(root);
-	    while (!q.isEmpty()) {
-	        Node current = q.remove();
-	        if ( StringUtils.equalsIgnoreCase(current.getLocalName(), tagName) ) {
-	        	return (Element) current;
-	        }
-	
-	        NodeList children = current.getChildNodes();
-	        for (int i = 0; i < children.getLength(); i++) {
-	            q.add(children.item(i));
-	        }
-	    }
-	    return root;
-//		return (Element)xPath.compile(expression).evaluate(root, XPathConstants.NODE);
+	public static Element searchElement(Element root, String expression) throws XPathExpressionException {
+		return (Element)xPath.compile(expression).evaluate(root, XPathConstants.NODE);
 	}
 	
 	public static Element replaceElement(Element root, String expression, Node y) throws XPathExpressionException {
@@ -175,13 +176,54 @@ public class DOMUtils {
 	        Node current = q.remove();
 	        if (StringUtils.equalsIgnoreCase(current.getLocalName(), tagName)) {
 	        	current.getParentNode().replaceChild(y, current);
-	        }
-	
-	        NodeList children = current.getChildNodes();
-	        for (int i = 0; i < children.getLength(); i++) {
-	            q.add(children.item(i));
+	        } else {
+		        NodeList children = current.getChildNodes();
+		        for (int i = 0; i < children.getLength(); i++) {
+		            q.add(children.item(i));
+		        }
 	        }
 	    }
 	    return root;
+	}
+	
+	public static Element parseXML ( String xml ) {
+		Document document;
+		try {
+			document = docBuilder.parse ( new ByteArrayInputStream(xml.getBytes()) );
+		} catch (SAXException | IOException e) {
+			// never thrown: byte array operation on a - supposed to be - valid XML string
+			throw new RuntimeException(e);
+		} 
+		return document.getDocumentElement();
+	}
+	
+	public static XMLSignature extSignatureToXML ( ExtXMLSignature extSignature, String signatureMethodURI ) {
+		XMLSignature xmlSignature;
+		try {
+			xmlSignature = new XMLSignature ( extSignature.getElement(), signatureMethodURI );
+		} catch(Exception e) {
+	    	throw new RuntimeException(e);
+	    }
+		return xmlSignature;
+	}
+	
+	public static ExtXMLSignature xmlSignatureToExt ( XMLSignature xmlSignature, String signatureMethodURI ) {
+    	ExtXMLSignature extSignature;
+    	try {
+    		extSignature = new ExtXMLSignature ( xmlSignature, signatureMethodURI );
+    	} catch(Exception e) {
+	    	throw new RuntimeException(e);
+	    }
+    	return extSignature;
+    }
+	
+	public static String evalRootUri ( Element element ) {
+		Element root = element.getOwnerDocument().getDocumentElement();
+        String rootId = root.getAttribute("Id");
+        String rootUri = "";
+        if ( StringUtils.isNotBlank(rootId) ) {
+        	rootUri = '#' + rootId;
+        }
+        return rootUri;
 	}
 }

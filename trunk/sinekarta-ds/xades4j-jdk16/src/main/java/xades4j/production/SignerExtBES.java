@@ -67,7 +67,6 @@ import xades4j.xml.sign.DOMUtils;
 import xades4j.xml.sign.ExtXMLSignature;
 
 import com.google.inject.Inject;
-import com.sun.org.apache.xml.internal.security.c14n.Canonicalizer;
 
 /**
  * Base logic for producing XAdES signatures (XAdES-BES).
@@ -200,7 +199,11 @@ class SignerExtBES implements XadesSigner, XadesSignerExt
                 xmlSignature.getDocument(),
                 QualifyingProperty.XADES_XMLNS, QualifyingProperty.QUALIFYING_PROPS_TAG);
         qualifyingPropsElem.setAttributeNS(null, QualifyingProperty.TARGET_ATTR, '#' + signatureId);
-        qualifyingPropsElem.setAttributeNS(Constants.NamespaceSpecNS, "xmlns:xades141", QualifyingProperty.XADESV141_XMLNS);
+        // --- FIXME remove when stable ------------------------------------------------------------------------
+        // xmlns:xades141 non è richiesto da Dike, lo togliamo per semplicità
+        // -----------------------------------------------------------------------------------------------------
+//        qualifyingPropsElem.setAttributeNS(Constants.NamespaceSpecNS, "xmlns:xades141", QualifyingProperty.XADESV141_XMLNS);
+        // -----------------------------------------------------------------------------------------------------
         // ds:Object to contain QualifyingProperties
         ObjectContainer qPropsXmlObj = new ObjectContainer(xmlSignature.getDocument());
         qPropsXmlObj.appendChild(qualifyingPropsElem);
@@ -217,7 +220,7 @@ class SignerExtBES implements XadesSigner, XadesSignerExt
         // Get the format specific signature properties.
         Collection<SignedSignatureProperty> fsssp = new ArrayList<SignedSignatureProperty>(2);
         Collection<UnsignedSignatureProperty> fsusp = new ArrayList<UnsignedSignatureProperty>(2);
-        getFormatSpecificSignatureProperties(fsssp, fsusp, signingCertificateChain);
+//        getFormatSpecificSignatureProperties(fsssp, fsusp, signingCertificateChain);
         // Gather all the signature and data objects properties.
         QualifyingProperties qualifProps = qualifPropsProcessor.getQualifyingProperties(
                 signedDataObjects, fsssp, fsusp);
@@ -272,7 +275,9 @@ class SignerExtBES implements XadesSigner, XadesSignerExt
                         digestAlgUri, ex);
             }
             
-            ExtXMLSignature extSignature = createExtSignature(xmlSignature, signingCertificate.getPublicKey().getAlgorithm() );
+            String signatureMethodURI = this.algorithmsProvider.getSignatureAlgorithm ( 
+            		signingCertificate.getPublicKey().getAlgorithm() ).getUri();
+            ExtXMLSignature extSignature = DOMUtils.xmlSignatureToExt ( xmlSignature, signatureMethodURI );
 
             // Apply the signature
             try
@@ -318,183 +323,6 @@ class SignerExtBES implements XadesSigner, XadesSignerExt
         return sign(signedDataObjects, parent, SignatureAppendingStrategies.AsLastChild);
     }
     
-//    @Override
-//    public final XadesSignatureResult sign(
-//            SignedDataObjects signedDataObjects,
-//            Node referenceNode,
-//            SignatureAppendingStrategy appendingStrategy) throws XAdES4jException
-//    {
-//        if (null == referenceNode)
-//        {
-//            throw new NullPointerException("Reference node node cannot be null");
-//        }
-//        if (null == signedDataObjects)
-//        {
-//            throw new NullPointerException("References cannot be null");
-//        }
-//        if (signedDataObjects.isEmpty())
-//        {
-//            throw new IllegalArgumentException("Data objects list is empty");
-//        }
-//
-//        Document signatureDocument = DOMHelper.getOwnerDocument(referenceNode);
-//
-//        // Generate unique identifiers for the Signature and the SignedProperties.
-//        String signatureId = String.format("xmldsig-%s", UUID.randomUUID());
-//        String signedPropsId = String.format("%s-signedprops", signatureId);
-//
-//        // Signing certificate chain (may contain only the signing certificate).
-//        List<X509Certificate> signingCertificateChain = this.keyingProvider.getSigningCertificateChain();
-//        if (null == signingCertificateChain || signingCertificateChain.isEmpty())
-//        {
-//            throw new SigningCertChainException("Signing certificate not provided");
-//        }
-//        X509Certificate signingCertificate = signingCertificateChain.get(0);
-//
-//        // The XMLSignature (ds:Signature).
-//        XMLSignature xmlSignature = createXMLSignature(
-//                signatureDocument,
-//                signedDataObjects.getBaseUri(),
-//                signingCertificate.getPublicKey().getAlgorithm());
-//
-//        xmlSignature.setId(signatureId);
-//        
-//        /* ds:KeyInfo */
-//        this.keyInfoBuilder.buildKeyInfo(signingCertificate, xmlSignature);
-//
-//        /* References */
-//        // Process the data object descriptions to get the References and mappings.
-//        // After this call all the signed data objects References and XMLObjects
-//        // are added to the signature.
-//        Map<DataObjectDesc, Reference> referenceMappings = this.dataObjectDescsProcessor.process(
-//                signedDataObjects,
-//                xmlSignature);
-//
-//        /* QualifyingProperties element */
-//        // Create the QualifyingProperties element
-//        Element qualifyingPropsElem = ElementProxy.createElementForFamily(
-//                xmlSignature.getDocument(),
-//                QualifyingProperty.XADES_XMLNS, QualifyingProperty.QUALIFYING_PROPS_TAG);
-//        qualifyingPropsElem.setAttributeNS(null, QualifyingProperty.TARGET_ATTR, '#' + signatureId);
-//        // --- FIXME non presente nell'esempio ---
-//        qualifyingPropsElem.setAttributeNS(Constants.NamespaceSpecNS, "xmlns:xades141", QualifyingProperty.XADESV141_XMLNS);
-//        // ---
-//        // ds:Object to contain QualifyingProperties
-//        ObjectContainer qPropsXmlObj = new ObjectContainer(xmlSignature.getDocument());
-//        qPropsXmlObj.appendChild(qualifyingPropsElem);
-//        try
-//        {
-//            xmlSignature.appendObject(qPropsXmlObj);
-//        } catch (XMLSignatureException ex)
-//        {
-//            // -> xmlSignature.appendObject(xmlObj): not thrown when signing.
-//            throw new IllegalStateException(ex);
-//        }
-//
-//        /* Collect the properties */
-//        // Get the format specific signature properties.
-//        Collection<SignedSignatureProperty> fsssp = new ArrayList<SignedSignatureProperty>(2);
-//        Collection<UnsignedSignatureProperty> fsusp = new ArrayList<UnsignedSignatureProperty>(2);
-//        getFormatSpecificSignatureProperties(fsssp, fsusp, signingCertificateChain);
-//        // Gather all the signature and data objects properties.
-//        QualifyingProperties qualifProps = qualifPropsProcessor.getQualifyingProperties(
-//                signedDataObjects, fsssp, fsusp);
-//
-//        try
-//        {
-//            // The signature needs to be appended to the document from now on because
-//            // property data generation may need to dereference same-document data
-//            // object references.
-//            appendingStrategy.append(xmlSignature.getElement(), referenceNode);
-//
-//            /* Signed properties */
-//            // Create the context for signed properties data objects generation.
-//            PropertiesDataGenerationContext propsDataGenCtx = 
-//            		new PropertiesDataGenerationContext (
-//	                    signedDataObjects.getDataObjectsDescs(),
-//	                    referenceMappings,
-//	                    signatureDocument );
-//            // Generate the signed properties data objects. The data objects structure
-//            // is verifier in the process.
-//            SigAndDataObjsPropertiesData signedPropsData = 
-//            		this.propsDataObjectsGenerator.generateSignedPropertiesData (
-//	                    qualifProps.getSignedProperties(),
-//	                    propsDataGenCtx );
-//            // Marshal the signed properties data to the QualifyingProperties node.
-//            this.signedPropsMarshaller.marshal(signedPropsData, qualifyingPropsElem);
-//            Element signedPropsElem = DOMHelper.getFirstChildElement(qualifyingPropsElem);
-//            DOMHelper.setIdAsXmlId(signedPropsElem, signedPropsId);
-//
-//            // SignedProperties reference
-//            // XAdES 6.3.1: "In order to protect the properties with the signature,
-//            // a ds:Reference element MUST be added to the XMLDSIG signature (...)
-//            // composed in such a way that it uses the SignedProperties element (...)
-//            // as the input for computing its corresponding digest. Additionally,
-//            // (...) use the Type attribute of this particular ds:Reference element,
-//            // with its value set to: http://uri.etsi.org/01903#SignedProperties."
-//
-//            String digestAlgUri = algorithmsProvider.getDigestAlgorithmForDataObjsReferences();
-//            if (null == digestAlgUri)
-//            {
-//                throw new NullPointerException("Digest algorithm URI not provided");
-//            }
-//
-//            try
-//            {
-//                xmlSignature.addDocument('#' + signedPropsId, null, digestAlgUri, null, QualifyingProperty.SIGNED_PROPS_TYPE_URI);
-//            } catch (XMLSignatureException ex)
-//            {
-//                // Seems to be thrown when the digest algorithm is not supported. In
-//                // this case, if it wasn't thrown when processing the data objects it
-//                // shouldn't be thrown now!
-//                throw new UnsupportedAlgorithmException(
-//                        "Digest algorithm not supported in the XML Signature provider",
-//                        digestAlgUri, ex);
-//            }
-//
-//            // Apply the signature
-//            try
-//            {
-//            	ExtXMLSignature extSignature = createExtSignature(xmlSignature, signingCertificate.getPublicKey().getAlgorithm());
-//            	
-//                PrivateKey signingKey = keyingProvider.getSigningKey(signingCertificate);
-//                extSignature.sign(signingKey, digitalSignature);
-//                xmlSignature.sign(signingKey);
-//                
-////                DOMUtils.searchReplace(xmlSignature.getDocument().getDocumentElement(), xmlSignature, extSignature);
-//                DOMUtils.searchReplace(xmlSignature, "SignatureValue", extSignature.getSignatureValueElement());
-//
-////                xmlSignature = toXmlSignature(extSignature, this.algorithmsProvider.getSignatureAlgorithm(signingCertificate.getPublicKey().getAlgorithm()).getUri());
-//            }
-//            catch (XMLSignatureException ex)
-//            {
-//                throw new XAdES4jXMLSigException(ex.getMessage(), ex);
-//            }
-//            // Set the ds:SignatureValue id.
-//            Element sigValueElem = DOMHelper.getFirstDescendant(
-//                    xmlSignature.getElement(),
-//                    Constants.SignatureSpecNS, Constants._TAG_SIGNATUREVALUE);
-//            DOMHelper.setIdAsXmlId(sigValueElem, String.format("%s-sigvalue", signatureId));
-//
-//            /* Marshal unsigned properties */
-//            // Generate the unsigned properties data objects. The data objects structure
-//            // is verifier in the process.
-//            propsDataGenCtx.setTargetXmlSignature(xmlSignature);
-//            SigAndDataObjsPropertiesData unsignedPropsData = this.propsDataObjectsGenerator.generateUnsignedPropertiesData(
-//                    qualifProps.getUnsignedProperties(),
-//                    propsDataGenCtx);
-//            // Marshal the unsigned properties to the final QualifyingProperties node.
-//            this.unsignedPropsMarshaller.marshal(unsignedPropsData, qualifyingPropsElem);
-//        }
-//        catch (XAdES4jException ex)
-//        {
-//            appendingStrategy.revert(xmlSignature.getElement(), referenceNode);
-//            throw ex;
-//        }
-//
-//        return new XadesSignatureResult(xmlSignature, qualifProps);
-//    }
-    
     @Override
     public final XadesSignatureResult sign(
             SignedDataObjects signedDataObjects,
@@ -527,14 +355,18 @@ class SignerExtBES implements XadesSigner, XadesSignerExt
             throw new SigningCertChainException("Signing certificate not provided");
         }
         X509Certificate signingCertificate = signingCertificateChain.get(0);
+        String signatureMethodURI = this.algorithmsProvider.getSignatureAlgorithm ( 
+        		signingCertificate.getPublicKey().getAlgorithm() ).getUri();
 
         // The XMLSignature (ds:Signature).
         XMLSignature xmlSignature = createXMLSignature(
                 signatureDocument,
                 signedDataObjects.getBaseUri(),
                 signingCertificate.getPublicKey().getAlgorithm());
+        ExtXMLSignature extSignature;
 
         xmlSignature.setId(signatureId);
+//        xmlSignature.getElement().setAttributeNS(Constants.NamespaceSpecNS, "xmlns:ds", QualifyingProperty.XADESV141_XMLNS);
 
         /* ds:KeyInfo */
         this.keyInfoBuilder.buildKeyInfo(signingCertificate, xmlSignature);
@@ -553,7 +385,7 @@ class SignerExtBES implements XadesSigner, XadesSignerExt
                 xmlSignature.getDocument(),
                 QualifyingProperty.XADES_XMLNS, QualifyingProperty.QUALIFYING_PROPS_TAG);
         qualifyingPropsElem.setAttributeNS(null, QualifyingProperty.TARGET_ATTR, '#' + signatureId);
-        qualifyingPropsElem.setAttributeNS(Constants.NamespaceSpecNS, "xmlns:xades141", QualifyingProperty.XADESV141_XMLNS);
+//        qualifyingPropsElem.setAttributeNS(Constants.NamespaceSpecNS, "xmlns:xades141", QualifyingProperty.XADESV141_XMLNS);
         // ds:Object to contain QualifyingProperties
         ObjectContainer qPropsXmlObj = new ObjectContainer(xmlSignature.getDocument());
         qPropsXmlObj.appendChild(qualifyingPropsElem);
@@ -570,7 +402,7 @@ class SignerExtBES implements XadesSigner, XadesSignerExt
         // Get the format specific signature properties.
         Collection<SignedSignatureProperty> fsssp = new ArrayList<SignedSignatureProperty>(2);
         Collection<UnsignedSignatureProperty> fsusp = new ArrayList<UnsignedSignatureProperty>(2);
-        getFormatSpecificSignatureProperties(fsssp, fsusp, signingCertificateChain);
+//        getFormatSpecificSignatureProperties(fsssp, fsusp, signingCertificateChain);
         // Gather all the signature and data objects properties.
         QualifyingProperties qualifProps = qualifPropsProcessor.getQualifyingProperties(
                 signedDataObjects, fsssp, fsusp);
@@ -584,7 +416,7 @@ class SignerExtBES implements XadesSigner, XadesSignerExt
 
             /* Signed properties */
             // Create the context for signed properties data objects generation.
-            PropertiesDataGenerationContext propsDataGenCtx = new PropertiesDataGenerationContext(
+            ExtPropertiesDataGenerationContext propsDataGenCtx = new ExtPropertiesDataGenerationContext(
                     signedDataObjects.getDataObjectsDescs(),
                     referenceMappings,
                     signatureDocument);
@@ -616,33 +448,40 @@ class SignerExtBES implements XadesSigner, XadesSignerExt
             {
                 throw new NullPointerException("Digest algorithm URI not provided");
             }
+//
+//            try
+//            {
+//                xmlSignature.addDocument('#' + signedPropsId, null, digestAlgUri, null, QualifyingProperty.SIGNED_PROPS_TYPE_URI);
+//            } catch (XMLSignatureException ex)
+//            {
+//                // Seems to be thrown when the digest algorithm is not supported. In
+//                // this case, if it wasn't thrown when processing the data objects it
+//                // shouldn't be thrown now!
+//                throw new UnsupportedAlgorithmException(
+//                        "Digest algorithm not supported in the XML Signature provider",
+//                        digestAlgUri, ex);
+//            }
 
+            // Inject the digitalSignature into an ExtXMLSignature instance 
             try
             {
-                xmlSignature.addDocument('#' + signedPropsId, null, digestAlgUri, null, QualifyingProperty.SIGNED_PROPS_TYPE_URI);
-            } catch (XMLSignatureException ex)
-            {
-                // Seems to be thrown when the digest algorithm is not supported. In
-                // this case, if it wasn't thrown when processing the data objects it
-                // shouldn't be thrown now!
-                throw new UnsupportedAlgorithmException(
-                        "Digest algorithm not supported in the XML Signature provider",
-                        digestAlgUri, ex);
-            }
-
-            // Apply the signature
-            try
-            {
-//            	xmlSignature.getSignedInfo().generateDigestValues();
-                PrivateKey signingKey = keyingProvider.getSigningKey(signingCertificate);
-//                xmlSignature.sign(signingKey);
+            	// Obtain the xmlSignature's owner document
+            	Element docElem = xmlSignature.getDocument().getDocumentElement();
+            	
+            	// Create the extSignature starting from the xmlSignature XML code
+                extSignature = DOMUtils.xmlSignatureToExt ( xmlSignature, signatureMethodURI );
                 
-                ExtXMLSignature extSignature = createExtSignature(xmlSignature, signingCertificate.getPublicKey().getAlgorithm());
-                extSignature.getSignedInfo().generateDigestValues();
-                extSignature.sign(signingKey, digitalSignature);
-                DOMUtils.searchReplace(xmlSignature.getElement(), "SignatureValue", extSignature.getSignatureValueElement());
-//                Element prevSignedInfo = DOMUtils.searchElement(xmlSignature.getElement(), "/SignedInfo/Reference[@URI='#']");
-                Element digestValueElement = DOMUtils.searchElement(xmlSignature.getSignedInfo().getElement(), "DigestValue");
+                // Inject the digital signature into the extSignature, this will evaluate the digestValues as side effect. The 
+                // 		digestValueElement relative to the signature target is still empty and will need to be injected afterwards
+                extSignature.sign ( keyingProvider.getSigningKey(signingCertificate), digitalSignature );
+                
+                // Replace the xmlSignature with the extSignature into the document
+                //		from now any reference to xmlSignature inside this method code will be replaced with extSignature 
+                DOMUtils.searchReplace(docElem, xmlSignature.getElement(), extSignature.getElement());
+
+                String expression = "*[local-name() = 'Signature']/*[local-name() = 'SignedInfo']/*[local-name() = 'Reference' and @URI='#']/*[local-name() = 'DigestValue']"; 
+                Element digestValueElement = DOMUtils.searchElement ( docElem, expression );
+                
                 digestValueElement.setTextContent(Base64.encode(digest));
             }
             catch (XMLSignatureException | XPathExpressionException ex)
@@ -651,14 +490,14 @@ class SignerExtBES implements XadesSigner, XadesSignerExt
 			}
             // Set the ds:SignatureValue id.
             Element sigValueElem = DOMHelper.getFirstDescendant(
-                    xmlSignature.getElement(),
+                    extSignature.getElement(),
                     Constants.SignatureSpecNS, Constants._TAG_SIGNATUREVALUE);
             DOMHelper.setIdAsXmlId(sigValueElem, String.format("%s-sigvalue", signatureId));
 
             /* Marshal unsigned properties */
             // Generate the unsigned properties data objects. The data objects structure
             // is verifier in the process.
-            propsDataGenCtx.setTargetXmlSignature(xmlSignature);
+            propsDataGenCtx.setTargetExtSignature(extSignature, signatureMethodURI);
             SigAndDataObjsPropertiesData unsignedPropsData = this.propsDataObjectsGenerator.generateUnsignedPropertiesData(
                     qualifProps.getUnsignedProperties(),
                     propsDataGenCtx);
@@ -673,7 +512,7 @@ class SignerExtBES implements XadesSigner, XadesSignerExt
         	throw new XAdES4jXMLSigException(e.getMessage(), e);
 		}
 
-        return new XadesSignatureResult(xmlSignature, qualifProps);
+        return new XadesSignatureResult(DOMUtils.extSignatureToXML(extSignature, signatureMethodURI), qualifProps);
     }
 
     private XMLSignature createXMLSignature(Document signatureDocument, String baseUri, String signingKeyAlgorithm) throws XAdES4jXMLSigException, UnsupportedAlgorithmException
@@ -702,57 +541,6 @@ class SignerExtBES implements XadesSigner, XadesSignerExt
             throw new XAdES4jXMLSigException(ex.getMessage(), ex);
         }
     }
-    
-    private ExtXMLSignature createExtSignature ( XMLSignature xmlSignature, String signingKeyAlgorithm ) {
-    	ExtXMLSignature extSignature;
-    	try {
-    		String signatureMethodURI = this.algorithmsProvider.getSignatureAlgorithm(signingKeyAlgorithm).getUri();
-//    		Document doc = db.parse ( 
-//    				new ByteArrayInputStream (
-//    						DOMUtils.toByteArray(xmlSignature.getElement()) ) );
-//	    	extSignature = new ExtXMLSignature(doc, xmlSignature.getBaseURI(), signatureMethodURI);
-//	    	extSignature = new ExtXMLSignature(xmlSignature.getDocument(), xmlSignature.getBaseURI()/*, signatureMethodURI, "http://www.w3.org/2001/10/xml-exc-c14n#"*/);
-    		extSignature = new ExtXMLSignature(xmlSignature, signatureMethodURI);
-    	} catch(Exception e) {
-	    	throw new RuntimeException(e);
-	    }
-    	return extSignature;
-    }
-
-//    private XMLSignature toXmlSignature ( ExtXMLSignature extSignature, String signatureMethodURI ) {
-//    	XMLSignature xmlSignature;
-//    	try {
-//    		Document doc = db.parse ( 
-//    				new ByteArrayInputStream (
-//    						DOMUtils.toByteArray(extSignature.getElement()) ) );
-//	    	// --- FIXME xmlSignature non ha il campo signatureValue popolato --------------------------------------------------------
-//	    	//
-//	    	// Sembra che in qualche modo venga lasciato per strada dal transformer.
-//	    	// Soluzione tentata: inject diretto da codice
-//	    	//		-> nulla da fare - il campo signatureValue è protetto
-//	    	// Causa del problema:
-//	    	//		new XMLSignature(doc, doc.getBaseURI(), signatureMethodURI);
-//	    	// In realtà non viene fatto il parsing del fake document, ma questo viene preso come target <- SBAGLIATO
-//	    	// Soluzione tentata: utilizzare il costruttore per la verifica 
-//	    	//		public XMLSignature(Element element, String baseURI)
-//	    	// Ancora non risolve
-//	    	// risultato di baos.toString():
-//	    	//		[...]<ds:SignatureValue/>[...]
-//	    	// Problema: per qualche motivo ExtXMLSignature non popola il tag nel corso di sign()
-//	    	//			 extSignature.getSignatureValue() restituisce, comunque, il valore atteso
-//	    	// Debug di ExtXMLSignature.sign()
-//	    	// -----------------------------------------------------------------------------------------------------------------------
-////	    	xmlSignature = new XMLSignature(doc, doc.getBaseURI(), signatureMethodURI);	    	
-////	    	xmlSignature = new XMLSignature(doc.getDocumentElement(), doc.getBaseURI());
-////	    	xmlSignature = new XMLSignature(extSignature.getElement(), extSignature.getBaseURI());
-//    		DOMUtils.searchReplace((ElementProxy)extSignature, extSignature.getSignatureValueElement(), extSignature.getSignatureValueElement());
-//	    	xmlSignature = new XMLSignature(extSignature.getDocument().getDocumentElement(), extSignature.getBaseURI());
-//	    	// -----------------------------------------------------------------------------------------------------------------------
-//    	} catch(Exception e) {
-//	    	throw new RuntimeException(e);
-//	    }
-//    	return xmlSignature;
-//    }
     
     private Element createElementForAlgorithm(Algorithm algorithm, String elementName, Document signatureDocument) throws UnsupportedAlgorithmException
     {

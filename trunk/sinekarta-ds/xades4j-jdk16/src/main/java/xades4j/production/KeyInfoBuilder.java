@@ -20,7 +20,6 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 import org.apache.xml.security.exceptions.XMLSecurityException;
-import org.apache.xml.security.signature.Reference;
 import org.apache.xml.security.signature.XMLSignature;
 import org.apache.xml.security.signature.XMLSignatureException;
 
@@ -74,9 +73,6 @@ class KeyInfoBuilder
             try
             {
                 xmlSig.addKeyInfo(signingCertificate);
-//                String keyInfoId = xmlSig.getId()+"-keyinfo";
-//                xmlSig.getKeyInfo().setId(keyInfoId);
-//                xmlSig.addDocument("#" + keyInfoId, null, "http://www.w3.org/2001/04/xmlenc#sha256", null, null);
                 
                 if (this.basicSignatureOptionsProvider.signSigningCertificate())
                 {
@@ -88,10 +84,6 @@ class KeyInfoBuilder
                             "http://www.w3.org/2001/04/xmlenc#sha256",
                             "reference-" + keyInfoId,
                             this.algorithmsProvider.getDigestAlgorithmForDataObjsReferences());
-                    // Update the generated reference 
-                    for(int i=0; i<xmlSig.getSignedInfo().getLength(); i++) {
-                    	xmlSig.getSignedInfo().item(i);
-                    }
                 }
             } catch (XMLSignatureException ex)
             {
