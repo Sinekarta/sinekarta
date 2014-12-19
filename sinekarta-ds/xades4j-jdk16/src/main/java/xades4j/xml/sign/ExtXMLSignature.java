@@ -27,6 +27,7 @@ import java.security.cert.X509Certificate;
 import javax.crypto.SecretKey;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.xml.security.algorithms.SignatureAlgorithm;
 import org.apache.xml.security.c14n.CanonicalizationException;
 import org.apache.xml.security.c14n.Canonicalizer;
@@ -37,6 +38,8 @@ import org.apache.xml.security.keys.KeyInfo;
 import org.apache.xml.security.keys.content.X509Data;
 import org.apache.xml.security.signature.Manifest;
 import org.apache.xml.security.signature.ObjectContainer;
+import org.apache.xml.security.signature.Reference;
+import org.apache.xml.security.signature.ReferenceNotInitializedException;
 import org.apache.xml.security.signature.SignatureProperties;
 import org.apache.xml.security.signature.SignedInfo;
 import org.apache.xml.security.signature.XMLSignature;
@@ -215,6 +218,10 @@ public final class ExtXMLSignature extends SignatureElementProxy {
         this(xmlSignature.getElement(), xmlSignature.getBaseURI(), false);
         this.signatureMethodURI = signatureMethodURI;
         setDocument(xmlSignature.getDocument());
+//        SignedInfo signedInfo = getSignedInfo();
+//        for(int i=0; i<signedInfo.getLength(); i++) {
+//        	signedInfo.item(i);
+//        }
     }
     
     /**
@@ -667,8 +674,16 @@ public final class ExtXMLSignature extends SignatureElementProxy {
                 // initialize SignatureAlgorithm for signing
                 sa.initSign(signingKey);            
 
-                // generate digest values for all References in this SignedInfo
-                si.generateDigestValues();
+                // generate digest values for all References in this SignedInfo with exception of the target object
+    	        String rootUri = DOMUtils.evalRootUri ( getElement() );
+                SignedInfo signedInfo = getSignedInfo();
+                for (int i = 0; i < signedInfo.getLength(); i++) {
+                    // update the cached Reference object, the Element content is automatically updated
+                    Reference currentRef = signedInfo.item(i);
+                    if ( !StringUtils.equalsIgnoreCase(currentRef.getURI(), rootUri) ) {
+                    	currentRef.generateDigestValue();
+                    }
+                }
                 ubos = new UnsyncBufferedOutputStream(digesterOs);
                 // get the canonicalized bytes from SignedInfo
                 si.signInOctetStream(ubos);
@@ -719,12 +734,15 @@ public final class ExtXMLSignature extends SignatureElementProxy {
                 // initialize SignatureAlgorithm for signing
                 sa.initSign(signingKey);        
 
-                // generate digest values for all References in this SignedInfo
-                // --- FIXME: si.generateDigestValues() do nothing ---------------------------------------------
-                // it loops over the nested this.references attribute, but this is still empty
-                // ---------------------------------------------------------------------------------------------
-                si.generateDigestValues();
-                // ---------------------------------------------------------------------------------------------
+                // generate digest values for all References in this SignedInfo with exception of the target object
+                SignedInfo signedInfo = getSignedInfo();
+                for (int i = 0; i < signedInfo.getLength(); i++) {
+                    // update the cached Reference object, the Element content is automatically updated
+                    Reference currentRef = signedInfo.item(i);
+                    if ( !currentRef.getURI().matches("\\s*#\\s*") ) {
+                    	currentRef.generateDigestValue();
+                    }
+                }
                 ubso = new UnsyncBufferedOutputStream(new SignerOutputStream(sa));
                 // get the canonicalized bytes from SignedInfo
                 si.signInOctetStream(ubso);

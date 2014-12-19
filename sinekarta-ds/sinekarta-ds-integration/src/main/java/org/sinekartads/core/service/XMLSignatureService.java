@@ -12,8 +12,10 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sinekartads.model.domain.DigestInfo;
 import org.sinekartads.model.domain.SecurityLevel.VerifyResult;
+import org.sinekartads.model.domain.SignDisposition;
 import org.sinekartads.model.domain.SignatureType.SignCategory;
 import org.sinekartads.model.domain.TimeStampInfo;
 import org.sinekartads.model.domain.Transitions.ChainSignature;
@@ -24,20 +26,21 @@ import org.sinekartads.model.domain.TsRequestInfo;
 import org.sinekartads.model.domain.VerifyInfo;
 import org.sinekartads.model.domain.XMLSignatureInfo;
 import org.sinekartads.model.oid.DigestAlgorithm;
-import org.sinekartads.model.domain.SignDisposition;
 import org.sinekartads.util.TemplateUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import xades4j.algorithms.EnvelopedSignatureTransform;
+import xades4j.algorithms.XPath2FilterTransform.XPath2Filter;
 import xades4j.production.DataObjectReference;
 import xades4j.production.SignatureAppendingStrategies;
 import xades4j.production.SignedDataObjects;
 import xades4j.production.XadesExtBesSigningProfile;
+import xades4j.production.XadesSignatureResult;
 import xades4j.production.XadesSignerExt;
 import xades4j.properties.DataObjectDesc;
 import xades4j.providers.impl.ExtKeyringDataProvider;
 import xades4j.utils.DOMHelper;
+import xades4j.xml.sign.DOMUtils;
 
 public class XMLSignatureService 
 		extends AbstractSignatureService  <	SignCategory,
@@ -95,7 +98,8 @@ public class XMLSignatureService
 	        				chainSignature.getRawX509Certificates() ) );
 	        
 	        // Creation of the reference to the root element
-	        DataObjectDesc obj1 = new DataObjectReference('#' + root.getAttribute("Id")).withTransform(new EnvelopedSignatureTransform());
+	        String rootUri = DOMUtils.evalRootUri(root);
+	        DataObjectDesc obj1 = new DataObjectReference(rootUri).withTransform ( XPath2Filter.subtract("/descendant::ds:") );
 	        SignedDataObjects dataObjs = new SignedDataObjects(obj1);
 	        
 	        // Digest evaluation
@@ -152,7 +156,7 @@ public class XMLSignatureService
 	        				signedSignature.getRawX509Certificates() ) );
 
 	        // Creation of the reference to the root element
-	        DataObjectDesc obj1 = new DataObjectReference('#' + root.getAttribute("Id")).withTransform(new EnvelopedSignatureTransform());
+	        DataObjectDesc obj1 = new DataObjectReference('#' + root.getAttribute("Id")).withTransform( XPath2Filter.subtract("/descendant::ds:") );
 	        SignedDataObjects dataObjs = new SignedDataObjects(obj1);
 	        
 	        // Inject the digitalSignature into the signer
@@ -160,7 +164,8 @@ public class XMLSignatureService
 	        signer.setDigitalSignature ( signedSignature.getDigitalSignature() );
 	        
 	        // Send the signed xml to the outputStream
-	        signer.sign(dataObjs, root, SignatureAppendingStrategies.AsFirstChild);
+	        XadesSignatureResult signResult = signer.sign(dataObjs, root, SignatureAppendingStrategies.AsFirstChild);
+	        doc = signResult.getSignature().getDocument();
 	    	tf.newTransformer().transform ( new DOMSource(doc), new StreamResult(embeddedSignOs) );
 	    	
 	    	// finalize the signature
