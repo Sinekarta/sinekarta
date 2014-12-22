@@ -15,7 +15,11 @@ public interface XadesSignerExt extends XadesSigner {
 	            Node referenceNode,
 	            SignatureAppendingStrategy appendingStrategy) throws XAdES4jException;
 	
-	public void setDigitalSignature(byte[] digitalSignature);
+	 public String getSignatureId();
+	 
+	 public void setSignatureId(String signatureId);
+	 
+	 public void setDigitalSignature(byte[] digitalSignature);
 	
-	public void setDigest(byte[] digest);
+	 public void setDigest(byte[] digest);
 }

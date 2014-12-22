@@ -23,11 +23,10 @@ import java.io.OutputStream;
 import java.security.Key;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 
 import javax.crypto.SecretKey;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.xml.security.algorithms.SignatureAlgorithm;
 import org.apache.xml.security.c14n.CanonicalizationException;
 import org.apache.xml.security.c14n.Canonicalizer;
@@ -39,7 +38,6 @@ import org.apache.xml.security.keys.content.X509Data;
 import org.apache.xml.security.signature.Manifest;
 import org.apache.xml.security.signature.ObjectContainer;
 import org.apache.xml.security.signature.Reference;
-import org.apache.xml.security.signature.ReferenceNotInitializedException;
 import org.apache.xml.security.signature.SignatureProperties;
 import org.apache.xml.security.signature.SignedInfo;
 import org.apache.xml.security.signature.XMLSignature;
@@ -54,6 +52,7 @@ import org.apache.xml.security.utils.UnsyncBufferedOutputStream;
 import org.apache.xml.security.utils.XMLUtils;
 import org.apache.xml.security.utils.resolver.ResourceResolver;
 import org.apache.xml.security.utils.resolver.ResourceResolverSpi;
+import org.springframework.util.Assert;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -208,6 +207,8 @@ public final class ExtXMLSignature extends SignatureElementProxy {
     private boolean followManifestsDuringValidation = false;
 
     private Element signatureValueElement;
+    private byte[] digest;
+    private byte[] digitalSignature;
 
     private static final int MODE_SIGN = 0;
     private static final int MODE_VERIFY = 1;
@@ -646,6 +647,73 @@ public final class ExtXMLSignature extends SignatureElementProxy {
         return this.length(Constants.SignatureSpecNS, Constants._TAG_OBJECT);
     }
     
+
+    /**
+     * Digests all References in the SignedInfo, calculates the signature value 
+     * and sets it in the SignatureValue Element.
+     *
+     * @param signingKey the {@link java.security.PrivateKey} or 
+     * {@link javax.crypto.SecretKey} that is used to sign.
+     * @throws XMLSignatureException
+     */
+//    public byte[] digest(Key signingKey) throws XMLSignatureException {
+//
+//        if (signingKey instanceof PublicKey) {
+//            throw new IllegalArgumentException(
+//                I18n.translate("algorithms.operationOnlyVerification")
+//            );
+//        }
+//
+//        DigesterOutputStream digesterOs = null;
+//        try {
+//            //Create a SignatureAlgorithm object
+//            SignedInfo si = this.getSignedInfo();
+//            SignatureAlgorithm sa = getSignatureAlgorithm ( );
+//            OutputStream ubso = null;
+//            digesterOs = new DigesterOutputStream(sa);
+//            try {
+//                // initialize SignatureAlgorithm for signing
+//                sa.initSign(signingKey);        
+//
+//                // generate digest values for all References in this SignedInfo with exception of the target object
+//                SignedInfo signedInfo = getSignedInfo();
+//                for (int i = 0; i < signedInfo.getLength(); i++) {
+//                    // update the cached Reference object, the Element content is automatically updated
+//                    Reference currentRef = signedInfo.item(i);
+//                    currentRef.generateDigestValue();
+//                }
+//                ubso = new UnsyncBufferedOutputStream(digesterOs);
+//                // get the canonicalized bytes from SignedInfo
+//                si.signInOctetStream(ubso);
+//            } catch (XMLSecurityException ex) {
+//                throw ex;
+//            } finally {
+//                if (ubso != null) {
+//                    try {
+//                        ubso.close();
+//                    } catch (IOException ex) {
+//                        if (log.isDebugEnabled()) {
+//                            log.debug(ex.getMessage(), ex);
+//                        }
+//                    }
+//                }
+//            }
+//            
+//            // set them on the SignatureValue element
+//            this.setSignatureValueElement(sa.sign());
+//        } catch (XMLSignatureException ex) {
+//            throw ex;
+//        } catch (CanonicalizationException ex) {
+//            throw new XMLSignatureException("empty", ex);
+//        } catch (InvalidCanonicalizerException ex) {
+//            throw new XMLSignatureException("empty", ex);
+//        } catch (XMLSecurityException ex) {
+//            throw new XMLSignatureException("empty", ex);
+//        }
+//        
+//        return digesterOs.getDigest();
+//    }
+    
     /**
      * Digests all References in the SignedInfo, calculates the signature value 
      * and sets it in the SignatureValue Element.
@@ -666,70 +734,9 @@ public final class ExtXMLSignature extends SignatureElementProxy {
         try {
             //Create a SignatureAlgorithm object
             SignedInfo si = this.getSignedInfo();
-            SignatureAlgorithm sa = getSignatureAlgorithm();
-            OutputStream ubos = null;
-            try {
-            	digesterOs = new DigesterOutputStream(sa);
-            	
-                // initialize SignatureAlgorithm for signing
-                sa.initSign(signingKey);            
-
-                // generate digest values for all References in this SignedInfo with exception of the target object
-    	        String rootUri = DOMUtils.evalRootUri ( getElement() );
-                SignedInfo signedInfo = getSignedInfo();
-                for (int i = 0; i < signedInfo.getLength(); i++) {
-                    // update the cached Reference object, the Element content is automatically updated
-                    Reference currentRef = signedInfo.item(i);
-                    if ( !StringUtils.equalsIgnoreCase(currentRef.getURI(), rootUri) ) {
-                    	currentRef.generateDigestValue();
-                    }
-                }
-                ubos = new UnsyncBufferedOutputStream(digesterOs);
-                // get the canonicalized bytes from SignedInfo
-                si.signInOctetStream(ubos);
-            } catch (XMLSecurityException ex) {
-                throw ex;
-            } finally {
-            	IOUtils.closeQuietly(ubos);
-                IOUtils.closeQuietly(digesterOs);
-            }
-
-            // set them on the SignatureValue element
-            this.setSignatureValueElement(sa.sign());
-        } catch (XMLSignatureException ex) {
-            throw ex;
-        } catch (CanonicalizationException ex) {
-            throw new XMLSignatureException("empty", ex);
-        } catch (InvalidCanonicalizerException ex) {
-            throw new XMLSignatureException("empty", ex);
-        } catch (XMLSecurityException ex) {
-            throw new XMLSignatureException("empty", ex);
-        }
-        
-        return digesterOs.getDigest();
-    }
-
-    /**
-     * Digests all References in the SignedInfo, calculates the signature value 
-     * and sets it in the SignatureValue Element.
-     *
-     * @param signingKey the {@link java.security.PrivateKey} or 
-     * {@link javax.crypto.SecretKey} that is used to sign.
-     * @throws XMLSignatureException
-     */
-    public void sign(Key signingKey, byte[] digitalSignature) throws XMLSignatureException {
-
-        if (signingKey instanceof PublicKey) {
-            throw new IllegalArgumentException(
-                I18n.translate("algorithms.operationOnlyVerification")
-            );
-        }
-
-        try {
-            //Create a SignatureAlgorithm object
-            SignedInfo si = this.getSignedInfo();
-            SignatureAlgorithm sa = getSignatureAlgorithm ( digitalSignature );
+            SignatureAlgorithm sa = getSignatureAlgorithm ( );
             OutputStream ubso = null;
+            digesterOs = new DigesterOutputStream(sa);
             try {
                 // initialize SignatureAlgorithm for signing
                 sa.initSign(signingKey);        
@@ -739,11 +746,9 @@ public final class ExtXMLSignature extends SignatureElementProxy {
                 for (int i = 0; i < signedInfo.getLength(); i++) {
                     // update the cached Reference object, the Element content is automatically updated
                     Reference currentRef = signedInfo.item(i);
-                    if ( !currentRef.getURI().matches("\\s*#\\s*") ) {
-                    	currentRef.generateDigestValue();
-                    }
+                    currentRef.generateDigestValue();
                 }
-                ubso = new UnsyncBufferedOutputStream(new SignerOutputStream(sa));
+                ubso = new UnsyncBufferedOutputStream(/*new SignerOutputStream(sa)*/digesterOs);
                 // get the canonicalized bytes from SignedInfo
                 si.signInOctetStream(ubso);
             } catch (XMLSecurityException ex) {
@@ -761,7 +766,87 @@ public final class ExtXMLSignature extends SignatureElementProxy {
             }
             
             // set them on the SignatureValue element
-            this.setSignatureValueElement(sa.sign());
+            try {
+	            this.setSignatureValueElement(sa.sign());
+            } catch(Exception e) {
+            	throw new RuntimeException(e);
+            }
+        } catch (XMLSignatureException ex) {
+            throw ex;
+        } catch (CanonicalizationException ex) {
+            throw new XMLSignatureException("empty", ex);
+        } catch (InvalidCanonicalizerException ex) {
+            throw new XMLSignatureException("empty", ex);
+        } catch (XMLSecurityException ex) {
+            throw new XMLSignatureException("empty", ex);
+        }
+        
+        return digesterOs.getDigest();
+    }
+    
+    /**
+     * Digests all References in the SignedInfo, calculates the signature value 
+     * and sets it in the SignatureValue Element.
+     *
+     * @param signingKey the {@link java.security.PrivateKey} or 
+     * {@link javax.crypto.SecretKey} that is used to sign.
+     * @throws XMLSignatureException
+     */
+    public void sign(Key signingKey) throws XMLSignatureException {
+
+        if (signingKey instanceof PublicKey) {
+            throw new IllegalArgumentException(
+                I18n.translate("algorithms.operationOnlyVerification")
+            );
+        }
+
+        DigesterOutputStream digesterOs = null;
+        try {
+            //Create a SignatureAlgorithm object
+            SignedInfo si = this.getSignedInfo();
+            SignatureAlgorithm sa = getSignatureAlgorithm ( digitalSignature );
+            OutputStream ubso = null;
+            digesterOs = new DigesterOutputStream(sa);
+            try {
+                // initialize SignatureAlgorithm for signing
+                sa.initSign(signingKey);        
+
+                // generate digest values for all References in this SignedInfo with exception of the target object
+                SignedInfo signedInfo = getSignedInfo();
+                for (int i = 0; i < signedInfo.getLength(); i++) {
+                    // update the cached Reference object, the Element content is automatically updated
+                    Reference currentRef = signedInfo.item(i);
+                    currentRef.generateDigestValue();
+                }
+                ubso = new UnsyncBufferedOutputStream(/*new SignerOutputStream(sa)*/digesterOs);
+                // get the canonicalized bytes from SignedInfo
+                si.signInOctetStream(ubso);
+            } catch (XMLSecurityException ex) {
+                throw ex;
+            } finally {
+                if (ubso != null) {
+                    try {
+                        ubso.close();
+                    } catch (IOException ex) {
+                        if (log.isDebugEnabled()) {
+                            log.debug(ex.getMessage(), ex);
+                        }
+                    }
+                }
+            }
+            
+            // set them on the SignatureValue element
+            try {
+	            this.setSignatureValueElement(sa.sign());
+	            Assert.isTrue ( Arrays.equals(sa.sign(), digitalSignature) );
+	            Assert.isTrue ( Arrays.equals(digesterOs.getDigest(), digest) );
+//	            Signature signature = Signature.getInstance ( this.getKeyInfo().getX509Certificate().getSigAlgName() );
+//	            signature.initVerify(this.getKeyInfo().getX509Certificate().getPublicKey());
+//	            signature.update(digesterOs.getDigest());
+//	            Assert.isTrue ( signature.verify(digitalSignature) );
+            } catch(Exception e) {
+            	throw new RuntimeException(e);
+            }
         } catch (XMLSignatureException ex) {
             throw ex;
         } catch (CanonicalizationException ex) {
@@ -1049,4 +1134,12 @@ public final class ExtXMLSignature extends SignatureElementProxy {
 			throw new RuntimeException();
 		}
     }
+
+	public void setDigest(byte[] digest) {
+		this.digest = digest;
+	}
+
+	public void setDigitalSignature(byte[] digitalSignature) {
+		this.digitalSignature = digitalSignature;
+	}
 }

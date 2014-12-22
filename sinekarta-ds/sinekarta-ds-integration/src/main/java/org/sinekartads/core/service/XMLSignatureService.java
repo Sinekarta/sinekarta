@@ -13,6 +13,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.xml.security.signature.XMLSignature;
 import org.sinekartads.model.domain.DigestInfo;
 import org.sinekartads.model.domain.SecurityLevel.VerifyResult;
 import org.sinekartads.model.domain.SignDisposition;
@@ -37,8 +38,10 @@ import xades4j.production.SignedDataObjects;
 import xades4j.production.XadesExtBesSigningProfile;
 import xades4j.production.XadesSignatureResult;
 import xades4j.production.XadesSignerExt;
+import xades4j.production.XadesSigningProfile;
 import xades4j.properties.DataObjectDesc;
 import xades4j.providers.impl.ExtKeyringDataProvider;
+import xades4j.providers.impl.ExtSignaturePropertiesProvider;
 import xades4j.utils.DOMHelper;
 import xades4j.xml.sign.DOMUtils;
 
@@ -88,9 +91,19 @@ public class XMLSignatureService
 	        Element root = doc.getDocumentElement();
 	        DOMHelper.useIdAsXmlId(root);
 	        
-	        // External XAdES-BES Signer 
+	        // External XAdES-BES Signer
 	        ExtKeyringDataProvider extKdp = new ExtKeyringDataProvider();
-	        XadesSignerExt signer = (XadesSignerExt)new XadesExtBesSigningProfile(extKdp).newSigner();
+	        ExtSignaturePropertiesProvider extSignPropertiesProvider = new ExtSignaturePropertiesProvider();
+	        XadesSigningProfile signingProfile;
+	        TsRequestInfo tsRequest = chainSignature.getTsRequest(); 
+	        if ( tsRequest != null && StringUtils.isNotBlank(tsRequest.getTsUrl() )) {
+	        	throw new UnsupportedOperationException ( "XAdES-T signature not supported yet." );
+	        } else {
+	        	signingProfile = new XadesExtBesSigningProfile(extKdp);
+	        }
+	        XadesSignerExt signer = (XadesSignerExt) signingProfile
+					.withSignaturePropertiesProvider ( extSignPropertiesProvider )
+							.newSigner();
 	        
 	        // Certificate chain injection
 	        extKdp.setSigningCertificateChain ( 
@@ -99,7 +112,7 @@ public class XMLSignatureService
 	        
 	        // Creation of the reference to the root element
 	        String rootUri = DOMUtils.evalRootUri(root);
-	        DataObjectDesc obj1 = new DataObjectReference(rootUri).withTransform ( XPath2Filter.subtract("/descendant::ds:") );
+	        DataObjectDesc obj1 = new DataObjectReference(rootUri).withTransform( XPath2Filter.subtract("/descendant::ds:Signature") );
 	        SignedDataObjects dataObjs = new SignedDataObjects(obj1);
 	        
 	        // Digest evaluation
@@ -109,6 +122,9 @@ public class XMLSignatureService
 	        DigestAlgorithm digestAlgorithm = chainSignature.getDigestAlgorithm();
 	        digestSignature = chainSignature.toDigestSignature ( 
 	        		DigestInfo.getInstance(digestAlgorithm, digest) );
+	        
+	        ((XMLSignatureInfo)digestSignature).setSignatureId(signer.getSignatureId());
+	        digestSignature.setSigningTime ( extSignPropertiesProvider.getSigningTime() );
 		} catch(Exception e) {
         	throw new SignatureException(e);
         }
@@ -146,26 +162,43 @@ public class XMLSignatureService
 	        Element root = doc.getDocumentElement();
 	        DOMHelper.useIdAsXmlId(root);
 	        
-	        // External XAdES-BES Signer 
+	        // External XAdES-BES Signer
 	        ExtKeyringDataProvider extKdp = new ExtKeyringDataProvider();
-	        XadesSignerExt signer = (XadesSignerExt)new XadesExtBesSigningProfile(extKdp).newSigner();
+	        ExtSignaturePropertiesProvider extSignPropertiesProvider = new ExtSignaturePropertiesProvider();
+	        XadesSigningProfile signingProfile;
+	        TsRequestInfo tsRequest = signedSignature.getTsRequest(); 
+	        if ( tsRequest != null && StringUtils.isNotBlank(tsRequest.getTsUrl() )) {
+	        	throw new UnsupportedOperationException ( "XAdES-T signature not supported yet." );
+	        } else {
+	        	signingProfile = new XadesExtBesSigningProfile(extKdp);
+	        }
+	        XadesSignerExt signer = (XadesSignerExt) signingProfile
+					.withSignaturePropertiesProvider ( extSignPropertiesProvider )
+							.newSigner();
 	        
 	        // Certificate chain injection
 	        extKdp.setSigningCertificateChain ( 
 	        		TemplateUtils.Conversion.arrayToList ( 
 	        				signedSignature.getRawX509Certificates() ) );
+	        
+	        // SigningTime injection
+	        extSignPropertiesProvider.setSigningTime ( signedSignature.getSigningTime() );
 
 	        // Creation of the reference to the root element
-	        DataObjectDesc obj1 = new DataObjectReference('#' + root.getAttribute("Id")).withTransform( XPath2Filter.subtract("/descendant::ds:") );
+	        String rootUri = DOMUtils.evalRootUri(root);
+	        DataObjectDesc obj1 = new DataObjectReference(rootUri).withTransform( XPath2Filter.subtract("/descendant::ds:Signature") );
 	        SignedDataObjects dataObjs = new SignedDataObjects(obj1);
 	        
 	        // Inject the digitalSignature into the signer
+	        signer.setSignatureId(((XMLSignatureInfo)signedSignature).getSignatureId());
 	        signer.setDigest ( signedSignature.getDigest().getFingerPrint() );
 	        signer.setDigitalSignature ( signedSignature.getDigitalSignature() );
 	        
 	        // Send the signed xml to the outputStream
-	        XadesSignatureResult signResult = signer.sign(dataObjs, root, SignatureAppendingStrategies.AsFirstChild);
-	        doc = signResult.getSignature().getDocument();
+	        XadesSignatureResult signResult = signer.sign(dataObjs, root, SignatureAppendingStrategies.AsLastChild);
+	        XMLSignature xmlSignature = signResult.getSignature();
+	        String expression = "*[local-name() = 'Signature']";
+	        DOMUtils.replaceElement(doc.getDocumentElement(), expression, xmlSignature.getElement());
 	    	tf.newTransformer().transform ( new DOMSource(doc), new StreamResult(embeddedSignOs) );
 	    	
 	    	// finalize the signature
@@ -207,5 +240,4 @@ public class XMLSignatureService
 		// TODO body method not implemented yet
 		throw new UnsupportedOperationException ( "body method not implemented yet" );
 	}
-
 }

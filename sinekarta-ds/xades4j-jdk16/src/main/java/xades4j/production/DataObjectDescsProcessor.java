@@ -17,12 +17,16 @@
 package xades4j.production;
 
 import xades4j.algorithms.Algorithm;
+
 import com.google.inject.Inject;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.xml.security.signature.ObjectContainer;
 import org.apache.xml.security.signature.Reference;
 import org.apache.xml.security.signature.XMLSignature;
@@ -33,6 +37,7 @@ import org.apache.xml.security.utils.resolver.ResourceResolver;
 import org.apache.xml.security.utils.resolver.implementations.ResolverAnonymous;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+
 import xades4j.UnsupportedAlgorithmException;
 import xades4j.properties.DataObjectDesc;
 import xades4j.providers.AlgorithmsProviderEx;
@@ -141,8 +146,16 @@ class DataObjectDescsProcessor
 
                 // SignedDataObjects doesn't allow repeated instances, so there's no
                 // need to check for duplicate entries on the map.
-                Reference ref = xmlSignature.getSignedInfo().item(referenceMappings.size());
-                referenceMappings.put(dataObjDesc, ref);
+                Reference newRef = null;
+                Reference ref;
+                for ( int i=0; i<xmlSignature.getSignedInfo().getLength() && newRef == null; i++ ) {
+                	ref = xmlSignature.getSignedInfo().item(i);
+                	if ( StringUtils.equals(ref.getURI(), refUri) ) {
+                		newRef = ref;
+                	}
+                }
+                
+                referenceMappings.put(dataObjDesc, newRef);
             }
 
         } catch (XMLSignatureException ex)
