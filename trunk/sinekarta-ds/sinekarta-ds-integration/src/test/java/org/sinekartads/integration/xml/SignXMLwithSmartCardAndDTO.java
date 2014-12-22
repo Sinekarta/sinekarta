@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.Security;
-import java.security.Signature;
 import java.security.cert.X509Certificate;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -52,7 +51,6 @@ import org.sinekartads.util.HexUtils;
 import org.sinekartads.util.TemplateUtils;
 import org.sinekartads.util.x509.X509Utils;
 import org.sinekartads.utils.JSONUtils;
-import org.springframework.util.Assert;
 
 public class SignXMLwithSmartCardAndDTO extends BaseIntegrationTC {
 
@@ -84,8 +82,8 @@ public class SignXMLwithSmartCardAndDTO extends BaseIntegrationTC {
 			String contentHex = HexUtils.encodeHex (
 					FileUtils.readFileToByteArray ( 
 							getTestResource ( SOURCE_FILE ) ) );
-			boolean applyMark = false;
-			boolean useFakeSmartCard = true;
+			boolean applyMark = true;
+			boolean useFakeSmartCard = false;
 			String driver;
 			String scPin;
 			if ( useFakeSmartCard ) {

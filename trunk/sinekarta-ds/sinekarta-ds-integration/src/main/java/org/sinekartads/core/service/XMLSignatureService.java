@@ -14,6 +14,8 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.xml.security.signature.XMLSignature;
+import org.bouncycastle.cms.CMSSignedData;
+import org.bouncycastle.tsp.TimeStampToken;
 import org.sinekartads.model.domain.DigestInfo;
 import org.sinekartads.model.domain.SecurityLevel.VerifyResult;
 import org.sinekartads.model.domain.SignDisposition;
@@ -22,8 +24,10 @@ import org.sinekartads.model.domain.TimeStampInfo;
 import org.sinekartads.model.domain.Transitions.ChainSignature;
 import org.sinekartads.model.domain.Transitions.DigestSignature;
 import org.sinekartads.model.domain.Transitions.FinalizedSignature;
+import org.sinekartads.model.domain.Transitions.MarkedSignature;
 import org.sinekartads.model.domain.Transitions.SignedSignature;
 import org.sinekartads.model.domain.TsRequestInfo;
+import org.sinekartads.model.domain.TsResponseInfo;
 import org.sinekartads.model.domain.VerifyInfo;
 import org.sinekartads.model.domain.XMLSignatureInfo;
 import org.sinekartads.model.oid.DigestAlgorithm;
@@ -31,15 +35,21 @@ import org.sinekartads.util.TemplateUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import xades4j.algorithms.Algorithm;
+import xades4j.algorithms.ExclusiveCanonicalXMLWithoutComments;
 import xades4j.algorithms.XPath2FilterTransform.XPath2Filter;
 import xades4j.production.DataObjectReference;
 import xades4j.production.SignatureAppendingStrategies;
 import xades4j.production.SignedDataObjects;
 import xades4j.production.XadesExtBesSigningProfile;
+import xades4j.production.XadesExtTSigningProfile;
 import xades4j.production.XadesSignatureResult;
 import xades4j.production.XadesSignerExt;
 import xades4j.production.XadesSigningProfile;
 import xades4j.properties.DataObjectDesc;
+import xades4j.providers.TimeStampTokenGenerationException;
+import xades4j.providers.TimeStampTokenProvider;
+import xades4j.providers.impl.DefaultAlgorithmsProviderEx;
 import xades4j.providers.impl.ExtKeyringDataProvider;
 import xades4j.providers.impl.ExtSignaturePropertiesProvider;
 import xades4j.utils.DOMHelper;
@@ -50,6 +60,61 @@ public class XMLSignatureService
 											SignDisposition.XML,
 											XMLSignatureInfo > {
 
+	public static class ExtTimeStampTokenProvider implements TimeStampTokenProvider
+	{
+	    private TsRequestInfo tsRequest;
+	    private TsResponseInfo tsResponse;
+	    private TimeStampInfo timeStamp;
+
+	    @Override
+	    public final TimeStampTokenRes getTimeStampToken ( byte[] tsDigestInput,
+	            										   String digestAlgUri ) 
+	            												   throws TimeStampTokenGenerationException {
+	    	try {
+	    		// FIXME grant that the digestAlgUri matches with the digestAlgorithm in use within the tsResponse
+	    		//		this should be automatic at the first version since only SHA256 is supported
+	    		tsRequest = tsRequest.evaluateMessageImprint(tsDigestInput);
+	            tsResponse = gblTsService.processTsTequest(tsRequest);
+	            timeStamp = tsResponse.getTimeStamp();
+	            byte[] tsTokenEnc = timeStamp.getEncTimeStampToken();
+	            TimeStampToken tsToken = new TimeStampToken(new CMSSignedData(tsTokenEnc));
+	            return new TimeStampTokenRes(tsTokenEnc, tsToken.getTimeStampInfo().getGenTime());
+	    	} catch(Exception e) {
+            	throw new TimeStampTokenGenerationException(e.getMessage(), e);
+            }
+	    }
+
+	    public void setTsRequest(TsRequestInfo tsRequest) {
+	    	this.tsRequest = tsRequest;
+	    }
+
+		public TimeStampInfo getTimeStamp() {
+			return timeStamp;
+		}
+
+		public TsResponseInfo getTsResponse() {
+			return tsResponse;
+		}
+	}
+
+
+    static class ExclusiveC14nForTimeStampsAlgorithmsProvider extends DefaultAlgorithmsProviderEx
+    {
+        @Override
+        public Algorithm getCanonicalizationAlgorithmForTimeStampProperties()
+        {
+            return new ExclusiveCanonicalXMLWithoutComments("ds", "xades");
+        }
+
+        @Override
+        public Algorithm getCanonicalizationAlgorithmForSignature()
+        {
+            return new ExclusiveCanonicalXMLWithoutComments();
+        }
+    }
+
+
+	
 	public XMLSignatureService ( ) {
 		try {		
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -97,7 +162,11 @@ public class XMLSignatureService
 	        XadesSigningProfile signingProfile;
 	        TsRequestInfo tsRequest = chainSignature.getTsRequest(); 
 	        if ( tsRequest != null && StringUtils.isNotBlank(tsRequest.getTsUrl() )) {
-	        	throw new UnsupportedOperationException ( "XAdES-T signature not supported yet." );
+	        	ExtTimeStampTokenProvider extTsTokenProvider = new ExtTimeStampTokenProvider();
+	        	extTsTokenProvider.setTsRequest(tsRequest);
+	        	signingProfile = new XadesExtTSigningProfile(extKdp)
+			        	.withTimeStampTokenProvider(extTsTokenProvider)
+		                .withAlgorithmsProviderEx(ExclusiveC14nForTimeStampsAlgorithmsProvider.class);
 	        } else {
 	        	signingProfile = new XadesExtBesSigningProfile(extKdp);
 	        }
@@ -151,6 +220,11 @@ public class XMLSignatureService
 																			
 																			throws SignatureException, IOException 			{
 		
+		MarkedSignature    < SignCategory, 
+						 	 SignDisposition.XML, 
+						 	 VerifyResult, 		
+						 	 XMLSignatureInfo > markedSignature = null;
+		
 		FinalizedSignature < SignCategory, 
 						 	 SignDisposition.XML, 
 						 	 VerifyResult, 		
@@ -162,13 +236,20 @@ public class XMLSignatureService
 	        Element root = doc.getDocumentElement();
 	        DOMHelper.useIdAsXmlId(root);
 	        
+	        TsRequestInfo tsRequest = signedSignature.getTsRequest(); 
+	        boolean applyMark = tsRequest != null && StringUtils.isNotBlank(tsRequest.getTsUrl());
+	        
 	        // External XAdES-BES Signer
 	        ExtKeyringDataProvider extKdp = new ExtKeyringDataProvider();
 	        ExtSignaturePropertiesProvider extSignPropertiesProvider = new ExtSignaturePropertiesProvider();
+	        ExtTimeStampTokenProvider extTsTokenProvider = null;
 	        XadesSigningProfile signingProfile;
-	        TsRequestInfo tsRequest = signedSignature.getTsRequest(); 
-	        if ( tsRequest != null && StringUtils.isNotBlank(tsRequest.getTsUrl() )) {
-	        	throw new UnsupportedOperationException ( "XAdES-T signature not supported yet." );
+	        if ( applyMark ) {
+	        	extTsTokenProvider = new ExtTimeStampTokenProvider();
+	        	extTsTokenProvider.setTsRequest(tsRequest);
+	        	signingProfile = new XadesExtTSigningProfile(extKdp)
+			        	.withTimeStampTokenProvider(extTsTokenProvider)
+		                .withAlgorithmsProviderEx(ExclusiveC14nForTimeStampsAlgorithmsProvider.class);
 	        } else {
 	        	signingProfile = new XadesExtBesSigningProfile(extKdp);
 	        }
@@ -194,15 +275,24 @@ public class XMLSignatureService
 	        signer.setDigest ( signedSignature.getDigest().getFingerPrint() );
 	        signer.setDigitalSignature ( signedSignature.getDigitalSignature() );
 	        
-	        // Send the signed xml to the outputStream
+	        // Generate the signed xml
 	        XadesSignatureResult signResult = signer.sign(dataObjs, root, SignatureAppendingStrategies.AsLastChild);
 	        XMLSignature xmlSignature = signResult.getSignature();
 	        String expression = "*[local-name() = 'Signature']";
 	        DOMUtils.replaceElement(doc.getDocumentElement(), expression, xmlSignature.getElement());
-	    	tf.newTransformer().transform ( new DOMSource(doc), new StreamResult(embeddedSignOs) );
-	    	
-	    	// finalize the signature
-	    	finalizedSignature = signedSignature.finalizeSignature();
+	        
+	        // Finalize the signature and send the signed xml to the outputStream
+	        OutputStream targetStream;
+	        if ( applyMark ) {
+	        	markedSignature = signedSignature.toMarkedSignature();
+	        	markedSignature.appendTimeStamp(extTsTokenProvider.getTimeStamp(), SignDisposition.TimeStamp.ATTRIBUTE);
+	        	finalizedSignature = markedSignature.finalizeSignature();
+	        	targetStream = markedSignOs;
+	        } else {
+	        	finalizedSignature = signedSignature.finalizeSignature();
+	        	targetStream = embeddedSignOs;
+	        }
+	    	tf.newTransformer().transform ( new DOMSource(doc), new StreamResult(targetStream) );
 		} catch(Exception e) {
         	throw new SignatureException(e);
         }
@@ -240,4 +330,15 @@ public class XMLSignatureService
 		// TODO body method not implemented yet
 		throw new UnsupportedOperationException ( "body method not implemented yet" );
 	}
+
+	
+	
+	private static TimeStampService gblTsService;
+	
+	@Override
+	public void setTimeStampService(TimeStampService timeStampService) {
+		super.setTimeStampService(timeStampService);
+		gblTsService = timeStampService;
+	}
+
 }

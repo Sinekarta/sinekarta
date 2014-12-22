@@ -89,6 +89,6 @@ public class DefaultAlgorithmsProviderEx implements AlgorithmsProviderEx
     @Override
     public String getDigestAlgorithmForTimeStampProperties()
     {
-        return MessageDigestAlgorithm.ALGO_ID_DIGEST_SHA1;
+        return MessageDigestAlgorithm.ALGO_ID_DIGEST_SHA256;
     }
 }
