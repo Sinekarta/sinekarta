@@ -40,6 +40,10 @@ These are projects :
   * right click on /itext-jdk16/pom.xml
   * Run As -> Maven install
   * wait for "BUILD SUCCESS" in eclipse console
+ * install xades4j-jdk16 on local repository : 
+  * right click on /itext-jdk16/pom.xml
+  * Run As -> Maven install
+  * wait for "BUILD SUCCESS" in eclipse console
  * install sinekarta-ds-applet on local repository : 
   * right click on /itext-jdk16/pom.xml
   * Run As -> Maven install
