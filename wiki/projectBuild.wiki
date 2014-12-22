@@ -71,7 +71,11 @@ These are projects :
 
 == modifying the applet ==
 
-If you have to modify the applet sources, please does not forgot to install sinekarta-ds-applet on your local maven repository before to run skds tests
+If you have to modify the applet sources, please does not forgot to call maven install on sinekarta-ds-applet on your local maven repository before to run skds tests.
+
+
+
+
 
 
 
