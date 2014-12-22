@@ -165,9 +165,17 @@
 		<echo>Storing the ${applet.jar} and its dependencies into the ${applet.dir} folder</echo>
 		<copy tofile="${applet.dir}/lib/${applet.jar}" file="${super.dir}/sinekarta-ds-applet/target/sinekarta-ds-applet-1.0.0-SNAPSHOT-jar-with-dependencies.jar" overwrite="true" verbose="${verbose}"/>
 		<echo>Signing the ${applet.jar}, output in jarsigner.txt</echo>
-		<exec dir="${workspace.dir}" executable="/usr/java/jdk1.7.0_10/bin/jarsigner" output="jarsigner.txt">
-		  	<arg line="-keystore &quot;jarsigner/JENIASoftware.p12&quot; -storepass jenia -keypass jenia -storetype PKCS12 -providerName SunJSSE &quot;sinekarta-ds/sinekarta-ds-share/${applet.dir}/lib/${applet.jar}&quot; &quot;id di jenia software a comodo ca limited&quot;" />
-		</exec>
+		<signjar jar="${applet.dir}/lib/${applet.jar}" 
+				signedjar="${applet.dir}/lib/${applet.jar}"
+				lazy="false"
+				alias="id di jenia software a comodo ca limited" 
+				keypass="jenia"
+				storepass="jenia"
+				storetype="PKCS12"
+				keystore="${workspace.dir}/JENIA_Software.p12"
+				sigalg="SHA256withRSA"
+		    	digestalg="SHA-256"/>
+		
 	</target>
 	
     <target name="package-amp" depends="prepare-libs">
