@@ -11,6 +11,7 @@
  * we use eclipse as development environment. We also use jboss tools for maven integration
  * import following maven projects : 
   * sinekarta-ds/itext-jdk16 (patch to itext for bouncycastle jdk16 support)
+  * sinekarta-ds/xades4j-jdk16 (patch to xades4j for bouncycastle jdk16 support)
   * sinekarta-ds/sinekarta-ds-applet (sign applet)
   * sinekarta-ds (super project)
    * sinekarta-ds/sinekarta-ds-alfresco (Alfresco core plugin)
@@ -25,6 +26,7 @@
 These are projects : 
  * sinekarta-ds (generic project)
  * itext-jdk16 (java project)
+ * xades4j-jdk16 (java project)
  * sinekarta-ds-alfresco (java project)
  * sinekarta-ds-commons (java project)
  * sinekarta-ds-core (java project)
