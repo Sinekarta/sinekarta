@@ -143,6 +143,7 @@
 		<delete includeemptydirs="true">
 			<fileset dir="${core.dir}" includes="**/*"/>
 		 </delete>
+		<echo>dependencies dir : ${dependencies.dir}</echo>
 		<echo>Storing the dependencies into ${lib.dir} and ${core.dir} folders</echo>
 		<echo> - sinekarta-ds-alfresco dependencies</echo>
 		<copy toDir="${lib.dir}" overwrite="true" verbose="${verbose}">
