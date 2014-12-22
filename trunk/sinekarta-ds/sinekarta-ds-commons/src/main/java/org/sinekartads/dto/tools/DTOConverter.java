@@ -2,6 +2,7 @@ package org.sinekartads.dto.tools;
 
 import java.security.cert.CertificateException;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.sinekartads.dto.BaseDTO;
 import org.sinekartads.dto.domain.CertificateDTO;
@@ -212,23 +213,23 @@ public class DTOConverter {
 		if ( signature == null)									 					return null;
 		
 		SignatureType<?> signatureType = signature.getSignType();
-		SignatureDTO dto;
+		SignatureDTO dto = new SignatureDTO();
 		switch ( signatureType.getCategory() ) {
 			case CMS: {
-				dto = new SignatureDTO();
 				break;
 			}
 			case PDF: {
-				SignatureDTO pdfDto = new SignatureDTO 	( );
-				PDFSignatureInfo pdfSignature = 		( PDFSignatureInfo ) signature; 
-				pdfDto.setPdfSignName					( pdfSignature.getName()				);
-				pdfDto.setPdfRevision					( pdfSignature.getRevision()			);
-				pdfDto.pdfCoversWholeDocumentToString  	( pdfSignature.getCoversWholeDocument()	);
-				dto = pdfDto;
+				PDFSignatureInfo pdfSignature = ( PDFSignatureInfo ) signature; 
+				dto.setPdfSignName				( pdfSignature.getName()				);
+				dto.setPdfRevision				( pdfSignature.getRevision()			);
+				dto.pdfCoversWholeDocumentToString 	( pdfSignature.getCoversWholeDocument()	);
 				break;
 			}
 			case XML: {
-				dto = new SignatureDTO();
+				XMLSignatureInfo xmlSignature = ( XMLSignatureInfo ) signature; 
+				if ( StringUtils.isNotBlank(xmlSignature.getSignatureId()) ) {
+					dto.setSignatureId(xmlSignature.getSignatureId());
+				}
 				break;
 			} 
 			default: {
@@ -422,7 +423,12 @@ public class DTOConverter {
 					break;
 				}
 				default: {
-					rawSignature = new XMLSignatureInfo ( dto.signAlgorithmFromString(), dto.digestAlgorithmFromName() );
+					String signatureId = dto.getSignatureId();
+					if ( StringUtils.isNotBlank(signatureId) ) {
+						rawSignature = new XMLSignatureInfo ( dto.signAlgorithmFromString(), dto.digestAlgorithmFromName(), signatureId );
+					} else {
+						rawSignature = new XMLSignatureInfo ( dto.signAlgorithmFromString(), dto.digestAlgorithmFromName() );
+					}
 					break;
 				}
 			}

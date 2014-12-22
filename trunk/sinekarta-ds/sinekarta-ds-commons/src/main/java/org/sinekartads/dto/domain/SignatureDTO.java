@@ -223,7 +223,7 @@ public class SignatureDTO extends BaseDTO {
 		Date signingTime = null;
 		if ( StringUtils.isNotBlank(this.signingTime) ) {
 			try {
-				signingTime = timeFormat.parse ( this.signingTime );
+				signingTime = dateTimeFormat.parse ( this.signingTime );
 			} catch (ParseException e) {
 				throw new RuntimeException(e);
 			}
@@ -235,7 +235,7 @@ public class SignatureDTO extends BaseDTO {
 		if ( signingTime == null) {
 			this.signingTime = "";
 		} else {
-			this.signingTime = timeFormat.format(signingTime);
+			this.signingTime = dateTimeFormat.format(signingTime);
 		}
 	}
 	
@@ -381,5 +381,22 @@ public class SignatureDTO extends BaseDTO {
 	public String getPdfCoversWholeDocument() {
 		return pdfCoversWholeDocument;
 	}
+
+
+	
+	// -----
+	// --- XML signature specific protocol
+	// -
+	
+	private String signatureId;
+	
+	public String getSignatureId() {
+		return signatureId;
+	}
+
+	public void setSignatureId(String signatureId) {
+		this.signatureId = signatureId;
+	}
+
 }
 

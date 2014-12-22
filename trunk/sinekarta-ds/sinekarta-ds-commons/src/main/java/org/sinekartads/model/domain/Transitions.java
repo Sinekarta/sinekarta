@@ -159,6 +159,9 @@ public class Transitions <	ST extends SignatureType<ST>,
 												SI extends SignatureInfo<ST, SD, SV, SI> >
 									
 																		extends SignTransition < ST, SD, SV, SI > {
+		
+		public TsRequestInfo getTsRequest ( ) throws UnsupportedOperationException ;
+		
 		public DigestSignature < ST, SD, SV, SI > 			toDigestSignature ( DigestInfo digest ) ;
 	}
 	
@@ -172,6 +175,8 @@ public class Transitions <	ST extends SignatureType<ST>,
 												SI extends SignatureInfo<ST, SD, SV, SI> >
 											
 																		extends SignTransition < ST, SD, SV, SI > { 
+		
+		public TsRequestInfo getTsRequest ( ) throws UnsupportedOperationException ;
 
 		public SignedSignature < ST, SD, SV, SI > 			toSignedSignature ( byte[] digitalSignature ) ;
 	}

@@ -22,4 +22,24 @@ public class XMLSignatureInfo
 		super ( SignatureType.SignCategory.XML, SignDisposition.XML.ENVELOPING, signAlgorithm, digestAlgorithm );
 	}
 	
+	public XMLSignatureInfo (
+			SignatureAlgorithm signAlgorithm,
+			DigestAlgorithm digestAlgorithm,
+			String signatureId ) 
+					throws CertificateException {
+		
+		super ( SignatureType.SignCategory.XML, SignDisposition.XML.ENVELOPING, signAlgorithm, digestAlgorithm );
+		this.signatureId = signatureId;
+	}
+	
+	public String getSignatureId() {
+		return signatureId;
+	}
+
+	public void setSignatureId(String signatureId) {
+		this.signatureId = signatureId;
+	}
+
+	private String signatureId;
+	
 }
