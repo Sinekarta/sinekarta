@@ -68,6 +68,13 @@ These are projects :
   * wait for "BUILD SUCCESS" in eclipse console
 
 
+
+== modifying the applet ==
+
+If you have to modify the applet sources, please does not forgot to install sinekarta-ds-applet on your local maven repository before to run skds tests
+
+
+
 Organizzazione delle directory - default
 
 Gli script ant eseguono la rigenerazione automatica di istanze vergini di Alfresco e Share e vi aggiungono i contenuti dell'amp tramite il tool <root.alfresco>/bin/alfresco-mmt.jar. 
