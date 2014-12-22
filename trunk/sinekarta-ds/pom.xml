@@ -29,7 +29,7 @@
 		<module>sinekarta-ds-commons</module>
 		<module>sinekarta-ds-core</module>
 		<module>sinekarta-ds-alfresco</module>
-		<!-- module>sinekarta-ds-applet</module -->
+		<module>sinekarta-ds-integration</module>
 		<module>sinekarta-ds-share</module>
 	</modules>
 
@@ -39,7 +39,7 @@
 			<!-- dependencies provided by alfresco - do not add to amp -->
 			<dependency>
 				<groupId>org.alfresco</groupId>
-				<artifactId>alfresco-web-client</artifactId>
+				<artifactId>alfresco-repository</artifactId>
 				<version>${alfresco.version}</version>
 				<exclusions>
 					<exclusion>
