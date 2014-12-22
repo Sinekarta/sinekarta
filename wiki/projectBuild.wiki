@@ -54,6 +54,12 @@ These are projects :
   * could be that you have to change permissions and/or ownership
  * rename alfresco.war in .alfresco-original.war (hidden file)
  * rename share.war in .share-original.war (hidden file)
+ * update sinekarta-ds
+  * select sinekarta-ds project 
+  * right click /sinekarta-ds
+  * Maven -> Update Project ...
+  * select all
+  * press ok and wait for  maven update finish
  * resolve dependencies for ant tasks : 
   * right click /sinekarta-ds/pom.xml
   * Run As -> Maven build...
