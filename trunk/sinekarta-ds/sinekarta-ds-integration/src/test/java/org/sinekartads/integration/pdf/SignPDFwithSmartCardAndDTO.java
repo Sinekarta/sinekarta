@@ -18,7 +18,7 @@ import org.junit.Test;
 import org.sinekartads.applet.AppletResponseDTO;
 import org.sinekartads.applet.AppletResponseDTO.ActionErrorDTO;
 import org.sinekartads.applet.AppletResponseDTO.FieldErrorDTO;
-import org.sinekartads.applet.OldSignApplet;
+import org.sinekartads.applet.SignApplet;
 import org.sinekartads.core.service.PDFSignatureService;
 import org.sinekartads.core.service.TimeStampService;
 import org.sinekartads.dto.BaseDTO;
@@ -53,15 +53,16 @@ import org.sinekartads.util.HexUtils;
 import org.sinekartads.util.TemplateUtils;
 import org.sinekartads.util.x509.X509Utils;
 import org.sinekartads.utils.JSONUtils;
+import org.springframework.util.SerializationUtils;
 
 public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 
 	public static final String KEYSTORE_FILE	= "JENIA.p12";
 	public static final String KEYSTORE_PIN 	= "skdscip";
-	public static final String SOURCE_FILE 		= "pippo.pdf";
-	public static final String SIGNED_FILE 		= "pippo_sgn.pdf";
-	public static final String MARKED_FILE 		= "pippo_mrk.pdf";
-	public static final String EXTRACTED_FILE 	= "pippo_ext.pdf";
+	public static final String SOURCE_FILE 		= "pippo.txt";
+	public static final String SIGNED_FILE 		= "pippo_sc.txt.p7m";
+	public static final String MARKED_FILE 		= "pippo_sc.txt.m7m";
+	public static final String EXTRACTED_FILE 	= "pippo_ext_sc.txt.m7m";
 	
 	static final DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 	
@@ -79,26 +80,18 @@ public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 			Security.addProvider(new BouncyCastleProvider());
 		}
 		
-		OldSignApplet applet = new OldSignApplet();
+		SignApplet applet = new SignApplet();
 		try {
-			
-			// Main options
+			// Main options 
+			String knownDriversJSON = "[\"libbit4ipki.so\",\"libASEP11.so\"]";
 			String contentHex = HexUtils.encodeHex (
 					FileUtils.readFileToByteArray ( 
 							getTestResource ( SOURCE_FILE ) ) );
+			String scPin = "18071971";
 			boolean applyMark = false;
-			boolean useFakeSmartCard = false;
-			String driver;
-			String scPin;
-			if ( useFakeSmartCard ) {
-				driver = "fake";
-				scPin = "123";
-			} else {
-				driver = "libbit4ipki.so";
-				scPin = "18071971";
-			}
 			
 			// Test products
+			String driver = "libbit4ipki.so";
 			String[] aliases;
 			String alias;
 			X509Certificate certificate;
@@ -129,8 +122,13 @@ public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 			// Init the applet
 			try {
 				applet.init();
-				jsonResp = applet.selectDriver ( driver );
-				appletResponse = (AppletResponseDTO) JSONUtils.fromJSON(AppletResponseDTO.class, jsonResp);
+//				jsonResp = applet.verifySmartCard ( knownDriversJSON );
+//				appletResponse = (AppletResponseDTO) JSONUtils.fromJSON(AppletResponseDTO.class, jsonResp);
+//				String[] matchingDrivers = (String[]) 
+//						JSONUtils.fromJSONArray ( String[].class, extractJSON(appletResponse) );
+//				Assert.isTrue( ArrayUtils.isNotEmpty(matchingDrivers) );
+//				String driver = matchingDrivers[0];
+				applet.selectDriver ( driver );
 			} catch(Exception e) {
 				tracer.error("error during the applet initialization", e);
 				throw e;
@@ -186,7 +184,7 @@ public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 			// Add to the empty signature the timeStamp request if needed
 			TsRequestInfo tsRequest = null;
 			if ( applyMark ) {
-				tsRequest = new TsRequestInfo ( SignDisposition.TimeStamp.ENVELOPING,
+				tsRequest = new TsRequestInfo ( SignDisposition.TimeStamp.ATTRIBUTE,
 											    DigestAlgorithm.SHA256,
 											    BigInteger.TEN,
 											    "http://ca.signfiles.com/TSAServer.aspx", "", "" );
@@ -208,13 +206,13 @@ public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 			
 
 			
-//			chainSignatureDTO = (SignatureDTO)SerializationUtils.deserialize(FileUtils.readFileToByteArray(new java.io.File("/home/adeprato/hex.txt")));
+			chainSignatureDTO = (SignatureDTO)SerializationUtils.deserialize(FileUtils.readFileToByteArray(new java.io.File("/home/adeprato/hex.txt")));
 			
 
 			
 			// PreSign phase - join the content with the certificate chain and evaluate the digest
 			try {
-				jsonResp = signatureService.preSign(chainSignatureDTO.toBase64(), contentHex);
+				jsonResp = signatureService.preSign(chainSignatureDTO.toJSON(), contentHex);
 				digestSignatureDTO = extractResult ( SignatureDTO.class, jsonResp );
 			} catch(Exception e) {
 				tracer.error("error during the pre sign phase", e);
@@ -257,8 +255,8 @@ public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 			
 			// PostSign phase - add the digitalSignature to the envelope and store the result into the JCLResultDTO
 			try {
-				jsonResp = signatureService.postSign ( signedSignatureDTO.toBase64(), contentHex );
-				postSignResp = TemplateUtils.Encoding.deserializeBase64 ( PostSignResponseDTO.class, jsonResp );
+				jsonResp = signatureService.postSign ( signedSignatureDTO.toJSON(), contentHex );
+				postSignResp = TemplateUtils.Encoding.deserializeJSON ( PostSignResponseDTO.class, jsonResp );
 				finalizedSignatureDTO = extractResult ( SignatureDTO.class, jsonResp );
 			} catch(Exception e) {
 				tracer.error("error during the envelope generation", e);
@@ -311,64 +309,64 @@ public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 				throw e;
 			}
 			
-//			// Verify phase - load the envelope content and verify the nested signature 
-//			try {
-//				jsonResp = signatureService.verify ( envelopeHex, null, null, VerifyResult.VALID.name() );
-//				verifyDTO = extractResult ( VerifyDTO.class, jsonResp );
-//			} catch(Exception e) {
-//				tracer.error("error during the envelope verification", e);
-//				throw e;
-//			}
-//			
-//			// finalized signature - enveloped signed and eventually marked, not modifiable anymore
-//			try {
-//				verifyResult = (VerifyInfo) converter.toVerifyInfo( verifyDTO );
-//			} catch(Exception e) {
-//				tracer.error("unable to obtain the verifyInfo from the DTO", e);
-//				throw e;
-//			}
-//			
-//			try {
-//				for(VerifiedSignature < ?, ?, VerifyResult, ?> verifiedSignature : verifyResult.getSignatures() ) {
-//					tracer.info(String.format ( "signature validity:  %s", verifiedSignature.getVerifyResult().name() ));
-//					tracer.info(String.format ( "signature type:      %s", verifiedSignature.getSignType().name() ));
-//					tracer.info(String.format ( "disposition:         %s", verifiedSignature.getDisposition().name() ));
-//					tracer.info(String.format ( "digest algorithm:    %s", verifiedSignature.getDigest().getAlgorithm().name() ));
-//					tracer.info(String.format ( "finger print:        %s", HexUtils.encodeHex(verifiedSignature.getDigest().getFingerPrint()) ));
-//					tracer.info(String.format ( "counter signature:   %s", verifiedSignature.isCounterSignature() ));
-//					tracer.info(String.format ( "signature algorithm: %s", verifiedSignature.getSignAlgorithm().name() ));
-//					tracer.info(String.format ( "digital signature:   %s", HexUtils.encodeHex(verifiedSignature.getDigitalSignature()) ));
-//					tracer.info(String.format ( "reason:              %s", verifiedSignature.getReason() ));
-//					tracer.info(String.format ( "signing location:    %s", verifiedSignature.getLocation() ));
-//					tracer.info(String.format ( "signing time:        %s", formatDate(verifiedSignature.getSigningTime()) ));
-//					tracer.info(String.format ( "\n "));
-//					tracer.info(String.format ( "signing certificate chain: "));
-//					for ( X509Certificate cert : verifiedSignature.getRawX509Certificates() ) {
-//						showCertificate(cert);
-//					}
-//					if ( verifiedSignature.getTimeStamps() != null ) {
-//						tracer.info(String.format ( "\n "));
-//						tracer.info(String.format ( "timestamps: "));
-//						for ( TimeStampInfo mark : verifiedSignature.getTimeStamps() ) {
-//							tracer.info(String.format ( "timestamp validity:  %s", mark.getVerifyResult().name() ));
-//							tracer.info(String.format ( "timestamp authority: %s", mark.getTsaName() ));
-//							tracer.info(String.format ( "timestamp authority: %s", mark.getTsaName() ));
-//							tracer.info(String.format ( "message imprint alg: %s", mark.getMessageInprintInfo().getAlgorithm().name() ));
-//							tracer.info(String.format ( "message imprint:     %s", HexUtils.encodeHex(mark.getMessageInprintInfo().getFingerPrint()) ));
-//							tracer.info(String.format ( "digest algorithm:    %s", mark.getDigestAlgorithm().name() ));
-//							tracer.info(String.format ( "digital signature:   %s", HexUtils.encodeHex(mark.getDigitalSignature()) ));
-//							tracer.info(String.format ( "signature algorithm: %s", mark.getSignAlgorithm().name() ));
-//							tracer.info(String.format ( "timestamp certificate: "));
-//							for ( X509Certificate cert : mark.getRawX509Certificates() ) {
-//								showCertificate(cert);
-//							}
-//						}
-//					}
-//				}
-//			} catch(Exception e) {
-//				tracer.error("unable to print the verify results", e);
-//				throw e;
-//			}
+			// Verify phase - load the envelope content and verify the nested signature 
+			try {
+				jsonResp = signatureService.verify ( envelopeHex, null, null, VerifyResult.VALID.name() );
+				verifyDTO = extractResult ( VerifyDTO.class, jsonResp );
+			} catch(Exception e) {
+				tracer.error("error during the envelope verification", e);
+				throw e;
+			}
+			
+			// finalized signature - enveloped signed and eventually marked, not modifiable anymore
+			try {
+				verifyResult = (VerifyInfo) converter.toVerifyInfo( verifyDTO );
+			} catch(Exception e) {
+				tracer.error("unable to obtain the verifyInfo from the DTO", e);
+				throw e;
+			}
+			
+			try {
+				for(VerifiedSignature < ?, ?, VerifyResult, ?> verifiedSignature : verifyResult.getSignatures() ) {
+					tracer.info(String.format ( "signature validity:  %s", verifiedSignature.getVerifyResult().name() ));
+					tracer.info(String.format ( "signature type:      %s", verifiedSignature.getSignType().name() ));
+					tracer.info(String.format ( "disposition:         %s", verifiedSignature.getDisposition().name() ));
+					tracer.info(String.format ( "digest algorithm:    %s", verifiedSignature.getDigest().getAlgorithm().name() ));
+					tracer.info(String.format ( "finger print:        %s", HexUtils.encodeHex(verifiedSignature.getDigest().getFingerPrint()) ));
+					tracer.info(String.format ( "counter signature:   %s", verifiedSignature.isCounterSignature() ));
+					tracer.info(String.format ( "signature algorithm: %s", verifiedSignature.getSignAlgorithm().name() ));
+					tracer.info(String.format ( "digital signature:   %s", HexUtils.encodeHex(verifiedSignature.getDigitalSignature()) ));
+					tracer.info(String.format ( "reason:              %s", verifiedSignature.getReason() ));
+					tracer.info(String.format ( "signing location:    %s", verifiedSignature.getLocation() ));
+					tracer.info(String.format ( "signing time:        %s", formatDate(verifiedSignature.getSigningTime()) ));
+					tracer.info(String.format ( "\n "));
+					tracer.info(String.format ( "signing certificate chain: "));
+					for ( X509Certificate cert : verifiedSignature.getRawX509Certificates() ) {
+						showCertificate(cert);
+					}
+					if ( verifiedSignature.getTimeStamps() != null ) {
+						tracer.info(String.format ( "\n "));
+						tracer.info(String.format ( "timestamps: "));
+						for ( TimeStampInfo mark : verifiedSignature.getTimeStamps() ) {
+							tracer.info(String.format ( "timestamp validity:  %s", mark.getVerifyResult().name() ));
+							tracer.info(String.format ( "timestamp authority: %s", mark.getTsaName() ));
+							tracer.info(String.format ( "timestamp authority: %s", mark.getTsaName() ));
+							tracer.info(String.format ( "message imprint alg: %s", mark.getMessageInprintInfo().getAlgorithm().name() ));
+							tracer.info(String.format ( "message imprint:     %s", HexUtils.encodeHex(mark.getMessageInprintInfo().getFingerPrint()) ));
+							tracer.info(String.format ( "digest algorithm:    %s", mark.getDigestAlgorithm().name() ));
+							tracer.info(String.format ( "digital signature:   %s", HexUtils.encodeHex(mark.getDigitalSignature()) ));
+							tracer.info(String.format ( "signature algorithm: %s", mark.getSignAlgorithm().name() ));
+							tracer.info(String.format ( "timestamp certificate: "));
+							for ( X509Certificate cert : mark.getRawX509Certificates() ) {
+								showCertificate(cert);
+							}
+						}
+					}
+				}
+			} catch(Exception e) {
+				tracer.error("unable to print the verify results", e);
+				throw e;
+			}
 			
 		} finally {
 			applet.destroy();
@@ -376,11 +374,11 @@ public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 	}
 	
 	private <DTO extends BaseDTO> DTO extractResult(Class<DTO> dtoClass, String respHex) throws Exception {
-		JclResponseDTO resp = TemplateUtils.Encoding.deserializeBase64(JclResponseDTO.class, respHex);
+		JclResponseDTO resp = TemplateUtils.Encoding.deserializeJSON(JclResponseDTO.class, respHex);
 		ResultCode resultCode = resp.resultCodeFromString();
 		DTO dto;
 		if ( resultCode == ResultCode.SUCCESS ) {
-			dto = TemplateUtils.Encoding.deserializeBase64(dtoClass, resp.getResult());
+			dto = TemplateUtils.Encoding.deserializeJSON(dtoClass, resp.getResult());
 		} else {
 			throw new Exception ( resp.getErrorMessage() );
 		}
