@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.Security;
+import java.security.Signature;
 import java.security.cert.X509Certificate;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -51,6 +52,7 @@ import org.sinekartads.util.HexUtils;
 import org.sinekartads.util.TemplateUtils;
 import org.sinekartads.util.x509.X509Utils;
 import org.sinekartads.utils.JSONUtils;
+import org.springframework.util.Assert;
 
 public class SignXMLwithSmartCardAndDTO extends BaseIntegrationTC {
 
@@ -83,7 +85,7 @@ public class SignXMLwithSmartCardAndDTO extends BaseIntegrationTC {
 					FileUtils.readFileToByteArray ( 
 							getTestResource ( SOURCE_FILE ) ) );
 			boolean applyMark = false;
-			boolean useFakeSmartCard = false;
+			boolean useFakeSmartCard = true;
 			String driver;
 			String scPin;
 			if ( useFakeSmartCard ) {
@@ -202,12 +204,6 @@ public class SignXMLwithSmartCardAndDTO extends BaseIntegrationTC {
 				throw e;
 			}
 			
-
-			
-//			chainSignatureDTO = (SignatureDTO)SerializationUtils.deserialize(FileUtils.readFileToByteArray(new java.io.File("/home/adeprato/hex.txt")));
-			
-
-			
 			// PreSign phase - join the content with the certificate chain and evaluate the digest
 			try {
 				jsonResp = signatureService.preSign(chainSignatureDTO.toBase64(), contentHex);
@@ -239,7 +235,16 @@ public class SignXMLwithSmartCardAndDTO extends BaseIntegrationTC {
 			} catch(Exception e) {
 				tracer.error("error during the digital signature evaluation", e);
 				throw e;
-			} 
+			}
+			
+//			 try {
+//	            Signature signature = Signature.getInstance ( certificate.getSigAlgName() );
+//	            signature.initVerify ( certificate.getPublicKey() );
+//	            signature.update(fingerPrint);
+//	            Assert.isTrue ( signature.verify(digitalSignature) );
+//            } catch(Exception e) {
+//            	throw new RuntimeException(e);
+//            }
 			
 			// Convert the signedSignature to a DTO
 			try {
