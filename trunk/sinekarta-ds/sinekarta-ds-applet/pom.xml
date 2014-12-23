@@ -98,10 +98,12 @@
 						</manifest>
 						<manifestEntries>
 							<Trusted-Library>true</Trusted-Library>
-							<Permissions>all-permissions</Permissions>
-							<!-- Application-Name>*</Application-Name>
-							<Caller-Allowable-Codebase>*</Caller-Allowable-Codebase -->
-					    	
+							<Trusted-Only>true</Trusted-Only>
+					    	<Permissions>all-permissions</Permissions>
+					    	<Application-Name>sinekarta-ds</Application-Name>
+					    	<Caller-Allowable-Codebase>*</Caller-Allowable-Codebase>
+					    	<Application-Library-Allowable-Codebase>*</Application-Library-Allowable-Codebase>
+					    	<Codebase>*</Codebase>
 					 	</manifestEntries>
 					</archive>
 				</configuration>
