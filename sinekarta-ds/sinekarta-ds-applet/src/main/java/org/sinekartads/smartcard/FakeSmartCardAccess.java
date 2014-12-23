@@ -74,10 +74,16 @@ public class FakeSmartCardAccess extends SmartCardAccess {
 	
 	@Override
 	public X509Certificate selectCertificate(String userAlias) 
-			throws CertificateListException, CertificateException {
+			throws IllegalStateException, 
+					SmartCardAccessException {
 		
 		privateKey = X509Utils.privateKeyFromHex ( privateKeys.get(userAlias) );
-		return X509Utils.rawX509CertificateFromHex ( certChains.get(userAlias) );
+		try {
+			return X509Utils.rawX509CertificateFromHex ( certChains.get(userAlias) );
+		} catch (CertificateException e) {
+			// never thrown - the certificate encoded is programmatically set
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override

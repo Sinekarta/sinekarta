@@ -210,9 +210,9 @@ public class SignApplet extends Applet {
 				try {
 					signingCertificate = sca.selectCertificate ( alias );
 					validAlias = true;
-				} catch(CertificateException e) {
-					// never thrown - the certificate stored into the smartCard is expected to be corrected 
-					processError ( resp, "impossibile reperire il certificato per l'identità %s", e );
+//				} catch(CertificateException e) {
+//					// never thrown - the certificate stored into the smartCard is expected to be corrected 
+//					processError ( resp, "impossibile reperire il certificato per l'identità %s", e );
 				} catch(Exception e) {
 					processError ( resp, "impossibile reperire il certificato per l'identità %s", e );
 				}

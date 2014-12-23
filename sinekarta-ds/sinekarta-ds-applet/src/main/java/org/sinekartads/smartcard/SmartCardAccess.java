@@ -33,7 +33,6 @@ import iaik.pkcs.pkcs11.objects.X509PublicKeyCertificate;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.AccessController;
-import java.security.Principal;
 import java.security.PrivilegedAction;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -50,6 +49,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sinekartads.utils.DNParser;
 import org.sinekartads.utils.HexUtils;
+import org.sinekartads.utils.X509Utils;
 
 public class SmartCardAccess {
 		
@@ -74,7 +74,7 @@ public class SmartCardAccess {
 				   InvalidPKCS11DriverException, 
 				   InvalidSmartCardException, 
 				   SmartCardAccessException {
-		
+				   
 		class MyPrivilegedAction implements PrivilegedAction<Exception> {
 			private String pkcs11Driver;
 		 	public MyPrivilegedAction(String pkcs11Driver) {
@@ -104,7 +104,7 @@ public class SmartCardAccess {
 				throw new SmartCardAccessException(ex);
 			}
 		}
-			 
+		
 		if (iaikPKCS11Module==null) {
 			throw new PKCS11DriverNotFoundException("pkcs11 driver not found");
 		}
@@ -181,7 +181,6 @@ public class SmartCardAccess {
 					iaikSession.login(Session.UserType.USER, pin.toCharArray());
 				}
 			} catch (TokenException e) {
-				Logger.getLogger(getClass()).error(e.getMessage(), e);
 				if (e.getMessage().contains("CKR_PIN_INCORRECT") || e.getMessage().contains("CKR_PIN_INVALID")) {
 					throw new InvalidPinException("Login failed, invalid PIN", e);
 				} else if (e.getMessage().contains("CKR_PIN_LOCKED")) {
@@ -195,13 +194,13 @@ public class SmartCardAccess {
 		}
 		
 		// Parse the certificate aliases
-		String alias;													StringBuilder buf = new StringBuilder();
+		String alias;
 		X500Principal principal;
 		List<String> aliases = new ArrayList<String>();
 		for ( X509PublicKeyCertificate iaikCert : iaikCertificateList() ) {
 			principal = new X500Principal(iaikCert.getSubject().getByteArrayValue());
 			alias = DNParser.parse(principal.getName(), "CN");
-			aliases.add(alias);											buf.append(alias).append(" ");
+			aliases.add(alias);
 		}
 		
 		// return the aliases as an array
@@ -209,8 +208,8 @@ public class SmartCardAccess {
 	}
 	
 
-	public X509Certificate selectCertificate(String userAlias) 
-			throws CertificateListException, CertificateException {
+	public X509Certificate selectCertificate(String alias) 
+			throws SmartCardAccessException {
 		if (iaikSession==null) {
 			throw new IllegalStateException("Session not initialized, login before");
 		}
@@ -218,48 +217,48 @@ public class SmartCardAccess {
 		
 		// Look for the suitable signing certificate with the given alias
 		X509Certificate cert = null;
-		String alias;
-		Principal principal;
-		X509PublicKeyCertificate iaikCert = null;
-		Iterator<X509PublicKeyCertificate> certificateIt = iaikCertificateList().iterator();
-		while ( certificateIt.hasNext() && iaikPrivateKey == null ) {
+		X509PublicKeyCertificate iaikCert;
+		Iterator<X509PublicKeyCertificate> iaikCertificateIt = iaikCertificateList().iterator();
+		while ( iaikCertificateIt.hasNext() && iaikPrivateKey == null ) {
 
-			iaikCert = certificateIt.next ( );
-			principal = new X500Principal ( iaikCert.getSubject().getByteArrayValue() );
-			alias = DNParser.parse ( principal.getName(), "CN" );
-			// Accept the certificate only if has the digitalSignature usage available 
-			if (StringUtils.equalsIgnoreCase(alias, userAlias)) {
-				Object[] iaikCorrespondingKeys;
-				try {
-					// Init the privateKey seek
-					RSAPrivateKey iaikPrivateSignatureKeyTemplate = new RSAPrivateKey();
-					iaikPrivateSignatureKeyTemplate.getId().setByteArrayValue(iaikCert.getId().getByteArrayValue());
-					iaikSession.findObjectsInit(iaikPrivateSignatureKeyTemplate);
-					
-					// Look for the privateKey
-					iaikCorrespondingKeys = iaikSession.findObjects(1);
-					
-					// Extract the private key result and store it into the iaikPrivateKey property
-					iaikPrivateKey = (RSAPrivateKey)iaikCorrespondingKeys[0];
-				} catch (TokenException e) {
-					throw new CertificateListException("Unable to read private key from smart card (findObjectsInit)",e);
-				} finally {
-					try {
-						iaikSession.findObjectsFinal();
-					} catch (TokenException e) {
-						throw new CertificateListException("Unable to read private key from smart card (findObjectsFinal)",e);
-					}
-				}
+			// Transform the iaik certificate to a X509 instance
+			try {
+				iaikCert = iaikCertificateIt.next();
+				CertificateFactory cf = CertificateFactory.getInstance("X.509");
+				cert = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(iaikCert.getValue().getByteArrayValue()));
+			} catch (CertificateException e) {
+				throw new CertificateListException("unable parse the certificate",e);
 			}
-		}
-		
-		if ( iaikPrivateKey != null ) {
-			cert = toX509Certificate ( iaikCert );
-		}
-		
-		try {
-		} catch(Exception e) {
-			throw new RuntimeException(e);
+
+			if (cert.getKeyUsage()[0]) {
+				// Accept the certificate only if has the digitalSignature usage available 
+//				if (cert.getSerialNumber().equals(iaikCert.getSerialNumber())) {
+					Object[] iaikCorrespondingKeys;
+					try {
+						// Init the privateKey seek
+						RSAPrivateKey iaikPrivateSignatureKeyTemplate = new RSAPrivateKey();
+						iaikPrivateSignatureKeyTemplate.getId().setByteArrayValue(iaikCert.getId().getByteArrayValue());
+						iaikSession.findObjectsInit(iaikPrivateSignatureKeyTemplate);
+						
+						// Look for the privateKey
+						iaikCorrespondingKeys = iaikSession.findObjects(1);
+						
+						// Extract the private key result and store it into the iaikPrivateKey property
+						iaikPrivateKey = (RSAPrivateKey)iaikCorrespondingKeys[0];
+					} catch (TokenException e) {
+						throw new CertificateListException("Unable to read private key from smart card (findObjectsInit)",e);
+					} finally {
+						try {
+							iaikSession.findObjectsFinal();
+						} catch (TokenException e) {
+							throw new CertificateListException("Unable to read private key from smart card (findObjectsFinal)",e);
+						}
+					}
+//				}
+			} else {
+				// If it doesn't, try with the next one
+				cert = null;
+			}
 		}
 		return cert;
 	}
@@ -358,11 +357,8 @@ public class SmartCardAccess {
 			}
 	
 			while ( matchingIaikCerts!=null && matchingIaikCerts.length > 0 ) {
-				X509PublicKeyCertificate iaikCert = (X509PublicKeyCertificate) matchingIaikCerts[0];
-				X509Certificate cert = toX509Certificate ( iaikCert );
-				if ( cert.getKeyUsage()[1] ) {
-					certList.add(iaikCert);
-				}
+				X509PublicKeyCertificate iaikCert = (X509PublicKeyCertificate)matchingIaikCerts[0];
+				certList.add(iaikCert);
 				try {
 					matchingIaikCerts = iaikSession.findObjects(1);
 				} catch (TokenException e) {
