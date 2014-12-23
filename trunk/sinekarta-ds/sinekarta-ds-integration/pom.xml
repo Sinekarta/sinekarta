@@ -27,22 +27,6 @@
 			<groupId>org.sinekarta</groupId>
 			<artifactId>sinekarta-ds-applet</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>it.jenia</groupId>
-			<artifactId>xades4j-jdk16</artifactId>
-			<version>1.3.1-SNAPSHOT</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.apache.santuario</groupId>
-	            	<artifactId>xmlsec</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-        <dependency>
-            <groupId>org.apache.santuario</groupId>
-            <artifactId>xmlsec</artifactId>
-            <version>2.0.1</version>
-        </dependency>
 	</dependencies>
 
 	<build>
