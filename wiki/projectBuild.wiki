@@ -60,6 +60,7 @@ These are projects :
   * Maven -> Update Project ...
   * select all
   * press ok and wait for  maven update finish
+ * put your JENIA_Software.p12 (official certificate for applet sign) in your workspace directory
  * resolve dependencies for ant tasks : 
   * right click /sinekarta-ds/pom.xml
   * Run As -> Maven build...
