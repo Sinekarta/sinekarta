@@ -53,7 +53,7 @@ public class TimeStampService {
 	
 	public TsResponseInfo processTsTequest ( 
 			TsRequestInfo tsRequest ) 
-					throws IOException, SignatureException{
+					throws IOException, SignatureException {
 		
 		// Create the rawTimeStampRequest 
 		TimeStampRequestGenerator reqGen = new TimeStampRequestGenerator();
