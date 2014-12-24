@@ -130,7 +130,7 @@ public class SignCMSwithSmartCardAndDTO extends BaseIntegrationTC {
 			try {
 				applet.init();
 				jsonResp = applet.selectDriver ( driver );
-				appletResponse = (AppletResponseDTO) JSONUtils.fromJSON(AppletResponseDTO.class, jsonResp);
+				appletResponse = (AppletResponseDTO) JSONUtils.deserializeJSON(AppletResponseDTO.class, jsonResp);
 			} catch(Exception e) {
 				tracer.error("error during the applet initialization", e);
 				throw e;
@@ -139,8 +139,8 @@ public class SignCMSwithSmartCardAndDTO extends BaseIntegrationTC {
 			// Login with the smartCard
 			try {
 				jsonResp = applet.login ( scPin );
-				appletResponse = (AppletResponseDTO) JSONUtils.fromJSON(AppletResponseDTO.class, jsonResp);
-				aliases = (String[]) JSONUtils.fromJSONArray ( String[].class, extractJSON(appletResponse) );
+				appletResponse = (AppletResponseDTO) JSONUtils.deserializeJSON(AppletResponseDTO.class, jsonResp);
+				aliases = (String[]) JSONUtils.deserializeJSON ( String[].class, extractJSON(appletResponse) );
 			} catch(Exception e) {
 				tracer.error("error during the applet login", e);
 				throw e;
@@ -158,7 +158,7 @@ public class SignCMSwithSmartCardAndDTO extends BaseIntegrationTC {
 			// Load the certificate chain from the applet
 			try {
 				jsonResp = applet.selectCertificate ( alias );
-				appletResponse = (AppletResponseDTO) JSONUtils.fromJSON(AppletResponseDTO.class, jsonResp);
+				appletResponse = (AppletResponseDTO) JSONUtils.deserializeJSON(AppletResponseDTO.class, jsonResp);
 				certificate = (X509Certificate) X509Utils.rawX509CertificateFromHex( extractJSON(appletResponse) );
 				tracer.info(String.format ( "certificate:         %s", certificate ));
 				certificateChain = new X509Certificate[] { certificate };
@@ -236,7 +236,7 @@ public class SignCMSwithSmartCardAndDTO extends BaseIntegrationTC {
 				fingerPrint = digest.getFingerPrint();
 				tracer.info(String.format ( "fingerPrint:         %s", HexUtils.encodeHex(fingerPrint) ));
 				jsonResp = applet.signDigest( HexUtils.encodeHex(fingerPrint) );
-				appletResponse = (AppletResponseDTO) JSONUtils.fromJSON(AppletResponseDTO.class, jsonResp);
+				appletResponse = (AppletResponseDTO) JSONUtils.deserializeJSON(AppletResponseDTO.class, jsonResp);
 				digitalSignature = HexUtils.decodeHex ( (String) extractJSON(appletResponse) );
 				tracer.info(String.format ( "digitalSignature:    %s", HexUtils.encodeHex(digitalSignature) ));
 				signedSignature = digestSignature.toSignedSignature ( digitalSignature );
