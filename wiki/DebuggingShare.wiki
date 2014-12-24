@@ -2,7 +2,7 @@
 
 = How to debug share plugin =
 
-Before reading this page, ensure that you have a valid eclipse environment : [aaa|bbb]
+Before reading this page, ensure that you have a valid eclipse environment : https://code.google.com/p/sinekarta/wiki/projectBuild
 
 == have a tomcat running into your eclipse == 
 
