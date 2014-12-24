@@ -86,7 +86,6 @@ Now you can run Alfresco.
 
 == Debugging of share extension == 
 
-You have to configure your eclipse to see Alfresco tomcat : 
  * go to Window->preferences
  * server->runtime environment
  * click add
@@ -107,8 +106,11 @@ You have to configure your eclipse to see Alfresco tomcat :
   * ssl to 7443 
  * select "module"s tab
  * press "add external web module"
- * set "docuemnt base" to <workspacedir>/work/share (your work directory)
+ * set "docuemnt base" to < workspacedir >/work/share (your work directory)
  * set path to /share
+ * save tomcat server configuration
+
+start tomcat and go to : http://localhost:7080/share
 
 
 == If you need to modify the applet... ==
