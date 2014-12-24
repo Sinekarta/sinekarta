@@ -10,7 +10,7 @@
 
 Java have to be integrated with your favorite web browser. 
 All desktop web browser support java, please refer to Oracle java documentation or your web browser documentation to have the integration running.
-Basically if 
+Basically if you can see your java version here : https://www.java.com/en/download/installed.jsp?detect=jre you should not have problems
 
 
 In chrome for Linux, java is no more supported. *No way to have the applet running on chrome under linux.*
