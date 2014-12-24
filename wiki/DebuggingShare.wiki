@@ -2,6 +2,8 @@
 
 = How to debug share plugin =
 
+Before reading this page, ensure that you have a valid eclipse environment : [aaa|bbb]
+
 == have a tomcat running into your eclipse == 
 
  * go to Window->preferences
