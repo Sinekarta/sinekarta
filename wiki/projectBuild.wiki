@@ -68,9 +68,20 @@ These are projects :
   * press "Run" button
   * wait for "BUILD SUCCESS" in eclipse console
 
+== Result of build ==
+
+You can find these artifact as result of build process : 
+ * sinekarta-ds/sinekarta-ds-alfresco/target/dist/sinekarta-ds-alfresco.amp - amp to be installed into alfresco
+ * sinekarta-ds/sinekarta-ds-share/target/dist/sinekarta-ds-share.amp - amp to be installed into share
+
+== launch Alfresco ==
+
+Now you have an alfresco.war and share.war into work directory.
+Move/copy these war ino /opt/alfresco-4.2.f.skds/tomcat/webapps replacing originals.
+Now you can run Alfresco.
 
 
-== modifying the applet ==
+== if you need to modify the applet... ==
 
 If you have to modify the applet sources, please does not forgot to call maven install on sinekarta-ds-applet on your local maven repository before to run skds tests.
 
