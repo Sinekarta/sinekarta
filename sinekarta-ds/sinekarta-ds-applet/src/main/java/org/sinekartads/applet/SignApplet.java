@@ -32,14 +32,15 @@ public class SignApplet extends Applet {
 	
 	@Override
 	public void init ( ) {
-		tracer.info("initializing the signing applet");
+		tracer.info("Initializing the signing applet.");
 	}
 	
 	public String selectDriver ( String driver ) {
+		driver = StringUtils.trim(driver);
 		tracer.info("selectDriver");
 		tracer.info(String.format("driver: %s", driver));
 		
-		AppletResponseDTO resp = new AppletResponseDTO ( );
+		AppletResponseDTO resp = new AppletResponseDTO ( "selectDriver" );
 		SmartCardAccess sca = createSmartCardAccess ( driver );
 		try {
 			if ( verifyDriver(resp, sca, driver) ) {
@@ -49,22 +50,23 @@ public class SignApplet extends Applet {
 			SmartCardUtils.finalizeQuietly ( sca );
 		}
 		
-		tracer.info(String.format("respJSON: %s", JSONUtils.toJSON ( resp )));
-		return JSONUtils.toJSON ( resp );
+		tracer.info(String.format("respJSON: %s", JSONUtils.serializeJSON ( resp )));
+		return JSONUtils.serializeJSON ( resp );
 	}
 	
 	public String login ( String pin ) {
+		pin = StringUtils.trim(pin);
 		tracer.info("login");
 		tracer.info(String.format("driver: %s", driver));
 		tracer.info(String.format("pin:    %s", pin));
 		
-		AppletResponseDTO resp = new AppletResponseDTO ( );
+		AppletResponseDTO resp = new AppletResponseDTO ( "login" );
 		SmartCardAccess sca = createSmartCardAccess ( driver );
 		try {
 			if ( verifyDriver(resp, sca, driver) ) {
 				String[] aliases = loginWithPin ( resp, sca, pin );
 				if ( ArrayUtils.isNotEmpty(aliases) ) {
-					String aliasesJSON = JSONUtils.toJSONArray ( aliases );
+					String aliasesJSON = JSONUtils.serializeJSON ( aliases );
 					resp.setResult ( aliasesJSON );
 				}
 			}
@@ -72,17 +74,18 @@ public class SignApplet extends Applet {
 			SmartCardUtils.finalizeQuietly ( sca );
 		}
 		
-		tracer.info(String.format("respJSON: %s", JSONUtils.toJSON ( resp )));
-		return JSONUtils.toJSON ( resp );
+		tracer.info(String.format("respJSON: %s", JSONUtils.serializeJSON(resp)));
+		return JSONUtils.serializeJSON ( resp );
 	}
 	
 	public String selectCertificate ( String alias ) {
+		alias = StringUtils.trim(alias);
 		tracer.info("selectCertificate");
 		tracer.info(String.format("driver: %s", driver));
 		tracer.info(String.format("pin:    %s", pin));
 		tracer.info(String.format("alias:  %s", alias));
 		
-		AppletResponseDTO resp = new AppletResponseDTO ( );
+		AppletResponseDTO resp = new AppletResponseDTO ( "selectCertificate" );
 		SmartCardAccess sca = createSmartCardAccess ( driver );
 		try {
 			X509Certificate signingCertificate = loginWithAlias(resp, sca, pin, alias);
@@ -98,16 +101,21 @@ public class SignApplet extends Applet {
 			SmartCardUtils.finalizeQuietly ( sca );
 		}
 		
-		tracer.info(String.format("respJSON: %s", JSONUtils.toJSON ( resp )));
-		return JSONUtils.toJSON(resp);
+		tracer.info(String.format("respJSON: %s", JSONUtils.serializeJSON( resp )));
+		return JSONUtils.serializeJSON(resp);
 	}
 	
 	public String signDigest ( String hexDigest ) {
+		hexDigest = StringUtils.trim(hexDigest);
 		tracer.info("signDigest");
-		AppletResponseDTO resp = new AppletResponseDTO ( );
+		tracer.info(String.format("driver: %s", driver));
+		tracer.info(String.format("pin:    %s", pin));
+		tracer.info(String.format("alias:  %s", alias));
+		
+		AppletResponseDTO resp = new AppletResponseDTO ( "signDigest" );
 		SmartCardAccess sca = createSmartCardAccess ( driver );
 		try {
-			if (loginWithAlias ( resp, sca, pin, alias ) != null ) {
+			if ( loginWithAlias ( resp, sca, pin, alias ) != null ) {
 				byte[] digest = HexUtils.decodeHex(hexDigest);
 				byte[] digitalSignature = sca.signFingerPrint(digest);
 				resp.setResult ( HexUtils.encodeHex(digitalSignature) );
@@ -118,12 +126,12 @@ public class SignApplet extends Applet {
 			SmartCardUtils.finalizeQuietly ( sca );
 		}
 		
-		tracer.info(String.format("respJSON: %s", JSONUtils.toJSON ( resp )));
-		return JSONUtils.toJSON(resp);
+		tracer.info(String.format("respJSON: %s", JSONUtils.serializeJSON ( resp )));
+		return JSONUtils.serializeJSON(resp);
 	}
 	
 	public void destroy() {
-		tracer.info("destroying the signing applet");
+		tracer.info("signing applet destroyed");
 	}
 	
 	
@@ -135,11 +143,14 @@ public class SignApplet extends Applet {
 		boolean validDriver = false;
 		try {
 			tracer.info(String.format("verifying driver %s with %s", driver, sca));
+			tracer.info(String.format("selectDriver - %s", driver));
 			sca.selectDriver ( driver );
 			validDriver = true;
 		} catch (SmartCardReaderNotFoundException e) {
+			tracer.error("Impossibile trovare il lettore di SmartCard", e);
 			resp.addActionError("Impossibile trovare il lettore di SmartCard", e);
 		} catch (InvalidSmartCardException e) {
+			tracer.error(e.getMessage(), e);
 			resp.addActionError("SmartCard non riconosciuta", e);
 		} catch (PKCS11DriverNotFoundException e) {
 			tracer.error(e.getMessage(), e);
@@ -148,14 +159,11 @@ public class SignApplet extends Applet {
 			tracer.error(e.getMessage(), e);
 			resp.addFieldError("scDriver", "Driver SmartCard non riconosciuto");
 		} catch (SmartCardAccessException e) {
+			tracer.error(e.getMessage(), e);
 			resp.addActionError("Error SmartCard", e);
 		}
 		
-		if ( validDriver ) {
-			this.driver = driver;
-		} else {
-			this.driver = null;
-		}
+		this.driver = driver;
 		return validDriver;
 	}
 	
@@ -173,19 +181,21 @@ public class SignApplet extends Applet {
 				aliases = sca.login ( pin );
 				validPin = true;
 			} catch (InvalidPinException e) {
-				tracer.error(e.getMessage(), e);
+				tracer.error("pin non riconosciuto", e);
 				if ( StringUtils.equals(driver, FakeSmartCardAccess.FAKE_DRIVER) ) {
-					resp.addFieldError("scPin", String.format("il pin della fake smartCard è: \"%s\"", FakeSmartCardAccess.FAKE_PIN));
+					resp.addFieldError("scPin", String.format("il pin della smartCard di simulazione è: \"%s\"", FakeSmartCardAccess.FAKE_PIN));
 				} else {
 					resp.addFieldError("scPin", "pin non riconosciuto");
 				}
 			} catch (PinLockedException e) {
-				tracer.error(e.getMessage(), e);
+				tracer.error("pin bloccato", e);
 				resp.addFieldError("scPin", "pin bloccato");
+			} catch (SmartCardReaderNotFoundException e) {
+				tracer.error("lettore SmartCard non trovato", e);
+				resp.addFieldError("scPin", "lettore SmartCard non trovato");
 			} catch (Exception e) {
-				tracer.error(e.getMessage(), e);
+				tracer.error("login fallito a causa di un errore interno", e);
 				resp.addFieldError("scPin", "login fallito a causa di un errore interno");
-				tracer.error(e.getMessage(), e);
 			}
 			if ( validPin ) {
 				this.pin = pin;
@@ -210,11 +220,9 @@ public class SignApplet extends Applet {
 				try {
 					signingCertificate = sca.selectCertificate ( alias );
 					validAlias = true;
-//				} catch(CertificateException e) {
-//					// never thrown - the certificate stored into the smartCard is expected to be corrected 
-//					processError ( resp, "impossibile reperire il certificato per l'identità %s", e );
 				} catch(Exception e) {
-					processError ( resp, "impossibile reperire il certificato per l'identità %s", e );
+					String errorMessage = String.format("impossibile reperire il certificato per l'identità %s", alias);
+					processError ( resp, errorMessage, e );
 				}
 			} else {
 				resp.addFieldError("scUserAlias", "alias non riconosciuto");
