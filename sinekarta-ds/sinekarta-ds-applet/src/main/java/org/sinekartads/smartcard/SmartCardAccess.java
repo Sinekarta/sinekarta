@@ -42,8 +42,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.security.auth.x500.X500Principal;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -196,13 +194,15 @@ private static final Logger tracer = Logger.getLogger(SmartCardAccess.class);
 		}
 		
 		// Parse the certificate aliases
-		String alias;										StringBuilder buf = new StringBuilder();
-		X500Principal principal;
+		String alias;
 		List<String> aliases = new ArrayList<String>();
+		X509Certificate cert;
 		for ( X509PublicKeyCertificate iaikCert : iaikCertificateList() ) {
-			principal = new X500Principal(iaikCert.getSubject().getByteArrayValue());
-			alias = DNParser.parse(principal.getName(), "CN");
-			aliases.add(alias);								buf.append(alias).append(" ");
+			cert = toX509Certificate(iaikCert);
+			if (cert.getKeyUsage()[0]) {
+				alias = DNParser.parse(cert.getSubjectX500Principal().getName(), "CN");
+				aliases.add(alias);
+			}
 		}
 		
 		// return the aliases as an array
@@ -225,13 +225,8 @@ private static final Logger tracer = Logger.getLogger(SmartCardAccess.class);
 		while ( iaikCertificateIt.hasNext() && iaikPrivateKey == null ) {
 
 			// Transform the iaik certificate to a X509 instance
-			try {
-				iaikCert = iaikCertificateIt.next();
-				CertificateFactory cf = CertificateFactory.getInstance("X.509");
-				cert = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(iaikCert.getValue().getByteArrayValue()));
-			} catch (CertificateException e) {
-				throw new CertificateListException("unable parse the certificate",e);
-			}
+			iaikCert = iaikCertificateIt.next();
+			cert = toX509Certificate(iaikCert);
 
 			if (cert.getKeyUsage()[0]) {
 				// Accept the certificate only if has the digitalSignature usage available 
@@ -341,33 +336,6 @@ private static final Logger tracer = Logger.getLogger(SmartCardAccess.class);
 		}
 	}
 
-
-
-//	public String[] getAliases(String pin) throws InvalidPinException, PinLockedException, SmartCardAccessException {
-//		if (iaikSmartCardInfo.isLoginRequired()) {
-//			try {
-//				if (iaikSmartCardInfo.isProtectedAuthenticationPath()) {
-//					iaikSession.login(Session.UserType.USER, null); 
-//				} else {
-//					iaikSession.login(Session.UserType.USER, pin.toCharArray());
-//				}
-//			} catch (TokenException e) {
-//				if (e.getMessage().contains("CKR_PIN_INCORRECT") || e.getMessage().contains("CKR_PIN_INVALID")) {
-//					throw new InvalidPinException("Login failed, invalid PIN", e);
-//				} else if (e.getMessage().contains("CKR_PIN_LOCKED")) {
-//					throw new PinLockedException("Login failed, PIN locked", e);
-//				} else if (!e.getMessage().contains("CKR_USER_ALREADY_LOGGED_IN")) {
-//					throw new SmartCardAccessException("Login failed", e);
-//				}
-//			} catch(Exception e) {
-//				throw new SmartCardAccessException("Login failed", e);
-//			}
-//		}
-//		this.pin = pin;
-//		
-//		
-//	}
-	
 	private List<X509PublicKeyCertificate> iaikCertificateList() 
 			throws CertificateListException, SmartCardAccessException {
 		
@@ -410,99 +378,15 @@ private static final Logger tracer = Logger.getLogger(SmartCardAccess.class);
 		return certList;
 	}
 
-//	private List<X509Certificate> doCertificateList() throws SmartCardAccessException {
-//		List<X509Certificate> ret = new ArrayList<X509Certificate>();	
-//		
-//		List<X509PublicKeyCertificate> iaikCerts = iaikCertificateList();
-//		for (X509PublicKeyCertificate iaikCert : iaikCerts) {
-//			CertificateFactory cf;
-//			X509Certificate certificate;
-//			try {
-//				cf = CertificateFactory.getInstance("X.509");
-//				certificate = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(iaikCert.getValue().getByteArrayValue()));
-//			} catch (CertificateException e) {
-////				logger.error("Unable parse certificate",e);
-//				throw new CertificateListException("Unable parse certificate",e);
-//			}
-//
-//			if (certificate.getKeyUsage()[0]) { // solo se e' attiva la caratteristica di firma digitale
-//				ret.add(certificate);
-//			}
-//		}
-//		return ret;
-//	}
-
-
 	
-	
-	
-	
-//	
-//	public String[] login(String pin) 
-//			throws IllegalStateException, 
-//					SmartCardAccessException {
-//		
-//		if (iaikSmartCardInfo.isLoginRequired()) {
-//			try {
-//				if (iaikSmartCardInfo.isProtectedAuthenticationPath()) {
-//					iaikSession.login(Session.UserType.USER, null); 
-//				} else {
-//					iaikSession.login(Session.UserType.USER, pin.toCharArray());
-//				}
-//			} catch (TokenException e) {
-//				if (e.getMessage().contains("CKR_PIN_INCORRECT") || e.getMessage().contains("CKR_PIN_INVALID")) {
-//					throw new InvalidPinException("Login failed, invalid PIN", e);
-//				} else if (e.getMessage().contains("CKR_PIN_LOCKED")) {
-//					throw new PinLockedException("Login failed, PIN locked", e);
-//				} else if (!e.getMessage().contains("CKR_USER_ALREADY_LOGGED_IN")) {
-//					throw new SmartCardAccessException("Login failed", e);
-//				}
-//			} catch(Exception e) {
-//				throw new SmartCardAccessException("Login failed", e);
-//			}
-//		}
-//		this.pin = pin;
-//		
-//		List<X509PublicKeyCertificate> iaikCertificateList = iaikCertificateList(); 
-//		
-//		List<String> aliases = new ArrayList<String>();
-//		try {
-//			X509PublicKeyCertificate iaikCertToFind = new X509PublicKeyCertificate();
-//			try {
-//				iaikSession.findObjectsInit(iaikCertToFind);
-//			} catch (TokenException e) {
-//				throw new CertificateListException("Unable to read certificates from smart card (findObjectsInit)",e);
-//			}
-//			
-//			Object[] iaikCertFound;
-//			try {
-//				iaikCertFound = iaikSession.findObjects(1);
-//			} catch (TokenException e) {
-//				throw new CertificateListException("Unable to read certificates from smart card (findObjects)",e);
-//			}
-//	
-//			String alias;
-//			while (iaikCertFound!=null && iaikCertFound.length > 0) {
-//				X509PublicKeyCertificate iaikCert = (X509PublicKeyCertificate)iaikCertFound[0];
-//				alias = new String(iaikCert.getSubject().getByteArrayValue());
-//				aliases.add(alias);
-//				try {
-//					iaikCertFound = iaikSession.findObjects(1);
-//				} catch (TokenException e) {
-//					throw new CertificateListException("Unable to read certificates from smart card (findObjects)",e);
-//				}
-//			}
-//			try {
-//				iaikSession.findObjectsFinal();
-//			} catch (TokenException e) {
-//				throw new CertificateListException("Unable to read certificates from smart card (findObjectsFinal)",e);
-//			}
-//		} catch(SmartCardAccessException e) {
-//			throw e;
-//		} catch(Exception e) {
-//			throw new SmartCardAccessException(e);
-//		}
-//		
-//		return aliases.toArray ( new String[aliases.size()] );
-//	}
+	private X509Certificate toX509Certificate(X509PublicKeyCertificate iaikCert) {
+		CertificateFactory cf;
+		try {
+			cf = CertificateFactory.getInstance("X.509");
+			return (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(iaikCert.getValue().getByteArrayValue()));
+		} catch (CertificateException e) {
+			// never thrown - the iaikCert must be correct
+			throw new RuntimeException(e);
+		}
+	}
 }
