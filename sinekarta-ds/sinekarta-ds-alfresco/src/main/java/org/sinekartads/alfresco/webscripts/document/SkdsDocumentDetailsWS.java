@@ -49,7 +49,8 @@ public class SkdsDocumentDetailsWS
 				baseDocument.setFileName(fileName);
 				baseDocument.setParentRef(NodeTools.getParentRef(nodeService, nodeRef).toString());
 				baseDocument.setFilePath(NodeTools.translatePath(nodeService, nodeRef));
-				baseDocument.setDescription(((String)props.get(ContentModel.PROP_DESCRIPTION)).trim());
+				
+				baseDocument.setDescription((String)props.get(ContentModel.PROP_DESCRIPTION));
 				baseDocument.setMimetype(mimetypeService.guessMimetype(fileName, 
 						contentService.getReader(nodeRef, ContentModel.PROP_CONTENT)));
 
