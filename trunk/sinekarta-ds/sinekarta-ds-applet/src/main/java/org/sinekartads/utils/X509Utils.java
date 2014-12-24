@@ -6,6 +6,7 @@ import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -45,7 +46,7 @@ public class X509Utils {
 	
 	public static String rawX509CertificateToHex ( 
 			X509Certificate certificate ) 
-					throws CertificateException {
+					throws CertificateEncodingException {
 		
 		// Return the hex string relative to the given X509Certificate
 		String hex = null;

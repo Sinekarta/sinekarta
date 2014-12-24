@@ -4,16 +4,28 @@ import java.io.Serializable;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.sinekartads.utils.JSONUtils;
 
 
 public class AppletResponseDTO implements Serializable {
 
 	private static final long serialVersionUID = -4022334556491609402L;
-
+	private static Logger tracer = Logger.getLogger(AppletResponseDTO.class); 
+	
 	public static final String SUCCESS = "SUCCESS";
 	public static final String ERROR = "ERROR";
 	
 	
+	public AppletResponseDTO() {
+		
+	}
+	
+	public AppletResponseDTO(String appletMethod) {
+		this.appletMethod = appletMethod;
+	}
+	
+	private String appletMethod;
 	private String result;
 	/**
 	 * @deprecated ignore this field - fake field for serialization only proposes
@@ -36,19 +48,33 @@ public class AppletResponseDTO implements Serializable {
 			fieldErrors = (FieldErrorDTO[]) ArrayUtils.add ( fieldErrors, fieldError );
 		}
 		fieldError.errors = (String[]) ArrayUtils.add ( fieldError.errors, error );
+		tracer.info(String.format("added fieldError: %s - %s", field, error));
+		tracer.info(JSONUtils.serializeJSON(fieldErrors,true));
 	}
 	
 	public void addActionError ( String errorMessage, Exception errorCause ) {
 		ActionErrorDTO actionError = new ActionErrorDTO ( );
 		actionError.errorMessage = errorMessage;
 		// TODO serialize the errorCause to JSON and add it to the actionError
+		actionErrors = (ActionErrorDTO[]) ArrayUtils.add ( actionErrors, actionError );
+		tracer.info(String.format("added actionError: %s - %s", errorMessage, errorCause));
+		tracer.info(JSONUtils.serializeJSON(actionErrors,true));
 	}
+	
 	
 
 	// -----
 	// --- Data transport protocol
 	// -
-		
+	
+	public String getAppletMethod() {
+		return appletMethod;
+	}
+
+	public void setAppletMethod(String appletMethod) {
+		this.appletMethod = appletMethod;
+	}
+
 	public String getResult() {
 		return result;
 	}

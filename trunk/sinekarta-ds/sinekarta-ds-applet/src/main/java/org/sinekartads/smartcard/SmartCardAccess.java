@@ -74,27 +74,30 @@ private static final Logger tracer = Logger.getLogger(SmartCardAccess.class);
 			throws SmartCardReaderNotFoundException, PKCS11DriverNotFoundException, 
 					InvalidPKCS11DriverException, InvalidSmartCardException, SmartCardAccessException {
 		tracer.info(String.format("selectDriver - %s", pkcs11Driver));
-				class MyPrivilegedAction implements PrivilegedAction<Exception> {
+		class MyPrivilegedAction implements PrivilegedAction<Exception> {
 			private String pkcs11Driver;
 		 	public MyPrivilegedAction(String pkcs11Driver) {
 				super();
 				this.pkcs11Driver = pkcs11Driver;
 			}
-            public Exception run()
-            {
-        		try {
-        			iaikPKCS11Module = Module.getInstance(pkcs11Driver);
-        			return null;
-        		} catch (IOException e) {
-        			return new PKCS11DriverNotFoundException("Unable to find driver: " + pkcs11Driver, e);
-        		} catch (Throwable e) {
-        			return new InvalidPKCS11DriverException("Invalid pkcs11 driver: " + pkcs11Driver, e);
-        		}
-            }
-        }
+	        public Exception run()
+	        {
+	    		try {
+	    			iaikPKCS11Module = Module.getInstance(pkcs11Driver);
+	    			return null;
+	    		} catch (IOException e) {
+	    			return new PKCS11DriverNotFoundException("Unable to find driver: " + pkcs11Driver, e);
+	    		} catch (Throwable e) {
+	    			return new InvalidPKCS11DriverException("Invalid pkcs11 driver: " + pkcs11Driver, e);
+	    		}
+	        }
+	    }
 		MyPrivilegedAction action = new MyPrivilegedAction(pkcs11Driver);
+		tracer.info(String.format("running the action..."));
 		Exception ex = AccessController.doPrivileged(action);
+		tracer.info(String.format("action performed."));
 		if (ex!=null) {
+			tracer.info(String.format("action ended with error: ", ex.getMessage()));
 			if (ex instanceof PKCS11DriverNotFoundException) {
 				throw (PKCS11DriverNotFoundException)ex;
 			} else if (ex instanceof InvalidPKCS11DriverException) {
@@ -103,7 +106,7 @@ private static final Logger tracer = Logger.getLogger(SmartCardAccess.class);
 				throw new SmartCardAccessException(ex);
 			}
 		}
-		
+			 
 		if (iaikPKCS11Module==null) {
 			throw new PKCS11DriverNotFoundException("pkcs11 driver not found");
 		}
