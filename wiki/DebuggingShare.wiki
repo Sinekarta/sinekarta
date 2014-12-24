@@ -1,8 +1,8 @@
 #summary How to have share running on your tomcat inside your eclipse
 
-= Debugging share =
+= How to debug share plugin =
 
-== Debugging of share extension == 
+== have a tomcat running into your eclipse == 
 
  * go to Window->preferences
  * server->runtime environment
