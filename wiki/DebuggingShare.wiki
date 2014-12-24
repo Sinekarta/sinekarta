@@ -1,6 +1,6 @@
 #summary How to have share running on your tomcat inside your eclipse
 
-= Debugging share
+= Debugging share =
 
 == Debugging of share extension == 
 
