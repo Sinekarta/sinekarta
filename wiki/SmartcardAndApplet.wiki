@@ -1,0 +1,9 @@
+#summary Some important issues about applet form smartcard communication
+
+= Understand APPLET problems =
+
+*You have to install JAVA 1.7 or higher to have the applet working.*
+
+Java have to be integrated with your favorite web browser. 
+In chrome for Linux, java is no more supported. *No way to have the applet running on chrome under linux.*
+On linux your best opportunity to have the applet running is to use firefox.
