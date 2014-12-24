@@ -1,18 +1,20 @@
 /*
- * Copyright (C) 2010 - 2012 Jenia Software.
+ * Copyright (C) 2014 - 2015 Jenia Software.
  *
- * This file is part of Sinekarta
+ * This file is part of Sinekarta-ds
  *
- * Sinekarta is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Sinekarta is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
+ * Sinekarta-ds is Open SOurce Software: you can redistribute it and/or modify
+ * it under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.sinekartads.smartcard;
 
@@ -24,10 +26,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.sinekartads.exception.CertificateListException;
+import org.sinekartads.exception.InvalidPKCS11DriverException;
+import org.sinekartads.exception.InvalidPinException;
+import org.sinekartads.exception.InvalidSmartCardException;
+import org.sinekartads.exception.PKCS11DriverNotFoundException;
+import org.sinekartads.exception.PinLockedException;
+import org.sinekartads.exception.SmartCardAccessException;
+import org.sinekartads.exception.SmartCardReaderNotFoundException;
 import org.sinekartads.utils.X509Utils;
 
-public class FakeSmartCardAccess extends SmartCardAccess {
+public class FakeSmartCardAccess implements ISmartCardAccess {
 
+	private static final Logger tracer = Logger.getLogger(SmartCardAccess.class);
 	public static String FAKE_DRIVER = "fake";
 	public static String FAKE_PIN	 = "123";
 	
@@ -46,49 +58,34 @@ public class FakeSmartCardAccess extends SmartCardAccess {
 		certChains.put("Alessandro De Prato", 	"308201a63082010f020101300d06092a864886f70d01010b050030193117301506035504030c0e4a656e696120536f667477617265301e170d3134313132333030303030305a170d3135313132343030303030305a301e311c301a06035504030c13416c657373616e64726f20446520507261746f30819f300d06092a864886f70d010101050003818d0030818902818100cffcb26feb77847d9146296f1aaf6997d6c33794e1849462a19ba0f1f17fcdcaa1bfc608c76500a5c13695f9c3561eb865e909e0e571071cf596a054b481df6b159e6ac81f2c3e25dab1e19d93a5879bd6ab8394120edd7c07bb8a328e37b4db4a20e0b5f483c16acfb4afcdccabd21b8f317eba03a0d958a59282622ba16e9b0203010001300d06092a864886f70d01010b0500038181008a45ad41dd9996f62c7ad514e8075cde1e64de17371c33ac6870a55ac212124b809c8b708b0abfd422595d35a2249b3947f272ae1699000abc44df0509ae4ada526e570fdf7ada46d85fe651083c520059742a23adcb15773557deb254945654e736ee7111f6e78bbe37ef1272691b903395c306606ff3db5a38f83279e3da3e" );
 	}
 
-	@Override
-	public void selectDriver ( String pkcs11Driver ) 
-			throws SmartCardReaderNotFoundException, 
-				   PKCS11DriverNotFoundException, 
-				   InvalidPKCS11DriverException, 
-				   InvalidSmartCardException, 
-				   SmartCardAccessException {
-		
+	public void selectDriver ( String pkcs11Driver ) throws SmartCardReaderNotFoundException, PKCS11DriverNotFoundException, InvalidPKCS11DriverException, InvalidSmartCardException, SmartCardAccessException {
 		if ( !StringUtils.equals(pkcs11Driver, FakeSmartCardAccess.FAKE_DRIVER) ) { 
+			tracer.error("only \"fake\" driver is allowed");
 			throw new InvalidPKCS11DriverException("only \"fake\" driver is allowed");
 		}
 	}
 	
-	@Override
-	public String[] login ( String pin ) 
-			throws IllegalStateException, 
-				   InvalidPinException, 
-				   PinLockedException, 
-				   SmartCardAccessException {
+	public String[] login ( String pin ) throws IllegalStateException, InvalidPinException, PinLockedException, SmartCardAccessException {
 
 		if ( !StringUtils.equals(pin, FakeSmartCardAccess.FAKE_PIN) ) { 
+			tracer.error(String.format("pin for the fake smartCard: %s", FAKE_PIN));
 			throw new InvalidPinException(String.format("pin for the fake smartCard: %s", FAKE_PIN));
 		}
 		return certChains.keySet().toArray(new String[certChains.size()]);
 	}
 	
-	@Override
-	public X509Certificate selectCertificate(String userAlias) 
-			throws CertificateListException {
+	public X509Certificate selectCertificate(String userAlias) throws CertificateListException {
 		
 		try {
 			privateKey = X509Utils.privateKeyFromHex ( privateKeys.get(userAlias) );
 			return X509Utils.rawX509CertificateFromHex ( certChains.get(userAlias) );
 		} catch (CertificateException e) {
-			throw new RuntimeException(e); 
+			tracer.error(String.format("pin for the fake smartCard: %s", FAKE_PIN));
+			throw new CertificateListException(e); 
 		}
 	}
 
-	@Override
-	public byte[] signFingerPrint(byte[] fingerPrint) 
-			throws IllegalStateException, 
-					IllegalArgumentException, 
-					SmartCardAccessException {
+	public byte[] signFingerPrint(byte[] fingerPrint) throws IllegalStateException, IllegalArgumentException, SmartCardAccessException {
 		
 		byte[] digitalSignature;
 		try {
@@ -97,21 +94,21 @@ public class FakeSmartCardAccess extends SmartCardAccess {
 			signature.update(fingerPrint);
 			digitalSignature = signature.sign();
 		} catch(Exception e) {
+			tracer.error("sign fails...",e);
 			throw new SmartCardAccessException(e);
 		}
 		return digitalSignature;
 	}
 
-	@Override
-	public void logout() 
-			throws IllegalStateException,
-					SmartCardAccessException {
+	public void logout() throws IllegalStateException,SmartCardAccessException {
 	}
 	
-	@Override
-	public void finalize() 
-			throws SmartCardAccessException {
-		
+	public void open() throws SmartCardAccessException {
+		// nothing to do by now
+	}
+
+	public void close() throws SmartCardAccessException {
+		// nothing to do by now
 	}
 
 }
