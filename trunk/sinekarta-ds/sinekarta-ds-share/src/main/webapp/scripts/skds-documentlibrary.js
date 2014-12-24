@@ -77,7 +77,6 @@
 
 			var parameters = {};
 			parameters.wizardDataJSON = JSON.stringify(wizardData);
-			alert('wizardData.nodeRefs: ' + wizardData.nodeRefs + ', parameters.wizardDataJSON: ' + JSON.stringify(parameters.wizardDataJSON));
 			location.href = buildUrl(url, parameters);
 		}
    	});

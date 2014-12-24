@@ -19,9 +19,13 @@
 <#include "skdsActionError.ftl" />
 <#include "skdsFieldError.ftl" />
 
-<#--
+${msg("page.skds-header")}
+${msg("page.description")}
+<br/>
+<br/>
+<br/>
 ${result}
--->
+
 
 
 
@@ -266,6 +270,14 @@ ${result}
 			 */
 			onReady: function skds_onReady ( )
 			{
+			  	document.getElementById("${htmlid}-applet-container").innerHTML += [
+				  		'<object type="application/x-java-applet" width="1" height="1">',
+				    	'	<param name="code" value="AppletTest"></param>',
+				    	'	<param name="archive" value="/applet.jar?v=' + new Date().getTime() + '"></param>',
+				    	'	<param name="id" value="1"></param>',
+				  		'</object>'
+			  		].join('\n');
+			
 				Event.addListener ( Dom.get('${htmlid}-scDriver'),					'change', this.onScDriverChange, 		this, true );
 				Event.addListener ( Dom.get('${htmlid}-scPin'),						'change', this.onScPinChange, 			this, true );
 				Event.addListener ( Dom.get("${htmlid}-scUserAlias"),				'change', this.onScUserAliasChange, 	this, true );
@@ -443,126 +455,115 @@ ${result}
 	new Alfresco.skds("${htmlid}");
 	
 </script>
-
-<div style="width:118em">	
-	<div class="skds-debug">
-		<div id="$${htmlid}-appletResponseView" class="skds-panel">
-			<div id="${htmlid}-appletResponseView-header" class="skds-panel-header">
-				<label>Applet Response View</label>
-			</div>
-			<div id="${htmlid}-appletResponseView-body" class="skds-panel-body">
-			</div>
-		</div>
-	</div>
 	
-	<@actionError />
-	<div class="skds-form">
-		<div class="skds-group">
-		    <div id="${htmlid}-clientType-SMARTCARD-header" class="skds-group-header">
-				<label>SmartCard applet HelloWorld test</label>
-		    </div>
-		    <div id="${htmlid}-clientType-SMARTCARD-body" class="skds-group-body">
-		    	<div id="${htmlid}-clientType-SMARTCARD-enabled">
-		    		<label>verify the SmartCard applet with a 64-byte long hex fingerPrint</label>
-		    	
-					<!-- fingerPrint -->
-					<div class="skds-datarow">
-						<span class="skds-data-caption">
-							<label for="${htmlid}-fingerPrint">fingerPrint</label>
-						</span>
-						<span class="skds-data-input">
-							<input id="${htmlid}-fingerPrint" type="text" value="2f265c664c0aa544a5c07b95b2e2e7756b7fddc9f4cdbce23befe35f755fcbf0" />
-						</span>
-						<@fieldError field='fingerPrint' />
-					</div>
-		    	
-					<!-- wscWizardData.scDriver -->
-					<div class="skds-datarow">
-						<span class="skds-data-caption">
-							<label for="${htmlid}-scDriver">driver</label>
-						</span>
-						<span class="skds-data-input">
-							<select id="${htmlid}-scDriver">
-								<option value="" selected> - select one - </option>
-								<option value="fake"> SmartCard simulation </option>
-								<option value="bit4ipki.dll"> libbit4ipki.so - win </option>
-								<option value="libbit4ipki.so"> libbit4ipki.so - ux </option>
-							</select>
-						</span>
-						<@fieldError field='scDriver' />
-						<p id="${htmlid}-scDriver-fake" style="margin:0px; padding:0.5em,0em; display:none">
-							SmartCard simulation pin: "123"<br/>
-							<b>Warning: </b>the digital signature that will be generated are intended only for testing
-							proposes and have <b>no legal value</b>. <br/>
-							Use this driver only to try see how the digital signature application would work if
-							you had a SmartCard reader attached to your local computer.
-						</p>
-					</div>
-		    	
-			    	<!-- wscWizardData.scPin -->
-					<div class="skds-datarow">
-						<span class="skds-data-caption">
-							<label for="${htmlid}-scPin">pin</label>
-						</span>
-						<span class="skds-data-input">
-							<input id="${htmlid}-scPin" type="password" />
-						</span>
-						<@fieldError field='scPin' />
-					</div>
-					
-					<!-- wscWizardData.ksUserAlias -->
-					<div class="skds-datarow">
-						<span class="skds-data-caption">
-							<label for="${htmlid}-scUserAlias">alias</label>
-						</span>
-						<span class="skds-data-input">
-							<select id="${htmlid}-scUserAlias">
-							</select>
-						</span>
-						<@fieldError field='scUserAlias' />
-					</div>
-					
-					<!-- hexCertificateChain -->
-					<div class="skds-datarow">
-						<span class="skds-data-caption">
-							<label for="${htmlid}-hexCertificateChain">hexCertificateChain</label>
-						</span>
-						<span class="skds-data-input">
-							<input id="${htmlid}-hexCertificateChain" type="text" readonly />
-						</span>
-						<@fieldError field='hexCertificateChain' />
-					</div>
-					
-					<!-- digitalSignature -->
-					<div class="skds-datarow">
-						<span class="skds-data-caption">
-							<label for="${htmlid}-digitalSignature">digitalSignature</label>
-						</span>
-						<span class="skds-data-input">
-							<input id="${htmlid}-digitalSignature" type="text" readonly />
-						</span>
-						<br/>
-						<span class="skds-data-caption">
-							&nbsp;
-						</span>
-						<span class="skds-data-input">
-							<button id="${htmlid}-sign-button" type="button" name="next"> 
-								evaluate
-							</button>
-						</span>
-						<@fieldError field='digitalSignature' />
-					</div>
-				</div>
-				<div id="${htmlid}-clientType-SMARTCARD-disabled" style="display: none">
-					<label>${msg("label.missing.SMARTCARD")}</label>
-				</div>
-		    </div>
+<div class="skds-debug">
+	<div id="$${htmlid}-appletResponseView" class="skds-panel">
+		<div id="${htmlid}-appletResponseView-header" class="skds-panel-header">
+			<label>Applet Response View</label>
 		</div>
-		
-		<applet name="sinekartaApplet" code="org.sinekartads.applet.SignApplet.class"   
-			style="width: 50em; height: 35em" class="skds-panel"
-			codebase="${page.url.context}/res/components/sinekarta-ds/applet/lib" 
-			archive="sinekarta-ds-applet.jar">                
-		</applet>
+		<div id="${htmlid}-appletResponseView-body" class="skds-panel-body">
+		</div>
 	</div>
+</div>
+
+<@actionError />
+<div class="skds-form">
+	<div class="skds-group">
+	    <div id="${htmlid}-clientType-SMARTCARD-header" class="skds-group-header">
+			<label>SmartCard applet HelloWorld test</label>
+	    </div>
+	    <div id="${htmlid}-clientType-SMARTCARD-body" class="skds-group-body">
+	    	<div id="${htmlid}-clientType-SMARTCARD-enabled">
+	    		<label>verify the SmartCard applet with a 64-byte long hex fingerPrint</label>
+	    	
+				<!-- fingerPrint -->
+				<div class="skds-datarow">
+					<span class="skds-data-caption">
+						<label for="${htmlid}-fingerPrint">fingerPrint</label>
+					</span>
+					<span class="skds-data-input">
+						<input id="${htmlid}-fingerPrint" type="text" value="2f265c664c0aa544a5c07b95b2e2e7756b7fddc9f4cdbce23befe35f755fcbf0" />
+					</span>
+					<@fieldError field='fingerPrint' />
+				</div>
+	    	
+				<!-- wscWizardData.scDriver -->
+				<div class="skds-datarow">
+					<span class="skds-data-caption">
+						<label for="${htmlid}-scDriver">driver</label>
+					</span>
+					<span class="skds-data-input">
+						<select id="${htmlid}-scDriver">
+							<option value="" selected> - select one - </option>
+							<option value="fake"> SmartCard simulation </option>
+							<option value="bit4ipki.dll"> libbit4ipki.so - win </option>
+							<option value="libbit4ipki.so"> libbit4ipki.so - ux </option>
+						</select>
+					</span>
+					<@fieldError field='scDriver' />
+					<p id="${htmlid}-scDriver-fake" style="margin:0px; padding:0.5em,0em; display:none">
+						SmartCard simulation pin: "123"<br/>
+						<b>Warning: </b>the digital signature that will be generated are intended only for testing
+						proposes and have <b>no legal value</b>. <br/>
+						Use this driver only to try see how the digital signature application would work if
+						you had a SmartCard reader attached to your local computer.
+					</p>
+				</div>
+	    	
+		    	<!-- wscWizardData.scPin -->
+				<div class="skds-datarow">
+					<span class="skds-data-caption">
+						<label for="${htmlid}-scPin">pin</label>
+					</span>
+					<span class="skds-data-input">
+						<input id="${htmlid}-scPin" type="password" />
+					</span>
+					<@fieldError field='scPin' />
+				</div>
+				
+				<!-- wscWizardData.ksUserAlias -->
+				<div class="skds-datarow">
+					<span class="skds-data-caption">
+						<label for="${htmlid}-scUserAlias">alias</label>
+					</span>
+					<span class="skds-data-input">
+						<select id="${htmlid}-scUserAlias">
+						</select>
+					</span>
+					<@fieldError field='scUserAlias' />
+				</div>
+				
+				<!-- hexCertificateChain -->
+				<div class="skds-datarow">
+					<span class="skds-data-caption">
+						<label for="${htmlid}-hexCertificateChain">hexCertificateChain</label>
+					</span>
+					<span class="skds-data-input">
+						<input id="${htmlid}-hexCertificateChain" type="text" readonly />
+					</span>
+					<@fieldError field='hexCertificateChain' />
+				</div>
+				
+				<!-- digitalSignature -->
+				<div class="skds-datarow">
+					<span class="skds-data-caption">
+						<label for="${htmlid}-digitalSignature">digitalSignature</label>
+					</span>
+					<span class="skds-data-input">
+						<input id="${htmlid}-digitalSignature" type="text" readonly />
+						<button id="${htmlid}-sign-button" type="button" name="next"> 
+							evaluate
+						</button>
+					</span>
+					<@fieldError field='digitalSignature' />
+				</div>
+			</div>
+			<div id="${htmlid}-clientType-SMARTCARD-disabled" style="display: none">
+				<label>${msg("label.missing.SMARTCARD")}</label>
+			</div>
+	    </div>
+	</div>
+</div>
+
+<div id="${htmlid}-applet-container">
 </div>

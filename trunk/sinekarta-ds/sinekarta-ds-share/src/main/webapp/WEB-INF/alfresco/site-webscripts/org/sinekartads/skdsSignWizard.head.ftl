@@ -282,6 +282,7 @@
 				Event.addListener ( Dom.get('${htmlid}-end-button'),    'click', this.onEndClick,    this, true );
 				
 				// Debug panels listeners
+				Event.addListener ( Dom.get('${htmlid}-appletResponseView-header'), 'click', this.onAppletResponseViewClick,this, true );
 				Event.addListener ( Dom.get('${htmlid}-wizardDataView-header'),    	'click', this.onWizardDataViewClick,    this, true );
 				Event.addListener ( Dom.get('${htmlid}-jsConsole-header'),    		'click', this.onJsConsoleClick,    		this, true );
 				Event.addListener ( Dom.get('${htmlid}-freemarkerTest-header'),    	'click', this.onFreemarkerTestClick,    this, true );
@@ -415,7 +416,7 @@
 			// -----
 			// --- Applet Response parsing
 			// -
-			
+			/*
 			parseAppletResponse: function skds_parseAppletResponse ( appletResponseJSON ) {
 				var appletResponse = this.parseJSON ( appletResponseJSON );
 				var resultJSON = undefined;
@@ -424,6 +425,29 @@
 				} else {
 					this.error('skds_parseAppletResponse', this.formatJSON(appletResponse) );
 					this.displayErrors ( appletResponse.actionErrors, appletResponse.fieldErrors );
+				}
+				return resultJSON;
+			},*/
+			parseAppletResponse: function skds_parseAppletResponse ( appletResponseJSON ) 
+			{
+				var prettyJSON = this.prettifyJSON ( appletResponseJSON );
+		    	var html = '<pre>' + prettyJSON + '</prev>';
+		    	document.getElementById('${htmlid}-appletResponseView-body').innerHTML = html;
+		    	
+				var resultJSON = undefined;
+				if ( appletResponseJSON !== undefined ) {
+					var appletResponse = this.parseJSON ( appletResponseJSON );
+					if ( appletResponse !== undefined ) {
+						if ( appletResponse.resultCode === 'SUCCESS' ) {
+							resultJSON = appletResponse.result;
+						} else {
+							this.displayErrors ( appletResponse.actionErrors, appletResponse.fieldErrors );
+						}
+					} else {
+						alert('unable to parse the response object - ' + appletResponseJSON);
+					}
+				} else {
+					alert('appletResponseJSON is undefined');
 				}
 				return resultJSON;
 			},
@@ -492,6 +516,11 @@
 			onWizardDataViewClick: function skds_onWizardDataViewClick ( ) 
 			{
 		    	this.togglePanelDisplay ( 'wizardDataView' );
+		    },
+		    
+			onAppletResponseViewClick: function skds_onAppletResponseClick ( ) 
+			{
+		    	this.togglePanelDisplay ( 'appletResponseView' );
 		    },
 		    
 		    onJsConsoleClick: function skds_onJsConsoleClick ( ) 
