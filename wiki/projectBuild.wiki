@@ -74,6 +74,8 @@ You can find these artifact as result of build process :
  * sinekarta-ds/sinekarta-ds-alfresco/target/dist/sinekarta-ds-alfresco.amp - amp to be installed into alfresco
  * sinekarta-ds/sinekarta-ds-share/target/dist/sinekarta-ds-share.amp - amp to be installed into share
 
+To install amps into alfresco and share war, please refer to alfresco-mmt tool documentation.
+
 You also have a full version of alfresco.war and share.war "amped" into work directory.
 
 == Launch Alfresco ==
