@@ -22,7 +22,12 @@
 <#include "skdsFieldError.ftl" />
 <#include "skdsSignWizard.head.ftl" />
 
-<#assign debug = 'C' />
+<#assign debug = 'AC' />
+<#if debug?contains('A')>
+	<#assign arvDisplay = 'block' />
+<#else>
+	<#assign arvDisplay = 'none' />
+</#if>
 <#if debug?contains('D')>
 	<#assign wdvDisplay = 'block' />
 <#else>
@@ -56,7 +61,13 @@
 			<div id="${htmlid}-wizardDataView-body" class="skds-panel-body" style="display: ${wdvDisplay}">
 			</div>
 		</div>
-		
+		<div id="$${htmlid}-appletResponseView" class="skds-panel">
+			<div id="${htmlid}-appletResponseView-header" class="skds-panel-header">
+				<label>Applet Response View</label>
+			</div>
+			<div id="${htmlid}-appletResponseView-body" class="skds-panel-body" style="display: ${arvDisplay}">
+			</div>
+		</div>
 		<div id="${htmlid}-jsConsole" class="skds-panel">
 			<div id="${htmlid}-jsConsole-header" class="skds-panel-header">
 				<div class="skds-buttons">
@@ -206,6 +217,9 @@
 			codebase="${page.url.context}/res/components/sinekarta-ds/applet/lib" 
 			archive="sinekarta-ds-applet.jar">                
 		</applet>
+		
+		<!--/div id="${htmlid}-applet-container"> 
+		</div-->
 	</form>
 	
 </div>

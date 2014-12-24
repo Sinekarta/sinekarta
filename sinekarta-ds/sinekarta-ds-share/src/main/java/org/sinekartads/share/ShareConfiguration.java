@@ -68,8 +68,8 @@ public class ShareConfiguration extends SystemConfiguration {
 			driverDescriptions = new String [ drivers.length+1 ];
 			for ( int i=0; i<drivers.length; i++ ) {
 				nameDescr = drivers[i].split(":");
-				driverNames[i+1] = nameDescr[0];
-				driverDescriptions[i+1] = nameDescr[1];
+				driverNames[i+1] = nameDescr[0].trim();
+				driverDescriptions[i+1] = nameDescr[1].trim();
 			}
 			driverNames[0] = "fake";
 			driverDescriptions[0] = "fake smartcard - pin: \"123\"";
