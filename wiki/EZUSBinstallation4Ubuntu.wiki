@@ -1,13 +1,8 @@
-#summary One-sentence summary of this page.
+#summary How to have an EZUSB usb card reader and sinekarta running on ubuntu
 
-= Introduction =
+= EZUSB on Ubuntu =
 
-Add your content here.
-
-
-= Details =
-
-Istruzioni per l'installazione dei driver per EZ100PU tratte da
+Useful links : 
 	http://ubuntuforums.org/showthread.php?t=1677372
 
 
