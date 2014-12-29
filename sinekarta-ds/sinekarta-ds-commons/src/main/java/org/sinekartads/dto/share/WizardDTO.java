@@ -41,15 +41,22 @@ public abstract class WizardDTO extends BaseDTO {
 	private String[] wizardForms;
 	private Map<String, WizardStepDTO> wizardSteps;
 	private WizardStepDTO currentStep;
+	private ActionErrorDTO[] actionErrors = new ActionErrorDTO[0];
+	private FieldErrorDTO[] fieldErrors = new FieldErrorDTO[0];
 
 	/**
 	 * @deprecated ignore this field - fake field for serialization only proposes
 	 */
 	@SuppressWarnings("unused")
 	private String resultCode;
-	private ActionErrorDTO[] actionErrors = new ActionErrorDTO[0];
-	private FieldErrorDTO[] fieldErrors = new FieldErrorDTO[0];
-
+	
+	/**
+	 * @deprecated ignore this setter - fake field for serialization only proposes
+	 */
+	public void setResultCode(String resultCode) {
+		this.resultCode = resultCode;
+	}
+	
 	public String getBackUrl() {
 		return backUrl;
 	}

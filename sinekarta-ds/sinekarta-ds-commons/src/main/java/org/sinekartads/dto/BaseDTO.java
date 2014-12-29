@@ -57,7 +57,7 @@ import org.sinekartads.util.TemplateUtils;
 public abstract class BaseDTO implements Serializable {
 
 	private static final long serialVersionUID = -4276897678144607001L;
-
+	
 	public static boolean isEmpty ( BaseDTO dto )  {
 		if ( dto == null )							return true;
 		return dto.isEmpty();
@@ -68,14 +68,24 @@ public abstract class BaseDTO implements Serializable {
 		return !dto.isEmpty();
 	}
 	
-	public boolean isEmpty ( ) {
-		return false;
-	}
 	
+
 	/**
 	 * @deprecated ignore this field - fake field for serialization only proposes
 	 */
-	protected transient boolean empty;
+	@SuppressWarnings("unused")
+	private boolean empty;
+
+	/**
+	 * @deprecated ignore this setter - fake field for serialization only proposes
+	 */
+	public void setEmpty(boolean empty) {
+		this.empty = empty;
+	}
+	
+	public boolean isEmpty ( ) {
+		return false;
+	}
 	
 	
 	

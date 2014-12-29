@@ -73,8 +73,6 @@ public class SignCMS extends SkdsTestCase {
 			
 			// Prepare the signature service
 			CMSSignatureService signatureService = new CMSSignatureService();
-			TimeStampService timeStampService = new TimeStampService();
-			signatureService.setTimeStampService(timeStampService);
 			
 			// Load the signing privateKey and relative certificate chain
 			X509Certificate[] certificateChain;

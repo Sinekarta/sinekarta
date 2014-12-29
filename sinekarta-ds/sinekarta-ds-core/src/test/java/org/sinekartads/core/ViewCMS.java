@@ -68,8 +68,6 @@ public class ViewCMS extends SkdsTestCase {
 		}
 		try {
 			CMSSignatureService signatureService = new CMSSignatureService();
-			TimeStampService timeStampService = new TimeStampService();
-			signatureService.setTimeStampService(timeStampService);
 			
 			String keyStorePin = "skdscip";
 			char[] ksPwd = null;

@@ -19,13 +19,10 @@ package org.sinekartads.alfresco.webscripts.core;
 import java.io.IOException;
 import java.security.SignatureException;
 
-import org.apache.commons.io.FileUtils;
-import org.sinekartads.dto.BaseDTO;
 import org.sinekartads.dto.ResultCode;
 import org.sinekartads.dto.domain.DocumentDTO;
 import org.sinekartads.dto.domain.SignatureDTO;
 import org.sinekartads.dto.request.SkdsSignRequest.SkdsPreSignRequest;
-import org.sinekartads.dto.response.SkdsSignResponse;
 import org.sinekartads.dto.response.SkdsSignResponse.SkdsPreSignResponse;
 import org.sinekartads.dto.tools.DTOConverter;
 import org.sinekartads.dto.tools.SignatureService;
@@ -34,7 +31,7 @@ import org.springframework.extensions.webscripts.Cache;
 import org.springframework.extensions.webscripts.Status;
 
 public class SkdsPreSignWS 
-		extends SkdsBaseSignWS<SkdsPreSignRequest, SkdsSignResponse> {
+		extends SkdsBaseSignWS<SkdsPreSignRequest, SkdsPreSignResponse> {
 
 	static final DTOConverter converter = DTOConverter.getInstance();
 	
@@ -67,7 +64,7 @@ public class SkdsPreSignWS
 				try {
 					// Retrieve the content
 					contentHex = loadFromNode ( document.getBaseDocument() );
-					FileUtils.writeByteArrayToFile(new java.io.File("/home/adeprato/chainSignature.base64"), BaseDTO.serializeBase64(chainSignature).getBytes());
+					
 					// Perform the pre-sign phase
 					try {
 						String responseBase64 = signatureService.preSign(chainSignature.toBase64(), contentHex);

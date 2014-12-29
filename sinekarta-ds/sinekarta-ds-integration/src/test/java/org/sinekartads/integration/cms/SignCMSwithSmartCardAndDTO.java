@@ -85,7 +85,7 @@ public class SignCMSwithSmartCardAndDTO extends BaseIntegrationTC {
 					FileUtils.readFileToByteArray ( 
 							getTestResource ( SOURCE_FILE ) ) );
 			boolean applyMark = false;
-			boolean useFakeSmartCard = true;
+			boolean useFakeSmartCard = false;
 			String driver;
 			String scPin;
 			if ( useFakeSmartCard ) {
@@ -121,8 +121,6 @@ public class SignCMSwithSmartCardAndDTO extends BaseIntegrationTC {
 			
 			// Prepare the signature service
 			CMSSignatureService signatureService = new CMSSignatureService();
-			TimeStampService timeStampService = new TimeStampService();
-			signatureService.setTimeStampService(timeStampService);
 			
 			// Init the applet
 			try {

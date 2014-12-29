@@ -13,12 +13,6 @@ public class DigestDTO extends BaseDTO {
 	
 	private String hexFingerPrint;
 	
-	/**
-	 * @deprecated ignore this field - fake field for serialization only proposes
-	 */
-	transient boolean empty;
-	
-	
 
 	
 	// -----

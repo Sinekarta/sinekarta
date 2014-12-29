@@ -68,11 +68,6 @@ public class CertificateDTO extends BaseDTO {
     
     private CertificateDTO[] chain;
     
-    /**
-	 * @deprecated ignore this field - fake field for serialization only proposes
-	 */
-	transient boolean empty;
-    
     
     
     

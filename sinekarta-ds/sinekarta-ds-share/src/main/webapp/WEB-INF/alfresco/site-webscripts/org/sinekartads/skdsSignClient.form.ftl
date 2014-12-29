@@ -74,48 +74,56 @@
 				<label>${msg("group.clientType.SMARTCARD")}</label>
 		    </div>
 		    <div id="${htmlid}-clientType-SMARTCARD-body" class="skds-group-body">
-		    	<div id="${htmlid}-clientType-SMARTCARD-enabled">
-		    		<label>${msg("label.clientType.SMARTCARD")}</label>
-		    	
-					<!-- wscWizardData.scDriver -->
-					<div class="skds-datarow">
-						<span class="skds-data-caption">
-							<label for="${htmlid}-scDriver">${msg("label.scDriver")}</label>
-						</span>
-						<span class="skds-data-input">
-							<select id="${htmlid}-scDriver">
-								<option value="${msg("select.dummy")}" selected>${msg("select.dummy")}</option>
-							</select>
-						</span>
-						<@fieldError field='scDriver' />
+		    	<label>${msg("label.clientType.SMARTCARD")}</label>
+		    	<div>
+		    		<div style="float:right; position: relative; top: 0px; right:0em; height: 100%">
+						<applet name="sinekartaApplet" code="org.sinekartads.applet.SignApplet.class"
+							width="6em" height="2em"    
+							codebase="${page.url.context}/res/components/sinekarta-ds/applet/lib" 
+							archive="sinekarta-ds-applet.jar">                
+						</applet>
 					</div>
-		    	
-			    	<!-- wscWizardData.scPin -->
-					<div class="skds-datarow">
-						<span class="skds-data-caption">
-							<label for="${htmlid}-scPin">${msg("label.scPin")}</label>
-						</span>
-						<span class="skds-data-input">
-							<input id="${htmlid}-scPin" type="password" value="${wscWizardData.scPin}" />
-						</span>
-						<@fieldError field='scPin' />
+		    		<div id="${htmlid}-clientType-SMARTCARD-enabled">
+						<!-- wscWizardData.scDriver -->
+						<div class="skds-datarow">
+							<span class="skds-data-caption">
+								<label for="${htmlid}-scDriver">${msg("label.scDriver")}</label>
+							</span>
+							<span class="skds-data-input">
+								<select id="${htmlid}-scDriver">
+									<option value="${msg("select.dummy")}" selected>${msg("select.dummy")}</option>
+								</select>
+							</span>
+							<@fieldError field='scDriver' />
+						</div>
+			    	
+				    	<!-- wscWizardData.scPin -->
+						<div class="skds-datarow">
+							<span class="skds-data-caption">
+								<label for="${htmlid}-scPin">${msg("label.scPin")}</label>
+							</span>
+							<span class="skds-data-input">
+								<input id="${htmlid}-scPin" type="password" value="${wscWizardData.scPin}" />
+							</span>
+							<@fieldError field='scPin' />
+						</div>
+						
+						<!-- wscWizardData.ksUserAlias -->
+						<div class="skds-datarow">
+							<span class="skds-data-caption">
+								<label for="${htmlid}-scUserAlias">${msg("label.scUserAlias")}</label>
+							</span>
+							<span class="skds-data-input">
+								<select id="${htmlid}-scUserAlias">
+									<option value="${msg("select.dummy")}" selected>${msg("select.dummy")}</option>
+								</select>
+							</span>
+							<@fieldError field='scUserAlias' />
+						</div>
 					</div>
-					
-					<!-- wscWizardData.ksUserAlias -->
-					<div class="skds-datarow">
-						<span class="skds-data-caption">
-							<label for="${htmlid}-scUserAlias">${msg("label.scUserAlias")}</label>
-						</span>
-						<span class="skds-data-input">
-							<select id="${htmlid}-scUserAlias">
-								<option value="${msg("select.dummy")}" selected>${msg("select.dummy")}</option>
-							</select>
-						</span>
-						<@fieldError field='scUserAlias' />
-					</div>
-				</div>
-				<div id="${htmlid}-clientType-SMARTCARD-disabled" style="display: none">
-					<label>${msg("label.missing.SMARTCARD")}</label>
+					<!--div id="${htmlid}-clientType-SMARTCARD-disabled" style="display: none">
+						<label>${msg("label.missing.SMARTCARD")}</label>
+					</div-->
 				</div>
 		    </div>
 		</div>

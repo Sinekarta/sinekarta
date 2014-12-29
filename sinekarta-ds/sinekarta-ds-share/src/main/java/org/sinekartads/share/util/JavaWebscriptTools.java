@@ -202,7 +202,7 @@ public class JavaWebscriptTools {
 			code = response.resultCodeFromString();
 			if ( code != null && code != ResultCode.SUCCESS ) {
 				if ( StringUtils.isBlank(message) ) {
-					message = code.name();
+					message = response.getMessage();
 				}
 				throw new AlfrescoException(message, code);
 			}

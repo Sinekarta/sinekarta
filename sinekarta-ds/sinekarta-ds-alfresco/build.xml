@@ -109,6 +109,7 @@
 	<property name="bcmail-jdk16.jar"	value="bcmail-jdk16-1.46.jar" />
 	<property name="bctsp-jdk16.jar"	value="bctsp-jdk16-1.46.jar" />
 	<property name="itext-jdk16.jar"	value="itext-jdk16*.jar" />
+	<property name="xades4j-jdk16.jar"	value="xades4j-jdk16*.jar" />
 	<property name="commons.jar"		value="sinekarta-ds-commons${version}.jar" />
 	<property name="core.jar"			value="sinekarta-ds-core${version}.jar" />
 	
@@ -157,14 +158,15 @@
 		</copy>
 		<echo> - sinekarta-ds-core dependencies</echo>
 		<copy toDir="${core.dir}" overwrite="true" verbose="${verbose}">
-			<fileset dir="${dependencies.dir}" 								includes="${bcmail-jdk16.jar}" />
-			<fileset dir="${dependencies.dir}" 								includes="${bcprov-jdk16.jar}" />
-			<fileset dir="${dependencies.dir}" 								includes="${bctsp-jdk16.jar}" />
-			<fileset dir="${dependencies.dir}" 								includes="${commons-lang.jar}" />
-			<fileset dir="${dependencies.dir}"								includes="${ezmorph.jar}" />
-			<fileset dir="${dependencies.dir}" 								includes="${jcl-core.jar}" />
-			<fileset dir="${dependencies.dir}"								includes="${json-lib.jar}" />
+			<fileset dir="${super.dir}/sinekarta-ds-core/target/lib"		includes="${bcmail-jdk16.jar}" />
+			<fileset dir="${super.dir}/sinekarta-ds-core/target/lib"		includes="${bcprov-jdk16.jar}" />
+			<fileset dir="${super.dir}/sinekarta-ds-core/target/lib"		includes="${bctsp-jdk16.jar}" />
+			<fileset dir="${super.dir}/sinekarta-ds-core/target/lib"		includes="${commons-lang.jar}" />
+			<fileset dir="${super.dir}/sinekarta-ds-core/target/lib"		includes="${ezmorph.jar}" />
+			<fileset dir="${super.dir}/sinekarta-ds-core/target/lib"		includes="${jcl-core.jar}" />
+			<fileset dir="${super.dir}/sinekarta-ds-core/target/lib"		includes="${json-lib.jar}" />
 			<fileset dir="${super.dir}/itext-jdk16/target" 					includes="${itext-jdk16.jar}" />
+			<fileset dir="${super.dir}/xades4j-jdk16/target" 				includes="${xades4j-jdk16.jar}" />
 			<fileset dir="${super.dir}/sinekarta-ds-commons/target" 		includes="${commons.jar}" />
 			<fileset dir="${super.dir}/sinekarta-ds-core/target"			includes="${core.jar}" />
 		</copy>

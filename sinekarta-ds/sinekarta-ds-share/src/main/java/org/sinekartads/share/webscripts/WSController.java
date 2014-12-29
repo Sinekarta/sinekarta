@@ -192,9 +192,8 @@ public abstract class WSController<DTO extends WizardDTO> extends BaseWS {
 		} finally {
 			// Select the currentForm to be displayed by the JS controller 
 			WizardStep currentStep;
-			boolean success =  StringUtils.equals ( 
-					wizardData.getResultCode(), WizardDTO.SUCCESS );
-			if ( success ) {
+			if ( StringUtils.equals ( 
+					wizardData.getResultCode(), WizardDTO.SUCCESS ) ) {
 				currentStep = nextStep ( currentStep() );
 			} else {
 				currentStep = currentStep();
