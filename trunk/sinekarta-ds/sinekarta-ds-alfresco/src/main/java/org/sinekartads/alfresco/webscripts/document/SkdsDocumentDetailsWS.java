@@ -9,6 +9,7 @@ import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.repository.MimetypeService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.namespace.QName;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sinekartads.alfresco.util.NodeTools;
 import org.sinekartads.alfresco.webscripts.BaseAlfrescoWS;
@@ -43,14 +44,14 @@ public class SkdsDocumentDetailsWS
 			for(String ref : nodeRefs) {
 				nodeRef = new NodeRef(ref);
 				props = nodeService.getProperties(nodeRef);
-				fileName = (String)props.get(ContentModel.PROP_NAME);
+				fileName = StringUtils.trim((String)props.get(ContentModel.PROP_NAME));
+				
 				baseDocument = new NodeDTO();
 				baseDocument.setNodeRef(ref);
-				baseDocument.setFileName(fileName);
 				baseDocument.setParentRef(NodeTools.getParentRef(nodeService, nodeRef).toString());
 				baseDocument.setFilePath(NodeTools.translatePath(nodeService, nodeRef));
-				
-				baseDocument.setDescription((String)props.get(ContentModel.PROP_DESCRIPTION));
+				baseDocument.setFileName(fileName);
+				baseDocument.setDescription(StringUtils.trim((String)props.get(ContentModel.PROP_DESCRIPTION)));
 				baseDocument.setMimetype(mimetypeService.guessMimetype(fileName, 
 						contentService.getReader(nodeRef, ContentModel.PROP_CONTENT)));
 
