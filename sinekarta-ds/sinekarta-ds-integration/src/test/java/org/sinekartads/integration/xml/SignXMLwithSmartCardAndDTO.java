@@ -55,7 +55,7 @@ import org.sinekartads.utils.JSONUtils;
 public class SignXMLwithSmartCardAndDTO extends BaseIntegrationTC {
 
 	public static final String SOURCE_FILE 		= "document.xml";
-	public static final String SIGNED_FILE 		= "document_extbes.xml";
+	public static final String SIGNED_FILE 		= "document_bes.xml";
 	public static final String MARKED_FILE 		= "document_t.xml";
 	public static final String EXTRACTED_FILE 	= "document_cnt.xml";
 	
@@ -82,7 +82,7 @@ public class SignXMLwithSmartCardAndDTO extends BaseIntegrationTC {
 			String contentHex = HexUtils.encodeHex (
 					FileUtils.readFileToByteArray ( 
 							getTestResource ( SOURCE_FILE ) ) );
-			boolean applyMark = true;
+			boolean applyMark = false;
 			boolean useFakeSmartCard = false;
 			String driver;
 			String scPin;

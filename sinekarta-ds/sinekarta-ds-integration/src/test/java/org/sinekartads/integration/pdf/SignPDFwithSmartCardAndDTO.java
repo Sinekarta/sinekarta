@@ -31,8 +31,8 @@ import org.sinekartads.dto.jcl.PreSignResponseDTO;
 import org.sinekartads.dto.jcl.VerifyResponseDTO;
 import org.sinekartads.dto.tools.DTOConverter;
 import org.sinekartads.integration.BaseIntegrationTC;
-import org.sinekartads.model.domain.DigestInfo;
 import org.sinekartads.model.domain.PDFSignatureInfo;
+import org.sinekartads.model.domain.DigestInfo;
 import org.sinekartads.model.domain.SecurityLevel.VerifyResult;
 import org.sinekartads.model.domain.SignDisposition;
 import org.sinekartads.model.domain.SignatureInfo;
@@ -53,16 +53,13 @@ import org.sinekartads.util.HexUtils;
 import org.sinekartads.util.TemplateUtils;
 import org.sinekartads.util.x509.X509Utils;
 import org.sinekartads.utils.JSONUtils;
-import org.springframework.util.SerializationUtils;
 
 public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 
-	public static final String KEYSTORE_FILE	= "JENIA.p12";
-	public static final String KEYSTORE_PIN 	= "skdscip";
-	public static final String SOURCE_FILE 		= "pippo.txt";
-	public static final String SIGNED_FILE 		= "pippo_sc.txt.p7m";
-	public static final String MARKED_FILE 		= "pippo_sc.txt.m7m";
-	public static final String EXTRACTED_FILE 	= "pippo_ext_sc.txt.m7m";
+	public static final String SOURCE_FILE 		= "pippo.pdf";
+	public static final String SIGNED_FILE 		= "pippo_sgn.pdf";
+	public static final String MARKED_FILE 		= "pippo_mrk.pdf";
+	public static final String EXTRACTED_FILE 	= "pippo_ext.pdf";
 	
 	static final DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 	
@@ -82,16 +79,24 @@ public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 		
 		SignApplet applet = new SignApplet();
 		try {
-			// Main options 
-			String knownDriversJSON = "[\"libbit4ipki.so\",\"libASEP11.so\"]";
+			
+			// Main options
 			String contentHex = HexUtils.encodeHex (
 					FileUtils.readFileToByteArray ( 
 							getTestResource ( SOURCE_FILE ) ) );
-			String scPin = "18071971";
-			boolean applyMark = false;
+			boolean applyMark = true;
+			boolean useFakeSmartCard = false;
+			String driver;
+			String scPin;
+			if ( useFakeSmartCard ) {
+				driver = "fake";
+				scPin = "123";
+			} else {
+				driver = "libbit4ipki.so";
+				scPin = "18071971";
+			}
 			
 			// Test products
-			String driver = "libbit4ipki.so";
 			String[] aliases;
 			String alias;
 			X509Certificate certificate;
@@ -122,13 +127,8 @@ public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 			// Init the applet
 			try {
 				applet.init();
-//				jsonResp = applet.verifySmartCard ( knownDriversJSON );
-//				appletResponse = (AppletResponseDTO) JSONUtils.deserializeJSON(AppletResponseDTO.class, jsonResp);
-//				String[] matchingDrivers = (String[]) 
-//						JSONUtils.deserializeJSONArray ( String[].class, extractJSON(appletResponse) );
-//				Assert.isTrue( ArrayUtils.isNotEmpty(matchingDrivers) );
-//				String driver = matchingDrivers[0];
-				applet.selectDriver ( driver );
+				jsonResp = applet.selectDriver ( driver );
+				appletResponse = (AppletResponseDTO) JSONUtils.deserializeJSON(AppletResponseDTO.class, jsonResp);
 			} catch(Exception e) {
 				tracer.error("error during the applet initialization", e);
 				throw e;
@@ -184,7 +184,7 @@ public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 			// Add to the empty signature the timeStamp request if needed
 			TsRequestInfo tsRequest = null;
 			if ( applyMark ) {
-				tsRequest = new TsRequestInfo ( SignDisposition.TimeStamp.ATTRIBUTE,
+				tsRequest = new TsRequestInfo ( SignDisposition.TimeStamp.ENVELOPING,
 											    DigestAlgorithm.SHA256,
 											    BigInteger.TEN,
 											    "http://ca.signfiles.com/TSAServer.aspx", "", "" );
@@ -206,13 +206,13 @@ public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 			
 
 			
-			chainSignatureDTO = (SignatureDTO)SerializationUtils.deserialize(FileUtils.readFileToByteArray(new java.io.File("/home/adeprato/hex.txt")));
+//			chainSignatureDTO = (SignatureDTO)SerializationUtils.deserialize(FileUtils.readFileToByteArray(new java.io.File("/home/adeprato/hex.txt")));
 			
 
 			
 			// PreSign phase - join the content with the certificate chain and evaluate the digest
 			try {
-				jsonResp = signatureService.preSign(chainSignatureDTO.toJSON(), contentHex);
+				jsonResp = signatureService.preSign(chainSignatureDTO.toBase64(), contentHex);
 				digestSignatureDTO = extractResult ( SignatureDTO.class, jsonResp );
 			} catch(Exception e) {
 				tracer.error("error during the pre sign phase", e);
@@ -255,8 +255,8 @@ public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 			
 			// PostSign phase - add the digitalSignature to the envelope and store the result into the JCLResultDTO
 			try {
-				jsonResp = signatureService.postSign ( signedSignatureDTO.toJSON(), contentHex );
-				postSignResp = TemplateUtils.Encoding.deserializeJSON ( PostSignResponseDTO.class, jsonResp );
+				jsonResp = signatureService.postSign ( signedSignatureDTO.toBase64(), contentHex );
+				postSignResp = TemplateUtils.Encoding.deserializeBase64 ( PostSignResponseDTO.class, jsonResp );
 				finalizedSignatureDTO = extractResult ( SignatureDTO.class, jsonResp );
 			} catch(Exception e) {
 				tracer.error("error during the envelope generation", e);
@@ -374,11 +374,11 @@ public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 	}
 	
 	private <DTO extends BaseDTO> DTO extractResult(Class<DTO> dtoClass, String respHex) throws Exception {
-		JclResponseDTO resp = TemplateUtils.Encoding.deserializeJSON(JclResponseDTO.class, respHex);
+		JclResponseDTO resp = TemplateUtils.Encoding.deserializeBase64(JclResponseDTO.class, respHex);
 		ResultCode resultCode = resp.resultCodeFromString();
 		DTO dto;
 		if ( resultCode == ResultCode.SUCCESS ) {
-			dto = TemplateUtils.Encoding.deserializeJSON(dtoClass, resp.getResult());
+			dto = TemplateUtils.Encoding.deserializeBase64(dtoClass, resp.getResult());
 		} else {
 			throw new Exception ( resp.getErrorMessage() );
 		}
