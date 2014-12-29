@@ -62,10 +62,10 @@ public abstract class BaseWS extends DeclarativeWebScript {
 			if(getResources().containsKey(messageId)) {
 				message = getResources().getString(messageId);
 			} else {
-				message = ResourceBundle.getBundle("alfresco/messages/skds-commons.properties").getString(messageId);
+				message = ResourceBundle.getBundle("alfresco/messages/skds-commons").getString(messageId);
 			}
 		} catch(Exception e) {
-//			tracer.error(e.getMessage(), e);
+			message = null;
 		}
 		if(message == null) {
 			message = messageId;

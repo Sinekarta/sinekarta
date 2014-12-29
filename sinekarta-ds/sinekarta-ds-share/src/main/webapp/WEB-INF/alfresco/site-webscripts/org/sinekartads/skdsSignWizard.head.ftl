@@ -506,7 +506,19 @@
 					select.options[0].selected = true;
 				} 
 			},
-			
+/*			
+			clearValues: function skds_clearValues ( ) {
+				var element;
+				for (var i = 0; i < arguments.length; i++) {
+					element = document.getElementById("${htmlid}-" + arguments[i]);
+					if ( element.tagName === 'select' ) {
+						element.options[0].selected = true;
+					} else {
+						element.value = "";
+					}
+				}
+			}
+*/			
 			
 			
 			// -----
@@ -601,17 +613,17 @@
 			{
 				// Determinate the previous form into the wizard
 				var prevForm = this.wizardData.wizardForms[0];
-				for ( i=0; i<this.wizardForms.length; i++ ) {
+				for ( i=0; i<this.wizardData.wizardForms.length-1 && 
+						this.wizardData.wizardForms[i+1] !== this.wizardData.currentStep.form; i++ ) {
 					this.info ( 'onBackClick',
-							'prevForm: ' + prevForm + '\n' +
-							'i:        ' + this.wizardForms[i] + '\n' +
-							'i+1:      ' + this.wizardForms[i+1] + '\n' + 
+							'i:        ' + this.wizardData.wizardForms[i] + '\n' +
+							'i+1:      ' + this.wizardData.wizardForms[i+1] + '\n' + 
 							'current:  ' + this.wizardData.currentStep.form + '\n' +
-							'match:    ' + (this.wizardForms[i+1] === this.wizardData.currentStep.form));
-					if ( this.wizardStep[i+1] === this.wizardData.currentStep.form ) {
-						prevForm = this.wizardForms [ i ];
-					}
+							'match:    ' + (this.wizardData.wizardForms[i+1] === this.wizardData.currentStep.form));
+					prevForm = this.wizardData.wizardForms [ i ];
 				}
+				
+				this.info ( 'onBackClick', 'prevForm: ' + prevForm ); 
 				
 				// Ask the controller to display the previous form but keeping the current wizard data status
 		    	this.refresh ( this.formatJSON ( this.wizardData ), prevForm );
@@ -649,10 +661,8 @@
 				location.href = this.wizardData.backUrl;
 			},
 			
-			refresh: function skds_refresh ( wizardDataJSON, targetStep ) 
+			refresh: function skds_refresh ( wizardDataJSON, targetForm ) 
 			{
-				this.info ( 'refresh', 'targetStep: ' + this.formatJSON(targetStep) );
-				
 				// update the wizard data view box 
 				this.updateWizardDataView ( );
 				
@@ -666,13 +676,15 @@
 				// wizardData parsing and backup
 				this.backupDataJSON = wizardDataJSON;
 		    	this.wizardData = this.parseJSON ( this.backupDataJSON );
+		    	
+				this.info ( 'refresh',
+						'targetForm:  ' + targetForm + '\n' +
+						'currentForm: ' + this.formatJSON(this.wizardData.currentStep) );
 
 				// Update the displayed form if changed
-		    	if ( targetStep !== undefined ) {
-		    		// Update the currentStep with the targetStep if provided
+		    	if ( targetForm !== undefined ) {
+		    		// Update the currentStep with the targetForm if provided
 					this.wizardData.currentStep = targetStep;
-				} else if ( this.wizardData.currentStep === undefined ) {
-					this.wizardData.currentStep = this.currentStep;
 				}
 				this.currentStep = this.wizardData.currentStep
 				this.wizardForms = this.wizardData.wizardForms;
@@ -781,7 +793,6 @@
 					document.getElementById('${htmlid}-'+field+'-error').innerHTML = html;
 				}
 			},
-			
 			
 			applySignatureSmartCard: function skds_applySignatureSmartCard ( ) {
 				this.info ( 'applySignatureSmartCard', 'start' );
@@ -1044,15 +1055,15 @@
 		    	var driver = this.wizardData.scDriver;
 		    	var appletResponseJSON = document.sinekartaApplet.selectDriver ( this.wizardData.scDriver );
 				var appletResultJSON = this.parseAppletResponse ( appletResponseJSON );
-				if ( appletResultJSON !== undefined ) {
-					if ( appletResultJSON === driver ) {
-						this.info ( 'refresh', 'driver: ' + appletResultJSON );
-					} else {
-						this.error ( 'refresh', 'unexpected result: ' + appletResultJSON );
-					}
-				} else {
+				if ( appletResultJSON === undefined ) {
 					this.error ( 'refresh', 'unexpected response: ' + appletResultJSON );
 				}
+				
+				document.getElementById("${htmlid}-scPin").value = '';
+				this.wizardData.scPin = '';
+				this.wizardData.scAliases = new Array();
+				this.wizardData.scUserAlias = '';
+				this.updateScUserAliasSelect ( );
 		    },
 		    
 			onScPinChange: function skds_onScPinChange ( ) {
@@ -1074,11 +1085,13 @@
 					if ( singleAlias ) {
 						this.onScUserAliasChange ( );
 					}
-					/*document.getElementById('${htmlid}-clientType-SMARTCARD-enabled').style.display = 'block';
-					document.getElementById('${htmlid}-clientType-SMARTCARD-disabled').style.display = 'none';
+					//document.getElementById('${htmlid}-clientType-SMARTCARD-enabled').style.display = 'block';
+					//document.getElementById('${htmlid}-clientType-SMARTCARD-disabled').style.display = 'none';
 				} else {
-					document.getElementById('${htmlid}-clientType-SMARTCARD-enabled').style.display = 'none';
-					document.getElementById('${htmlid}-clientType-SMARTCARD-disabled').style.display = 'block';*/
+					this.wizardData.scAliases = new Array();
+					this.updateScUserAliasSelect ( );
+					//document.getElementById('${htmlid}-clientType-SMARTCARD-enabled').style.display = 'none';
+					//document.getElementById('${htmlid}-clientType-SMARTCARD-disabled').style.display = 'block';
 				}
 				this.updateWizardDataView ( );
 			},
@@ -1086,13 +1099,12 @@
 		    onScUserAliasChange: function skds_onScUserAliasChange() {
 		    	document.getElementById('${htmlid}-scUserAlias-error').innerHTML = '';
 		    	var scUserAliasSelect = document.getElementById("${htmlid}-scUserAlias");
-				var scUserAlias = scUserAliasSelect.options[scUserAliasSelect.selectedIndex].value;
-				if ( scUserAlias !== '' ) {
-					var appletResponseJSON = document.sinekartaApplet.selectCertificate(scUserAlias);
+				this.wizardData.scUserAlias = scUserAliasSelect.options[scUserAliasSelect.selectedIndex].value;
+				if ( this.wizardData.scUserAlias !== '' ) {
+					var appletResponseJSON = document.sinekartaApplet.selectCertificate(this.wizardData.scUserAlias);
 					var appletResultJSON = this.parseAppletResponse ( appletResponseJSON );
 					if ( appletResultJSON !== undefined ) {
 						this.wizardData.signature.hexCertificateChain[0] = this.parseAppletResponse ( appletResponseJSON );
-						this.info ( 'onScUserAliasChange', 'signing certificate: ' + this.wizardData.signature.hexCertificateChain[0] );
 					} else {
 						this.error ( 'onScUserAliasChange', 'unexpected response: ' + appletResultJSON );
 					}
