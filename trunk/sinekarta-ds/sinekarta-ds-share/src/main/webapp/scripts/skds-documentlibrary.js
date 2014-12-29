@@ -33,37 +33,6 @@
    	var $siteURL = Alfresco.util.siteURL;
   
    
-   	YAHOO.Bubbling.fire("registerAction",  { 
-		actionName: "onActionSkdsHelloGianni", 
-		fn: function DL_onActionSkdsHelloGianni(asset) {
-			 var url = Alfresco.constants.URL_CONTEXT+"page/skdsHelloWorld";
-			 var parameters = new Array();
-			 parameters["messageFormat"] = "Ciao %s!";
-			 parameters["name"] = "Gianni";
-			 location.href = buildUrl(url, parameters);
-		}
-   	});
-   
-   	YAHOO.Bubbling.fire("registerAction",  { 
-		actionName: "onActionSkdsHelloGiovanni", 
-		fn: function DL_onActionSkdsHelloGiovanni(asset) {
-		
-			var url = Alfresco.constants.URL_CONTEXT+"page/skdsHelloWorld";
-			var parameters = new Array();
-			parameters["name"] = "Giovanni";
-			location.href = buildUrl(url, parameters);
-		}
-   	});
-   
-   	YAHOO.Bubbling.fire("registerAction",  { 
-		actionName: "onActionSkdsHelloWorld", 
-		fn: function DL_onActionSkdsHelloWorld(asset) {
-		
-			var url = Alfresco.constants.URL_CONTEXT+"page/skdsHelloWorld";
-			var parameters = new Array();
-			location.href = buildUrl(url, parameters);
-		}
-   	});
    
    	YAHOO.Bubbling.fire("registerAction",  { 
 		actionName: "onActionSkdsSign", 

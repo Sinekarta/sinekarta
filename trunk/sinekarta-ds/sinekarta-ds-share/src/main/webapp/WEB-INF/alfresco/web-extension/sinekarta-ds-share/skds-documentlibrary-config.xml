@@ -25,9 +25,6 @@
 		<dependencies>
 			<!-- skds js -->
 			<js  src="scripts/skds-documentlibrary.js" />
-			
-			<!-- skds css -->
-			<css src="skds-documentlibrary.css" />
 		</dependencies>
 	</config>
 
@@ -35,29 +32,7 @@
 	<config evaluator="string-compare" condition="DocLibActions">
 
 		<!-- Action definitions -->
-		<actions>
-			
-	         <action id="skdsHelloGianni" type="javascript" label="actions.document.skdsHelloGianni">
-				<param name="function">onActionSkdsHelloGianni</param>
-				<permissions>
-					<permission allow="true">Write</permission>
-				</permissions>
-			 </action>
-			 
-			 <action id="skdsHelloGiovanni" type="javascript" label="actions.document.skdsHelloGiovanni">
-				<param name="function">onActionSkdsHelloGiovanni</param>
-				<permissions>
-					<permission allow="true">Write</permission>
-				</permissions>
-			 </action>
-			 
-			 <action id="skdsHelloWorld" type="javascript" label="actions.document.skdsHelloWorld">
-				<param name="function">onActionSkdsHelloWorld</param>
-				<permissions>
-					<permission allow="true">Write</permission>
-				</permissions>
-			 </action>
-			 
+		<actions>		 
 			 <action id="skdsSign" type="javascript" label="actions.document.skdsSign">
 				<param name="function">onActionSkdsSign</param>
 				<permissions>
@@ -86,33 +61,23 @@
 			<actionGroup id="empty" />
 
 			<actionGroup id="document-browse">
-				<action index="501" id="skdsHelloGianni" />
-				<action index="502" id="skdsHelloGiovanni" />
-				<action index="503" id="skdsHelloWorld" />
-				<action index="1" id="skdsSign" />
-				<action index="2" id="skdsSignAndMark" />
-				<action index="3" id="skdsVerify" />
+				<action index="400" id="skdsSign" />
+				<action index="401" id="skdsSignAndMark" />
+				<!-- action index="402" id="skdsVerify" /-->
 			</actionGroup>
 
 			<actionGroup id="document-details">
-				<action index="501" id="skdsHelloGianni" />
-				<action index="502" id="skdsHelloGiovanni" />
-				<action index="503" id="skdsHelloWorld" />
-				<action index="1" id="skdsSign" />
-				<action index="2" id="skdsSignAndMark" />
-				<action index="3" id="skdsVerify" />
+				<action index="400" id="skdsSign" />
+				<action index="401" id="skdsSignAndMark" />
+				<!-- action index="402" id="skdsVerify" /-->
 			</actionGroup>
 
 			<actionGroup id="folder-browse">
-				<action index="501" id="skdsHelloGianni" />
-				<action index="502" id="skdsHelloGiovanni" />
-				<action index="503" id="skdsHelloWorld" />
+			
 			</actionGroup>
 
 			<actionGroup id="folder-details">
-				<action index="501" id="skdsHelloGianni" />
-				<action index="502" id="skdsHelloGiovanni" />
-				<action index="503" id="skdsHelloWorld" />
+				
 			</actionGroup>
 
 			<actionGroup id="document-link-browse">
