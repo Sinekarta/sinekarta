@@ -677,10 +677,6 @@
 				this.backupDataJSON = wizardDataJSON;
 		    	this.wizardData = this.parseJSON ( this.backupDataJSON );
 		    	
-				this.info ( 'refresh',
-						'targetForm:  ' + targetForm + '\n' +
-						'currentForm: ' + this.formatJSON(this.wizardData.currentStep) );
-
 				// Update the displayed form if changed
 		    	if ( targetForm !== undefined ) {
 		    		// Update the currentStep with the targetForm if provided
@@ -760,6 +756,17 @@
 
 			displayErrors: function skds_displayErrors ( actionErrors, fieldErrors ) {
 
+				this.error ( 'refresh',
+						'fieldErrors:  ' + this.formatJSON(this.fieldErrors) + '\n' +
+						'actionErrors: ' + this.formatJSON(this.actionErrors) );
+				
+				var html;
+				html = '';
+				for ( i=0; i<actionErrors.length; i++ ) {
+					html += '<li>' + actionErrors[i].errorMessage + '</li>'; 
+				}
+				document.getElementById('${htmlid}-actionErrors').innerHTML = html;
+				
 				document.getElementById('${htmlid}-tsUrl-error').innerHTML = '';
 				document.getElementById('${htmlid}-tsUsername-error').innerHTML = '';
 				document.getElementById('${htmlid}-tsPassword-error').innerHTML = '';
@@ -772,14 +779,6 @@
 				document.getElementById('${htmlid}-scDriver-error').innerHTML = '';
 				document.getElementById('${htmlid}-scPin-error').innerHTML = '';
 				document.getElementById('${htmlid}-scUserAlias-error').innerHTML = '';
-				
-				var html;
-				html = '';
-				for ( i=0; i<actionErrors.length; i++ ) {
-					html += '<li>' + actionErrors[i].errorMessage + '</li>'; 
-				}
-				document.getElementById('${htmlid}-actionErrors').innerHTML = html;
-				
 				var field;
 				var errors;
 				for ( i=0; i<fieldErrors.length; i++ ) {

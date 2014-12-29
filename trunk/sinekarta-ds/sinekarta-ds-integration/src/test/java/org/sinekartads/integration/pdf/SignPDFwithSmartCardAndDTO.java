@@ -121,8 +121,6 @@ public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 			
 			// Prepare the signature service
 			PDFSignatureService signatureService = new PDFSignatureService();
-			TimeStampService timeStampService = new TimeStampService();
-			signatureService.setTimeStampService(timeStampService);
 			
 			// Init the applet
 			try {

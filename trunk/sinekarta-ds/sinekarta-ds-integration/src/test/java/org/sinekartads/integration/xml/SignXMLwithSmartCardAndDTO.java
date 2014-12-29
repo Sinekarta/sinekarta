@@ -119,8 +119,6 @@ public class SignXMLwithSmartCardAndDTO extends BaseIntegrationTC {
 			
 			// Prepare the signature service
 			XMLSignatureService signatureService = new XMLSignatureService();
-			TimeStampService timeStampService = new TimeStampService();
-			signatureService.setTimeStampService(timeStampService);
 			
 			// Init the applet
 			try {

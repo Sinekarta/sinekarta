@@ -23,6 +23,7 @@ import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.DERObject;
 import org.bouncycastle.asn1.DERSet;
 import org.bouncycastle.asn1.cms.AttributeTable;
+import org.bouncycastle.asn1.cms.SignerInfo;
 import org.bouncycastle.asn1.x509.Attribute;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
@@ -34,6 +35,8 @@ import org.bouncycastle.cms.SignerId;
 import org.bouncycastle.cms.SignerInformation;
 import org.bouncycastle.cms.SignerInformationStore;
 import org.bouncycastle.cms.SignerInformationVerifier;
+import org.bouncycastle.operator.DefaultSignatureAlgorithmIdentifierFinder;
+import org.bouncycastle.operator.SignatureAlgorithmIdentifierFinder;
 import org.bouncycastle.tsp.TSPException;
 import org.bouncycastle.tsp.TimeStampResponse;
 import org.bouncycastle.tsp.TimeStampToken;
@@ -195,7 +198,7 @@ public class CMSSignatureService
 		try {
 			CMSSignedDataProxyGenerator generator = new CMSSignedDataProxyGenerator();
 			generator.embedCertificateChain(trustedChain);
-			signedData = generator.generateSignedData (
+			signedData = generator.generateSignedData(
 					processable, signedSignature.getDigitalSignature(), signDisposition );
 			signedDataEnc = signedData.getEncoded();
 		} catch (CMSException e) {
@@ -599,7 +602,6 @@ public class CMSSignatureService
 	 	VerifyResult minSecurityLevel = VerifyResult.VALID;
 	 	// Iterate over the CMS signature descriptor (SignerInformation)
 		for ( SignerInformation signer : signers ) {	
-
 			// Evaluate the signatureAlgorithm 
 			digestAlgorithm = DigestAlgorithm.getInstance(signer.getDigestAlgOID());
 			encryptionAlgorithm = EncryptionAlgorithm.getInstance(signer.getEncryptionAlgOID());
@@ -671,7 +673,8 @@ public class CMSSignatureService
             // Verify the digital signature and choose the appropriated verifyResult
             try {
             	SignerInformationVerifier verifier = BouncyCastleUtils.buildVerifierFor ( certHolder );
-            	if ( signer.verify(verifier) ) {
+            	if ( signer.verify(certHolderConverter.getCertificate(certHolder), "BC") ) {
+//            	if ( signer.verify(verifier) ) {
         			securityLevel = minLevel ( securityLevel, VerifyResult.VALID );
             	} else {
             		securityLevel = VerifyResult.INVALID;

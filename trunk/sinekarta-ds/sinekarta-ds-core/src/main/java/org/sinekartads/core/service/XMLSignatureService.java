@@ -128,6 +128,9 @@ public class XMLSignatureService
 	    } catch(Exception e) {
 	    	throw new RuntimeException(e);
 	    }
+		if ( gblTsService == null ) {
+			gblTsService = timeStampService;
+		}
 	}
 
 	TransformerFactory tf;
@@ -349,11 +352,5 @@ public class XMLSignatureService
 	
 	
 	private static TimeStampService gblTsService;
-	
-	@Override
-	public void setTimeStampService(TimeStampService timeStampService) {
-		super.setTimeStampService(timeStampService);
-		gblTsService = timeStampService;
-	}
 
 }

@@ -32,11 +32,6 @@ public class TimeStampDTO extends BaseDTO {
 	private String reason;
 	private String location;
 	
-	/**
-	 * @deprecated ignore this field - fake field for serialization only proposes
-	 */
-	transient boolean empty;
-	
 	@Override
     public boolean isEmpty ( ) {
     	return StringUtils.isBlank ( hexTimeStampToken );

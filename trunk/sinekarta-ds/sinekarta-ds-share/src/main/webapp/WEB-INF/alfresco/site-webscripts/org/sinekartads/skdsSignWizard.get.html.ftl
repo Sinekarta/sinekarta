@@ -22,7 +22,7 @@
 <#include "skdsFieldError.ftl" />
 <#include "skdsSignWizard.head.ftl" />
 
-<#assign debug = '' />
+<#assign debug = 'C' />
 <#if debug?contains('A')>
 	<#assign arvDisplay = 'block' />
 <#else>
@@ -211,15 +211,6 @@
 				${.error}
 			</div>
 		</#attempt>
-		
-		<applet name="sinekartaApplet" code="org.sinekartads.applet.SignApplet.class"   
-			style="width: 50em; height: 35em" class="skds-panel"
-			codebase="${page.url.context}/res/components/sinekarta-ds/applet/lib" 
-			archive="sinekarta-ds-applet.jar">                
-		</applet>
-		
-		<!--/div id="${htmlid}-applet-container"> 
-		</div-->
 	</form>
 	
 </div>

@@ -48,11 +48,7 @@ public abstract class AbstractSignatureService < ST extends SignatureType<ST>,
 	static NoFilterSelector noFilterSelector =new NoFilterSelector();
 	
 	protected Class<SignatureDTO> dtoClass;
-	protected TimeStampService timeStampService;
-	
-	public void setTimeStampService(TimeStampService timeStampService) {
-		this.timeStampService = timeStampService;
-	}
+	protected TimeStampService timeStampService = new TimeStampService();
 	
 	protected VerifyResult minLevel ( VerifyResult result1, VerifyResult result2 ) {
 		if ( result1.compareTo(result2) > 0) {

@@ -51,15 +51,7 @@ public class SignatureDTO extends BaseDTO {
 	private String hexDigitalSignature;	
 	private TimeStampDTO[] timeStamps;
 	private String verifyResult;
-	/**
-	 * @deprecated ignore this field - fake field for serialization only proposes
-	 */
-	transient boolean empty;
-	/**
-	 * @deprecated ignore this field - fake field for serialization only proposes
-	 */
-	transient SignatureStatus status;
-	
+
 	@Override
     public boolean isEmpty ( ) {
     	return getStatus() == SignatureStatus.Stable.RAW;
@@ -70,6 +62,18 @@ public class SignatureDTO extends BaseDTO {
 	// -----
 	// --- Signature Status evaluation
 	// -
+
+	/**
+	 * @deprecated ignore this field - fake field for serialization only proposes
+	 */
+	protected String status;
+	
+	/**
+	 * @deprecated ignore this setter - fake field for serialization only proposes
+	 */
+	public void setStatus(String status) {
+		this.status = status;
+	}
 	
 	public SignatureStatus getStatus ( ) {
 		
@@ -81,7 +85,6 @@ public class SignatureDTO extends BaseDTO {
 		if ( ArrayUtils.isNotEmpty(hexCertificateChain))	return SignatureStatus.SignProcess.CHAIN;
 		return SignatureStatus.Stable.RAW;
 	}
-	
 	
 	
 	

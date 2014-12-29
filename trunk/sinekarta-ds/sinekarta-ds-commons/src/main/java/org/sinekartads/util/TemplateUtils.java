@@ -396,7 +396,7 @@ public abstract class TemplateUtils {
 		public static JsonConfig standardJsonConfig ( Class<?> tClass) {
 			JsonConfig jsonConfig = new JsonConfig();
 			jsonConfig.setRootClass(tClass);
-			jsonConfig.setIgnoreTransientFields(true);
+//			jsonConfig.setIgnoreTransientFields(true);
 			return jsonConfig;
 		}
 	}

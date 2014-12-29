@@ -11,10 +11,11 @@ import java.util.regex.Pattern;
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.action.ActionService;
+import org.alfresco.service.cmr.model.FileExistsException;
+import org.alfresco.service.cmr.model.FileInfo;
 import org.alfresco.service.cmr.repository.ContentReader;
 import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.ContentWriter;
-import org.alfresco.service.cmr.repository.DuplicateChildNodeNameException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthenticationService;
@@ -23,7 +24,6 @@ import org.alfresco.service.cmr.security.PersonService;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.sinekartads.alfresco.util.NodeTools;
 import org.sinekartads.dto.BaseDTO;
 import org.sinekartads.dto.ResultCode;
 import org.sinekartads.dto.domain.NodeDTO;
@@ -182,26 +182,28 @@ public abstract class BaseAlfrescoWS<Request extends BaseRequest, Response exten
 			NodeRef nodeRef;
 			Assert.isTrue( StringUtils.isNotBlank(node.getFileName()) );
 			if ( StringUtils.isBlank(node.getNodeRef()) ) {
-				nodeRef = null;
-				String fileName;
+				Assert.isTrue( StringUtils.isNotBlank(node.getParentRef()) );
+				NodeRef parentRef = new NodeRef ( node.getParentRef() );
+				String destName = node.getFileName();
+				String fileName = node.getFileName();
 				int attempt = 0;
+				nodeRef = null;
 				do {
-					fileName = node.getFileName();
 					if ( attempt > 0) {
-						Matcher mtc = Pattern.compile("^(\\.*[^\\.]+)(\\..*)$").matcher(fileName);
+						Matcher mtc = Pattern.compile("^(\\.*[^\\.]+)(\\..*)$").matcher(destName);
 						if ( mtc.find() ) {
 							fileName = String.format("%s_%d%s", mtc.group(1), attempt, mtc.group(2));
 						} else {
-							fileName = String.format("%s_%d", fileName, attempt);
+							fileName = String.format("%s_%d", destName, attempt);
 						}
 						node.setFileName(fileName);
 					}
-					try {
-						Assert.isTrue( StringUtils.isNotBlank(node.getParentRef()) );
-						NodeRef parentRef = new NodeRef ( node.getParentRef() ); 
-						nodeRef = NodeTools.createNode ( nodeService, parentRef, fileName );
-						node.setNodeRef ( nodeRef.getId() );
-					} catch(DuplicateChildNodeNameException e) {
+					if ( nodeService.getChildByName(parentRef, ContentModel.ASSOC_CONTAINS, fileName) == null ) {
+//						nodeRef = NodeTools.createNode ( nodeService, parentRef, fileName );
+						FileInfo fileInfo = serviceRegistry.getFileFolderService().create(parentRef, fileName, ContentModel.TYPE_CONTENT);
+						nodeRef = fileInfo.getNodeRef();
+						node.setNodeRef ( nodeRef.toString() );
+					} else {
 						attempt++;
 					}
 				} while ( nodeRef == null);

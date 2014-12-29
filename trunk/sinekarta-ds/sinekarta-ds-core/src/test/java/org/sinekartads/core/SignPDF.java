@@ -89,8 +89,6 @@ public class SignPDF extends SkdsTestCase {
 		OutputStream markedSignOs = null;
 		try {
 			PDFSignatureService signatureService = new PDFSignatureService();
-			TimeStampService timeStampService = new TimeStampService();
-			signatureService.setTimeStampService(timeStampService);
 			boolean applyMark = false;
 			
 			String keyStorePin = "skdscip";
