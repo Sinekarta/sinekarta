@@ -56,8 +56,6 @@ import org.sinekartads.utils.JSONUtils;
 
 public class SignCMSwithSmartCardAndDTO extends BaseIntegrationTC {
 
-	public static final String KEYSTORE_FILE	= "JENIA.p12";
-	public static final String KEYSTORE_PIN 	= "skdscip";
 	public static final String SOURCE_FILE 		= "pippo.txt";
 	public static final String SIGNED_FILE 		= "pippo_sc.txt.p7m";
 	public static final String MARKED_FILE 		= "pippo_sc.txt.m7m";
@@ -86,8 +84,8 @@ public class SignCMSwithSmartCardAndDTO extends BaseIntegrationTC {
 			String contentHex = HexUtils.encodeHex (
 					FileUtils.readFileToByteArray ( 
 							getTestResource ( SOURCE_FILE ) ) );
-			boolean applyMark = true;
-			boolean useFakeSmartCard = false;
+			boolean applyMark = false;
+			boolean useFakeSmartCard = true;
 			String driver;
 			String scPin;
 			if ( useFakeSmartCard ) {
@@ -205,12 +203,6 @@ public class SignCMSwithSmartCardAndDTO extends BaseIntegrationTC {
 				tracer.error("unable to convert the chainSignature to the DTO", e);
 				throw e;
 			}
-			
-
-			
-//			chainSignatureDTO = (SignatureDTO)SerializationUtils.deserialize(FileUtils.readFileToByteArray(new java.io.File("/home/adeprato/hex.txt")));
-			
-
 			
 			// PreSign phase - join the content with the certificate chain and evaluate the digest
 			try {

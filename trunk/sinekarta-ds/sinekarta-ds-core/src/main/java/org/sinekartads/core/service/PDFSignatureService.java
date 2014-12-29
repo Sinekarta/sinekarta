@@ -9,10 +9,13 @@ import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
+import java.security.cert.CRL;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
@@ -21,10 +24,8 @@ import org.apache.log4j.Logger;
 import org.bouncycastle.tsp.TimeStampToken;
 import org.sinekartads.core.provider.ExternalDigester;
 import org.sinekartads.core.provider.ExternalSigner;
-import org.sinekartads.model.domain.CertificateInfo;
 import org.sinekartads.model.domain.DigestInfo;
 import org.sinekartads.model.domain.PDFSignatureInfo;
-import org.sinekartads.model.domain.SecurityLevel.TimeStampVerifyResult;
 import org.sinekartads.model.domain.SecurityLevel.VerifyResult;
 import org.sinekartads.model.domain.SignDisposition;
 import org.sinekartads.model.domain.SignatureType.SignCategory;
@@ -40,9 +41,8 @@ import org.sinekartads.model.domain.Transitions.VerifiedTimeStamp;
 import org.sinekartads.model.domain.TsRequestInfo;
 import org.sinekartads.model.domain.VerifyInfo;
 import org.sinekartads.model.oid.DigestAlgorithm;
-import org.sinekartads.model.oid.EncryptionAlgorithm;
 import org.sinekartads.model.oid.SignatureAlgorithm;
-import org.sinekartads.util.TemplateUtils;
+import org.sinekartads.util.x509.X509Utils;
 import org.springframework.util.Assert;
 
 import com.itextpdf.text.DocumentException;
@@ -50,6 +50,7 @@ import com.itextpdf.text.pdf.AcroFields;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfSignatureAppearance;
 import com.itextpdf.text.pdf.PdfStamper;
+import com.itextpdf.text.pdf.security.CertificateVerification;
 import com.itextpdf.text.pdf.security.MakeSignature;
 import com.itextpdf.text.pdf.security.MakeSignature.CryptoStandard;
 import com.itextpdf.text.pdf.security.PdfPKCS7;
@@ -405,91 +406,53 @@ public class PDFSignatureService
 		PdfReader reader = null;
 		try {
 			reader = new PdfReader ( new ByteArrayInputStream(envelope) );
-			AcroFields acroField = reader.getAcroFields();
+			AcroFields acroFields = reader.getAcroFields();
 			
 //			SignDisposition.PDF signDisposition;
 //			SignatureType.PDF signType;
-			String signName;
 			PdfPKCS7 pdfPkCs7;
 			TimeStampToken rawTimeStampToken;
 			VerifiedTimeStamp timeStamp;
 			DigestAlgorithm digestAlgorithm;
-			EncryptionAlgorithm encryptionAlgorithm;
 			SignatureAlgorithm signatureAlgorithm;
 			DigestInfo digest;
-			byte[] digitalSignature;
-			X509Certificate[] certificatesChain;
-			CertificateInfo signingCertificate;
-			TimeStampVerifyResult tsVerifyResult;
+//			byte[] digitalSignature;
+			X509Certificate[] certificateChain;
 			
-			// Iterate over the signatureNames
-			List<String> signatureNames = acroField.getSignatureNames();
-			for ( int idx=0 ; idx<signatureNames.size(); idx++ ) {
-				signName = signatureNames.get(idx);
-				pdfPkCs7 = null;
-				encryptionAlgorithm = null;
-				digestAlgorithm = null;
-				certificatesChain = null;
-				signingCertificate = null;
-				signVerifyResult = null;
-				
-				try {
-					pdfPkCs7 = acroField.verifySignature ( signName, conf.getProviderName() );
-					
-					// Evaluate the signatureAlgorithm
-					digestAlgorithm = DigestAlgorithm.getInstance(pdfPkCs7.getDigestAlgorithm());
-					encryptionAlgorithm = EncryptionAlgorithm.getInstance(pdfPkCs7.getEncryptionAlgorithm());
-					signatureAlgorithm = SignatureAlgorithm.getInstance(digestAlgorithm, encryptionAlgorithm);
-					
-					// Extract and verify the timeStamp, if any
-					rawTimeStampToken = pdfPkCs7.getTimeStampToken();
-					timeStamp = timeStampService.verify(rawTimeStampToken);
-					
-					// Extract the CryptoStandard from the PdfPKCS7 
-					// TODO pdfPkCs7.getFilterSubtype()
-//					CryptoStandard subfilter = CryptoStandard.CADES;
-					
-					// Evaluate the signDisposition
-					// TODO extract the signature disposition
-//					signDisposition = SignDisposition.PDF.DETACHED;
-					
-					// Evaluate the signature type:
-					//		- CMS   CryptoStandard ->   PDF / PDF_T
-					//		- CAdES CryptoStandard -> PAdES / PAdES_T					
-//					switch ( subfilter ) {
-//						case CADES: {
-//							if ( timeStamp != null ) {
-//								signType = SignatureType.PDF.PAdES_T;
-//							} else {
-//								signType = SignatureType.PDF.PAdES;
-//							}
-//							break;
-//						}
-//						default: {
-//							if ( timeStamp != null ) {
-//								signType = SignatureType.PDF.PDF_T;
-//							} else {
-//								signType = SignatureType.PDF.PDF;
-//							}
-//						}
-//					}
-					
+	        for ( String signName : acroFields.getSignatureNames() ) {
+	        	try {
+		            pdfPkCs7 = acroFields.verifySignature(signName, "BC");
+		            
+		        	digestAlgorithm = DigestAlgorithm.getInstance(pdfPkCs7.getHashAlgorithm());
+		        	signatureAlgorithm = SignatureAlgorithm.getInstance(pdfPkCs7.getDigestAlgorithm());
+		        	rawTimeStampToken = pdfPkCs7.getTimeStampToken();
+		        	if ( rawTimeStampToken != null ) {
+		        		timeStamp = timeStampService.verify(rawTimeStampToken);
+		        	} else {
+		        		timeStamp = null;
+		        	}
 					// Instance the PDFSignatureInfo as emptySignature
 					emptySignature = new PDFSignatureInfo ( signName, 
 															signatureAlgorithm, 
 															digestAlgorithm );
+					((PDFSignatureInfo)emptySignature).setCoversWholeDocument (
+							acroFields.signatureCoversWholeDocument(signName) );
 					
 					// Extract the untrusted signature chain and generate the untrustedChainSignature
-					certificatesChain = TemplateUtils.Cast.cast ( X509Certificate.class, pdfPkCs7.getCertificates() );
-					chainSignature = emptySignature.toChainSignature(certificatesChain);
+					Certificate[] certificates = pdfPkCs7.getCertificates();
+					certificateChain = new X509Certificate[certificates.length];
+					for ( int i=0; i<certificates.length; i++ ) {
+						certificateChain[i] = X509Utils.rawX509CertificateFromEncoded ( certificates[i].getEncoded() );
+					}
+					chainSignature = emptySignature.toChainSignature(certificateChain);
 
 					// Extract the digest and generate the digestSignature
 					digest = DigestInfo.getInstance(digestAlgorithm, "fingerPrint".getBytes());
 					digestSignature = chainSignature.toDigestSignature(digest);
 					
 					// Extract the digitalSignature and generate the signedSignature 
-					digitalSignature = pdfPkCs7.getEncodedPKCS7();
-					signedSignature = digestSignature.toSignedSignature(digitalSignature);
+//					digitalSignature = pdfPkCs7.getEncodedPKCS7();
+					signedSignature = digestSignature.toSignedSignature("digitalSignature".getBytes());
 					
 					// Append the timeStamp
 					if ( timeStamp != null ) {
@@ -501,8 +464,10 @@ public class PDFSignatureService
 					}
 					
 					// Evaluate the securityLevel
-					tsVerifyResult = timeStamp.getVerifyResult();
-					if ( pdfPkCs7.verify() && (timeStamp == null || pdfPkCs7.verifyTimestampImprint()) ) { 
+		            Calendar cal = pdfPkCs7.getSignDate();
+		            Certificate[] pkc = pdfPkCs7.getCertificates();
+					boolean verified = StringUtils.isBlank ( CertificateVerification.verifyCertificate((X509Certificate)pkc[0], new ArrayList<CRL>(), cal) );
+					if ( verified ) { 
 						signVerifyResult = minLevel ( signVerifyResult, VerifyResult.VALID );
 					} else {
 						signVerifyResult = minLevel ( signVerifyResult, VerifyResult.INVALID );
