@@ -33,37 +33,11 @@ import org.sinekartads.util.HexUtils;
 
 public class SkdsSignInitWS extends BaseSignController {
 	
-//	@SuppressWarnings("unchecked")
-//	public Map<String, Object> executeImpl (
-//			WebScriptRequest req, 
-//			Status status, 
-//			Cache cache ) {
-//		
-//		String jscWizardData = getParameter ( req, IO_WIZARDJSON );
-//		String htmlid 		 = getParameter ( req, IO_HTMLID );
-//		
-//		// Default initialization at the first form visualization
-//		String[] nodeRefs = new String[] {getParameter(req, "nodeRef")};
-//		boolean applyMark = BooleanUtils.toBoolean(getParameter(req, "applyMark"));
-//		SignWizardDTO signWizard = Serialization
-//
-//		// Set the default tsSelection to NO_TIMESTAMP or DEFAULT_TIMESTAMP 
-//		if ( applyMark ) {
-//			signWizard.setTsSelection(TsSelection.DEFAULT.name());
-//		} else {
-//			signWizard.setTsSelection(TsSelection.NONE.name());
-//		}
-//		
-//		RequestContext rc = ThreadLocalRequestContext.getRequestContext();
-//		
-//	}
-//	
 	@Override
 	protected void processData ( 
 			SignWizardDTO signWizard ) 
 					throws AlfrescoException {
 		
-		// TODO assert signature status at least EMPTY into a SignatureStatus utility
 		DocumentDTO[] documents = signWizard.getDocuments();
 		SignatureDTO signature = signWizard.getSignature();
 		String[] nodeRefs = signWizard.getNodeRefs();
@@ -108,7 +82,7 @@ public class SkdsSignInitWS extends BaseSignController {
 		}
 		
 		// Choose the "octet-stream" mimeType if there is more than one type 
-		if ( sameType ) {
+		if ( !sameType ) {
 			mimetype = "application/octet-stream";
 		}
 		signWizard.setMimetype(mimetype);

@@ -28,7 +28,7 @@ public abstract class BaseSignController extends WSController<SignWizardDTO> {
 	};
 	protected static final WizardStep STEP_INIT 	= new WizardStep("skdsSignInit",     		 	"skdsSignOptions", false);
 	protected static final WizardStep STEP_OPTIONS 	= new WizardStep("skdsSignOptions",  		 	"skdsSignOptions", true);
-	protected static final WizardStep STEP_CLIENT 	= new WizardStep("skdsSignClient",   		 	"skdsSignClient",  true);
+	protected static final WizardStep STEP_CLIENT 	= new WizardStep("skdsSignClient",   		 	"skdsSignClient",  false);
 	protected static final WizardStep STEP_KSOPEN 	= new WizardStep("skdsSignCallKeyStoreOpen", 	"skdsSignClient",  false);
 	protected static final WizardStep STEP_KSREAD 	= new WizardStep("skdsSignCallKeyStoreRead",	"skdsSignClient",  false);
 	protected static final WizardStep STEP_DIGSIG 	= new WizardStep("skdsSignSetDigitalSignature", "skdsSignClient",  false);

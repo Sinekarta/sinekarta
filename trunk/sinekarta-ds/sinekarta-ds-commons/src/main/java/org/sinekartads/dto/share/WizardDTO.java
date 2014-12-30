@@ -113,6 +113,7 @@ public abstract class WizardDTO extends BaseDTO {
 	public void addActionError ( String errorMessage, Exception errorCause ) {
 		ActionErrorDTO actionError = new ActionErrorDTO ( );
 		actionError.errorMessage = errorMessage;
+		actionErrors = (ActionErrorDTO[]) ArrayUtils.add ( actionErrors, actionError );
 		// TODO serialize the errorCause to JSON and add it to the actionError
 	}
 	

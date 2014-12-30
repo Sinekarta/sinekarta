@@ -900,9 +900,9 @@
 		    		}
 		    	} else {
 		    		if ( applyMark ) {
-		    			destName += '_sign.' + extension;
-		    		} else {
 		    			destName += '_mark.' + extension;
+		    		} else {
+		    			destName += '_sign.' + extension;
 		    		}
 		    	}
 		    	

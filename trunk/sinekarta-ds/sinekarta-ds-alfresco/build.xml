@@ -108,6 +108,8 @@
 	<property name="bcprov-jdk16.jar"	value="bcprov-jdk16-1.46.jar" />
 	<property name="bcmail-jdk16.jar"	value="bcmail-jdk16-1.46.jar" />
 	<property name="bctsp-jdk16.jar"	value="bctsp-jdk16-1.46.jar" />
+	<property name="guice.jar"			value="guice*.jar" />
+	<property name="xmlsec.jar"			value="xmlsec*.jar" />
 	<property name="itext-jdk16.jar"	value="itext-jdk16*.jar" />
 	<property name="xades4j-jdk16.jar"	value="xades4j-jdk16*.jar" />
 	<property name="commons.jar"		value="sinekarta-ds-commons${version}.jar" />
@@ -165,6 +167,8 @@
 			<fileset dir="${super.dir}/sinekarta-ds-core/target/lib"		includes="${ezmorph.jar}" />
 			<fileset dir="${super.dir}/sinekarta-ds-core/target/lib"		includes="${jcl-core.jar}" />
 			<fileset dir="${super.dir}/sinekarta-ds-core/target/lib"		includes="${json-lib.jar}" />
+			<fileset dir="${super.dir}/sinekarta-ds-core/target/lib"		includes="${guice.jar}" />
+			<fileset dir="${super.dir}/sinekarta-ds-core/target/lib"		includes="${xmlsec.jar}" />
 			<fileset dir="${super.dir}/itext-jdk16/target" 					includes="${itext-jdk16.jar}" />
 			<fileset dir="${super.dir}/xades4j-jdk16/target" 				includes="${xades4j-jdk16.jar}" />
 			<fileset dir="${super.dir}/sinekarta-ds-commons/target" 		includes="${commons.jar}" />
