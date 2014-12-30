@@ -116,6 +116,9 @@ public class SkdsPostSignWS
 					
 					// Replace the signedSignature with the evaluated finalizedSignature
 					signatures [ lastIndex ] = finalizedSignature;
+					
+					// Populate the response with the updated documents
+					resp.documentsToBase64(documents);
 				} catch (Exception e) {
 					processError ( resp, e );
 				}
@@ -123,11 +126,7 @@ public class SkdsPostSignWS
 		} catch (Exception e) {
 			documents = null;
 			processError ( resp, e );
-		} finally {
-			// Populate the response with the updated documents
-			resp.documentsToBase64(documents);
 		}
-
 		return resp;
 	}
 }
