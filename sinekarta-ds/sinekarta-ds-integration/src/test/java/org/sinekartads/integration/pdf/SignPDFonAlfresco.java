@@ -14,7 +14,7 @@
  * GNU General Public License for more details.
  *
  */
-package org.sinekartads.integration.cms;
+package org.sinekartads.integration.pdf;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
@@ -78,15 +79,16 @@ import org.sinekartads.util.HexUtils;
 import org.sinekartads.util.TemplateUtils;
 import org.sinekartads.util.x509.X509Utils;
 import org.sinekartads.utils.JSONUtils;
+import org.springframework.util.Assert;
 
 
-public class TestDigitalSignature extends BaseIntegrationTC {
+public class SignPDFonAlfresco extends BaseIntegrationTC {
 	
 	static final DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 	
-	static Logger tracer = Logger.getLogger(SignCMSwithSmartCardAndDTO.class);
+	static Logger tracer = Logger.getLogger(SignPDFonAlfresco.class);
 	
-	private static final String SOURCE_REF 		= "workspace://SpacesStore/82f59afc-9deb-4fc6-b1b6-78da98bbbf20"; 
+	private static final String SOURCE_REF 		= "workspace://SpacesStore/4f1fe6b3-eca6-4247-b298-79111af62834"; 
 	
 	private static final int 	PORT = 8080;
 	private static final String HOST_NAME = "localhost";
@@ -106,7 +108,7 @@ public class TestDigitalSignature extends BaseIntegrationTC {
 			
 			// Main options
 			boolean applyMark = false;
-			boolean useFakeSmartCard = true;
+			boolean useFakeSmartCard = false;
 			String driver;
 			String scPin;
 			if ( useFakeSmartCard ) {
@@ -190,11 +192,12 @@ public class TestDigitalSignature extends BaseIntegrationTC {
 				} else {
 					throw new Exception(detailsResp.getMessage());
 				}
-				String fileName = documents[0].getBaseDocument().getFileName();
+				Assert.isTrue ( StringUtils.equals(documents[0].getBaseDocument().getMimetype(), "application/pdf"));
+				String baseName = FilenameUtils.getBaseName(documents[0].getBaseDocument().getFileName());
 				if ( applyMark ) {
-					documents[0].setDestName(fileName + ".m7m");
+					documents[0].setDestName(baseName + "_mrk.pdf");
 				} else {
-					documents[0].setDestName(fileName + ".p7m");
+					documents[0].setDestName(baseName + "_sgn.pdf");
 				}
 			} catch(Exception e) {
 				tracer.error("error during the pre sign phase", e);
@@ -205,7 +208,10 @@ public class TestDigitalSignature extends BaseIntegrationTC {
 			emptySignatureDTO = new SignatureDTO ( );
 			emptySignatureDTO.setSignAlgorithm(conf.getSignatureAlgorithm().getName());
 			emptySignatureDTO.setDigestAlgorithm(conf.getDigestAlgorithm().getName());
-			emptySignatureDTO.signCategoryToString(SignCategory.CMS);
+			emptySignatureDTO.signCategoryToString(SignCategory.PDF);
+			emptySignatureDTO.setPdfSignName("Signature");
+			emptySignatureDTO.setPdfRevision("1");
+			emptySignatureDTO.pdfCoversWholeDocumentToString(true);
 			
 			// Add to the empty signature the timeStamp request if needed
 			TimeStampRequestDTO tsRequestDTO = new TimeStampRequestDTO ();
