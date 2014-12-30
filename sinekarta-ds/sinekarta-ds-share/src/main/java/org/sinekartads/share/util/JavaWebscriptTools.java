@@ -207,6 +207,8 @@ public class JavaWebscriptTools {
 				throw new AlfrescoException(message, code);
 			}
 			return response;
+		} catch(AlfrescoException e) {
+			throw e;
 		} catch(Exception e) {
 			message = e.getMessage();
 			if ( StringUtils.isBlank(message) ) {

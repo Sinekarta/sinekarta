@@ -19,5 +19,4 @@
 <#include "/org/alfresco/include/alfresco-macros.lib.ftl" />
 <#assign el=htmlid?js_string>
 
-		<label>${msg("label.success")}</label>
-
+<label>${msg("label.success")}</label>

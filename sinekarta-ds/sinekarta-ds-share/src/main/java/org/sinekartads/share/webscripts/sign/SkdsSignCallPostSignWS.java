@@ -32,33 +32,35 @@ public class SkdsSignCallPostSignWS extends BaseSignController {
 	public void setConnectorService(ConnectorService connectorService) {
 		this.connectorService = connectorService;
 	}
-	
-	private static Logger tracer = Logger.getLogger(SkdsSignCallPostSignWS.class);
+
+	private static Logger tracer = Logger
+			.getLogger(SkdsSignCallPostSignWS.class);
 
 	@Override
-	protected void processData (
-			SignWizardDTO dto ) 
-					throws AlfrescoException {
-		
+	protected void processData(SignWizardDTO dto) throws AlfrescoException {
+
 		try {
 			DocumentDTO[] documents = dto.getDocuments();
 			String sessionId = dto.getSessionId();
-			
-			SignatureClientType clientType	= SignatureClientType.valueOf(dto.getClientType());
-			SignatureClientCtrl<?> client = clientFactory.getSignatureCtrl(sessionId, clientType);
-		
+
+			SignatureClientType clientType = SignatureClientType.valueOf(dto
+					.getClientType());
+			SignatureClientCtrl<?> client = clientFactory.getSignatureCtrl(
+					sessionId, clientType);
+
 			documents = client.sign(documents);
-		
-	    	// call the postSign service	
-	    	SkdsPostSignRequest postreq = new SkdsPostSignRequest();
-	    	postreq.documentsToBase64(documents);
-	    	SkdsPostSignResponse dsiresp = postJsonRequest ( postreq, SkdsPostSignResponse.class );
-	    	documents = dsiresp.documentsFromBase64();
-	    	
-	    	// take the updated documentDtos
-	    	dto.setDocuments(documents);
-    	
-		} catch ( DigitalSignatureException e ) {
+
+			// call the postSign service
+			SkdsPostSignRequest postreq = new SkdsPostSignRequest();
+			postreq.documentsToBase64(documents);
+			SkdsPostSignResponse dsiresp = postJsonRequest(postreq,
+					SkdsPostSignResponse.class);
+			documents = dsiresp.documentsFromBase64();
+
+			// take the updated documentDtos
+			dto.setDocuments(documents);
+
+		} catch (DigitalSignatureException e) {
 			processError(dto, e);
 		}
 	}
