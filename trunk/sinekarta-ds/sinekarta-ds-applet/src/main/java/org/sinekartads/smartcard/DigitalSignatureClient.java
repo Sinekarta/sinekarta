@@ -36,6 +36,7 @@ public class DigitalSignatureClient {
 	private String driver;
 	private String pin;
 	private String alias;
+	private String[] aliases;
 	private ISmartCardAccess sca;
 	
 	public DigitalSignatureClient() {
@@ -73,10 +74,10 @@ public class DigitalSignatureClient {
 	
 	public String[] certificateList() throws SmartCardAccessException {
 		try {
-			verifyDriver();
 			tracer.info(String.format("loginWithPin"));
 			tracer.info(String.format("pin:    %s", pin));
-			return sca.login ( pin );
+			aliases = sca.loginAndCertificateList( pin );
+			return aliases;
 		} catch (SmartCardAccessException e) {
 			pin = null;
 			throw e;
@@ -85,7 +86,9 @@ public class DigitalSignatureClient {
 	
 	public X509Certificate selectCertificate () throws SmartCardAccessException {
 		try {
-			String[] aliases = certificateList ();
+			if ( ArrayUtils.isEmpty(aliases) ) {
+				certificateList();
+			}
 			if ( ArrayUtils.isNotEmpty(aliases) ) {
 				if ( ArrayUtils.contains(aliases, alias) ) {
 					return sca.selectCertificate ( alias );

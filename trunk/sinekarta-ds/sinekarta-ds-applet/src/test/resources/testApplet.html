@@ -1,0 +1,71 @@
+<html>
+<head>
+<script type="text/javascript">
+	skds_callback=null;
+	function skds_test_alert(message){
+		alert(message);
+	}
+	function skds_checkDo() {
+		return document.getElementById("skds-applet-do").value;
+	}
+	function skds_setDoing() {
+		document.getElementById("skds-applet-do").value="doing";
+	}
+	function skds_setDone() {
+		document.getElementById("skds-applet-do").value="done";
+	}
+	function skds_getFunction() {
+		return document.getElementById("skds-applet-function").value;
+	}
+	function skds_getParms() {
+		return document.getElementById("skds-applet-parms").value;
+	}
+	function skds_setResp(response) {
+		document.getElementById("skds-applet-resp").value=response;
+	}
+	function skds_execFunction(func, param, callback) {
+		skds_callback=callback;
+		document.getElementById("skds-applet-do").value="do";
+		document.getElementById("skds-applet-function").value=func;
+		document.getElementById("skds-applet-parms").value=param;
+	}
+	function checkDone(){ 
+		try {
+			if (document.getElementById("skds-applet-do").value=='done') {
+				document.getElementById("skds-applet-do").value='';
+				if (skds_callback!=null) {
+					skds_callback();
+					skds_callback=null;
+				}
+			}
+		} catch(error) {
+			alert("error : " + error);
+		}
+		window.setTimeout(checkDone,30);
+	}
+	window.setTimeout(checkDone,30);
+</script>
+<script type="text/javascript">
+	function testcall() {
+		skds_execFunction("aaa","bbb",function(){mycallback("ccc")});
+	}
+	function mycallback(parm) {
+		alert(parm);
+	}
+</script>
+
+</head>
+<body>
+<p>Test Applet</p>
+<hr/>
+<applet name="sinekartaApplet" code="org.sinekartads.smartcard.applet.TestApplet.class" width="60" height="35" 
+codebase="." 
+archive="test-applet.jar">
+</applet>
+<input type="text" id="skds-applet-do" value="">
+<input type="text" id="skds-applet-function" value="">
+<input type="text" id="skds-applet-parms" value="">
+<input type="text" id="skds-applet-resp" value="">
+<a href="#" onclick="testcall();">go</a>
+</body>
+</html>

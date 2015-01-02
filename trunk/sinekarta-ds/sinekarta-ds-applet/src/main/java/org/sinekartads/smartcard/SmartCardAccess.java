@@ -34,8 +34,6 @@ import iaik.pkcs.pkcs11.objects.X509PublicKeyCertificate;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateFactory;
@@ -76,46 +74,17 @@ public class SmartCardAccess implements ISmartCardAccess {
 
 	public void selectDriver(String pkcs11Driver) throws SmartCardAccessException {
 		tracer.info(String.format("selectDriver - %s", pkcs11Driver));
-		class MyPrivilegedAction implements PrivilegedAction<Exception> {
-			private String pkcs11Driver;
-
-			public MyPrivilegedAction(String pkcs11Driver) {
-				super();
-				this.pkcs11Driver = pkcs11Driver;
-			}
-
-			public Exception run() {
-				try {
-					iaikPKCS11Module = Module.getInstance(pkcs11Driver);
-					return null;
-				} catch (IOException e) {
-					return new PKCS11DriverNotFoundException(
-							"Unable to find driver: " + pkcs11Driver, e);
-				} catch (Throwable e) {
-					return new InvalidPKCS11DriverException(
-							"Invalid pkcs11 driver: " + pkcs11Driver, e);
-				}
-			}
+		try {
+			iaikPKCS11Module = Module.getInstance(pkcs11Driver);
+		} catch (IOException e) {
+			tracer.error("driver not found", e);
+			throw new PKCS11DriverNotFoundException(
+					"Unable to find driver: " + pkcs11Driver, e);
+		} catch (Throwable e) {
+			tracer.error("driver error", e);
+			throw new InvalidPKCS11DriverException(
+					"Invalid pkcs11 driver: " + pkcs11Driver, e);
 		}
-		MyPrivilegedAction action = new MyPrivilegedAction(pkcs11Driver);
-		tracer.info(String.format("running the action..."));
-		Exception ex = AccessController.doPrivileged(action);
-		tracer.info(String.format("action performed."));
-		if (ex != null) {
-			tracer.info(String.format("action ended with error: ",
-					ex.getMessage()));
-			if (ex instanceof PKCS11DriverNotFoundException) {
-				tracer.error("driver not found", ex);
-				throw (PKCS11DriverNotFoundException) ex;
-			} else if (ex instanceof InvalidPKCS11DriverException) {
-				tracer.error("driver error", ex);
-				throw (InvalidPKCS11DriverException) ex;
-			} else {
-				tracer.error("generic error", ex);
-				throw new SmartCardAccessException(ex);
-			}
-		}
-
 		if (iaikPKCS11Module == null) {
 			tracer.error("pkcs11 driver not found");
 			throw new PKCS11DriverNotFoundException("pkcs11 driver not found");
@@ -185,8 +154,7 @@ public class SmartCardAccess implements ISmartCardAccess {
 		}
 	}
 
-	public String[] login(String pin) throws SmartCardAccessException {
-
+	public void login(String pin) throws SmartCardAccessException {
 		// Execute the login
 		if (iaikSmartCardInfo.isLoginRequired()) {
 			try {
@@ -211,7 +179,14 @@ public class SmartCardAccess implements ISmartCardAccess {
 				throw new SmartCardAccessException("Generic error, Login failed", e);
 			}
 		}
+	}
+	
+	public String[] loginAndCertificateList(String pin) throws SmartCardAccessException {
+		login(pin);
+		return certificateList();
+	}
 
+	public String[] certificateList() throws SmartCardAccessException {
 		// Parse the certificate aliases
 		String alias;
 		List<String> aliases = new ArrayList<String>();
@@ -227,7 +202,7 @@ public class SmartCardAccess implements ISmartCardAccess {
 		// return the aliases as an array
 		return aliases.toArray(new String[aliases.size()]);
 	}
-
+	
 	public X509Certificate selectCertificate(String alias) throws SmartCardAccessException {
 		if (iaikSession == null) {
 			tracer.error("Session not initialized, login before");
