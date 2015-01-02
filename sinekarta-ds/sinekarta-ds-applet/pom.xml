@@ -63,11 +63,27 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		<dependency>
+		  <groupId>sun.plugin</groupId>
+		  <artifactId>plugin</artifactId>
+		  <version>1.6</version>
+		  <scope>system</scope>
+		  <systemPath>${java.home}/lib/plugin.jar</systemPath>
+		</dependency>
 
 	</dependencies>
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
@@ -97,8 +113,8 @@
 							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 						</manifest>
 						<manifestEntries>
-							<Trusted-Library>true</Trusted-Library>
-							<Trusted-Only>true</Trusted-Only>
+ 							<Trusted-Library>true</Trusted-Library>
+ 							<Trusted-Only>true</Trusted-Only>
 					    	<Permissions>all-permissions</Permissions>
 					    	<Application-Name>sinekarta-ds</Application-Name>
 					    	<Caller-Allowable-Codebase>*</Caller-Allowable-Codebase>

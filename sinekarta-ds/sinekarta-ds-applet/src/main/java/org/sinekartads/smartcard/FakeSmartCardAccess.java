@@ -65,15 +65,22 @@ public class FakeSmartCardAccess implements ISmartCardAccess {
 		}
 	}
 	
-	public String[] login ( String pin ) throws IllegalStateException, InvalidPinException, PinLockedException, SmartCardAccessException {
-
+	public String[] loginAndCertificateList ( String pin ) throws IllegalStateException, InvalidPinException, PinLockedException, SmartCardAccessException {
+		login(pin);
+		return certificateList();
+	}
+	
+	public void login(String pin) throws IllegalStateException, SmartCardAccessException {
 		if ( !StringUtils.equals(pin, FakeSmartCardAccess.FAKE_PIN) ) { 
 			tracer.error(String.format("pin for the fake smartCard: %s", FAKE_PIN));
 			throw new InvalidPinException(String.format("pin for the fake smartCard: %s", FAKE_PIN));
 		}
+	}
+
+	public String[] certificateList() throws IllegalStateException, SmartCardAccessException {
 		return certChains.keySet().toArray(new String[certChains.size()]);
 	}
-	
+
 	public X509Certificate selectCertificate(String userAlias) throws CertificateListException {
 		
 		try {

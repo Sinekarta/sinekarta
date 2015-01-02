@@ -18,7 +18,6 @@
  */
 package org.sinekartads.applet;
 
-import java.applet.Applet;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
@@ -37,9 +36,15 @@ import org.sinekartads.smartcard.DigitalSignatureClient;
 import org.sinekartads.utils.JSONUtils;
 import org.sinekartads.utils.X509Utils;
 
-public class SignApplet extends Applet {
+public class SignApplet extends BaseApplet {
 
+	private static final String FUNCTION_SIGN_DIGEST = "signDigest";
+	private static final String FUNCTION_SELECT_CERTIFICATE = "selectCertificate";
+	private static final String FUNCTION_LOGIN = "login";
+	private static final String FUNCTION_SELECT_DRIVER = "selectDriver";
+	
 	private static final long serialVersionUID = -2886113966359858032L;
+	
 	private static final Logger tracer = Logger.getLogger(SignApplet.class);
 	
 	private transient DigitalSignatureClient digitalSignatureClient;
@@ -47,15 +52,66 @@ public class SignApplet extends Applet {
 	@Override
 	public void init ( ) {
 		tracer.info("Initializing the signing applet.");
-		digitalSignatureClient = new DigitalSignatureClient();
+		super.init();
 	}
 	
+	@Override
+	public void destroy() {
+		if (digitalSignatureClient!=null) {
+			try {
+				digitalSignatureClient.close();
+			} catch (SmartCardAccessException e) {
+				// nothing to do..
+			}
+		}
+		super.destroy();
+		tracer.info("signing applet destroyed");
+	}
+		
+	@Override
+	public void stop() {
+		tracer.info("stop requested");
+		if (digitalSignatureClient!=null) {
+			try {
+				digitalSignatureClient.close();
+			} catch (SmartCardAccessException e) {
+				// nothing to do..
+			}
+		}
+		super.stop();
+		tracer.info("stop done");
+	}
+
+	@Override
+	public String execFunction(String function, String param) {
+		if (function.equals(FUNCTION_SELECT_DRIVER)) {
+			return selectDriver(param);
+		} else if (function.equals(FUNCTION_LOGIN)) {
+			return login(param);
+		} else if (function.equals(FUNCTION_SELECT_CERTIFICATE)) {
+			return selectCertificate(param);
+		} else if (function.equals(FUNCTION_SIGN_DIGEST)) {
+			return signDigest(param);
+		}
+		return null;
+	}
+
 	public String selectDriver ( String driver ) {
 		driver = StringUtils.trim(driver);
-		tracer.info("selectDriver");
+		if (digitalSignatureClient==null) {
+			digitalSignatureClient = new DigitalSignatureClient();
+		} else {
+			try {
+				digitalSignatureClient.close();
+			} catch (SmartCardAccessException e) {
+				// nothing to do..
+			}
+		}
+
+		tracer.info(FUNCTION_SELECT_DRIVER);
 		tracer.info(String.format("driver: %s", driver));
 		
-		AppletResponseDTO resp = new AppletResponseDTO ( "selectDriver" );
+		AppletResponseDTO resp = new AppletResponseDTO ( FUNCTION_SELECT_DRIVER );
 		try {
 			digitalSignatureClient.setDriver(driver);
 			digitalSignatureClient.open();
@@ -79,12 +135,6 @@ public class SignApplet extends Applet {
 		} catch (Throwable e) {
 			tracer.error(e.getMessage(), e);
 			resp.addActionError("Exception SmartCard - "+e.getMessage(), e);
-		} finally {
-			try {
-				digitalSignatureClient.close();
-			} catch (SmartCardAccessException e) {
-				// nothing to do..
-			}
 		}
 		
 		tracer.info(String.format("respJSON: %s", JSONUtils.serializeJSON ( resp )));
@@ -93,13 +143,12 @@ public class SignApplet extends Applet {
 	
 	public String login ( String pin ) {
 		pin = StringUtils.trim(pin);
-		tracer.info("login");
+		tracer.info(FUNCTION_LOGIN);
 		tracer.info(String.format("pin:    %s", pin));
 		
-		AppletResponseDTO resp = new AppletResponseDTO ( "login" );
+		AppletResponseDTO resp = new AppletResponseDTO ( FUNCTION_LOGIN );
 		try {
 			digitalSignatureClient.setPin(pin);
-			digitalSignatureClient.open();
 			String[] aliases = digitalSignatureClient.certificateList ();
 			if ( ArrayUtils.isNotEmpty(aliases) ) {
 				String aliasesJSON = JSONUtils.serializeJSON ( aliases );
@@ -117,12 +166,6 @@ public class SignApplet extends Applet {
 		} catch (Throwable e) {
 			tracer.error("login fallito a causa di un errore interno", e);
 			resp.addFieldError("scPin", "login fallito a causa di un errore interno");
-		} finally {
-			try {
-				digitalSignatureClient.close();
-			} catch (SmartCardAccessException e) {
-				// nothing to do..
-			}
 		}
 		
 		tracer.info(String.format("respJSON: %s", JSONUtils.serializeJSON(resp)));
@@ -131,13 +174,12 @@ public class SignApplet extends Applet {
 	
 	public String selectCertificate ( String alias ) {
 		alias = StringUtils.trim(alias);
-		tracer.info("selectCertificate");
+		tracer.info(FUNCTION_SELECT_CERTIFICATE);
 		tracer.info(String.format("alias:  %s", alias));
 		
-		AppletResponseDTO resp = new AppletResponseDTO ( "selectCertificate" );
+		AppletResponseDTO resp = new AppletResponseDTO ( FUNCTION_SELECT_CERTIFICATE );
 		try {
 			digitalSignatureClient.setAlias(alias);
-			digitalSignatureClient.open();
 			X509Certificate signingCertificate = digitalSignatureClient.selectCertificate();
 			if ( signingCertificate != null ) {
 				resp.setResult ( X509Utils.rawX509CertificateToHex(signingCertificate) );
@@ -151,12 +193,6 @@ public class SignApplet extends Applet {
 		} catch (Throwable e) {
 			tracer.error("scelta certificato fallita a causa di un errore interno", e);
 			processError(resp, "scelta certificato fallita a causa di un errore interno", e);
-		} finally {
-			try {
-				digitalSignatureClient.close();
-			} catch (SmartCardAccessException e) {
-				// nothing to do..
-			}
 		}
 		
 		tracer.info(String.format("respJSON: %s", JSONUtils.serializeJSON( resp )));
@@ -165,31 +201,20 @@ public class SignApplet extends Applet {
 	
 	public String signDigest ( String hexDigest ) {
 		hexDigest = StringUtils.trim(hexDigest);
-		tracer.info("signDigest");
+		tracer.info(FUNCTION_SIGN_DIGEST);
 		
-		AppletResponseDTO resp = new AppletResponseDTO ( "signDigest" );
+		AppletResponseDTO resp = new AppletResponseDTO ( FUNCTION_SIGN_DIGEST );
 		try {
-			digitalSignatureClient.open();
 			resp.setResult (digitalSignatureClient.sign(hexDigest));
 		} catch (Exception e) {
 			tracer.error("errore rilevato nell'applicazione della firma digitale da SmartCard", e);
 			processError ( resp, "errore rilevato nell'applicazione della firma digitale da SmartCard", e);
-		} finally {
-			try {
-				digitalSignatureClient.close();
-			} catch (SmartCardAccessException e) {
-				// nothing to do..
-			}
 		}
 		
 		tracer.info(String.format("respJSON: %s", JSONUtils.serializeJSON ( resp )));
 		return JSONUtils.serializeJSON(resp);
 	}
 	
-	public void destroy() {
-		tracer.info("signing applet destroyed");
-	}
-		
 	private void processError ( AppletResponseDTO resp, String errorMessage, Throwable errorCause ) {
 		if ( StringUtils.isBlank(errorMessage) ) {
 			errorMessage = errorCause.getClass().getName();
@@ -197,4 +222,5 @@ public class SignApplet extends Applet {
 		resp.addActionError(errorMessage, errorCause);
 		tracer.error(errorMessage, errorCause);
 	}
+
 }

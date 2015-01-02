@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+
+<project name="test-applet" default="prepare-jar" basedir=".">
+	
+	<!-- verbose activation - if true, the ant task will plot their operations -->
+	<property name="verbose" 				value="false" />
+	<!-- project name - used to generate the JAR and AMP names -->
+	<property name="project.name" 		value="sinekarta-ds-applet" />
+
+	<!-- Project structure -->
+	
+	<!-- base locations -->
+	<property name="workspace.dir" 		value="../.." />
+	<property name="super.dir"    		value=".." />
+	<property name="project.dir"	 	value="." />
+	<property name="source.dir"  		value="${project.dir}/src" />
+	<property name="target.dir"   		value="${project.dir}/target" />
+	<property name="test.dir"   		value="${target.dir}/test-applet" />
+	
+	<!-- general resources -->
+	<property name="java.dir"    		value="${source.dir}/main/java" />
+	<property name="resources.dir" 		value="${source.dir}/main/resources" />
+	<property name="webapp.dir"    		value="${source.dir}/main/webapp" />
+
+	<property name="test.java.dir" 		value="${source.dir}/test/java" />
+	<property name="test.resources.dir" value="${source.dir}/test/resources" />
+
+	<!-- sinekarta-ds modules -->
+	<property name="test.applet.jar"			value="test-applet.jar" />
+	
+	<!-- package-amp - generate the amp and store it into ${target.dir}/dist --> 
+	<target name="prepare-jar">
+		<delete includeemptydirs="true" dir="${test.dir}"/>
+		<mkdir dir="${test.dir}" />
+		<copy toDir="${test.dir}" file="${test.resources.dir}/testApplet.html"/>
+		<jar destfile="${test.dir}/${test.applet.jar}">
+		    <fileset dir="${target.dir}/classes" excludes="**/log4j.properties"/>
+		    <fileset dir="${target.dir}/test-classes"/>
+			<zipfileset includes="**/*.*" src="${target.dir}/lib/log4j-1.2.15.jar">
+				<exclude name="META-INF/MANIFEST.MF"/>
+				<exclude name="META-INF/LICENSE.txt"/>
+				<exclude name="META-INF/NOTICE.txt"/>
+				<exclude name="META-INF/maven/**/*.*"/>
+			</zipfileset>
+<!--			<zipfileset includes="**/*.*" src="${target.dir}/lib/plugin.jar">
+				<exclude name="META-INF/MANIFEST.MF"/>
+				<exclude name="META-INF/LICENSE.txt"/>
+				<exclude name="META-INF/NOTICE.txt"/>
+				<exclude name="META-INF/maven/**/*.*"/>
+			</zipfileset>
+	-->		<manifest>
+			      <attribute name="Permissions" value="all-permissions"/>
+			      <attribute name="Application-Name" value="sinekarta-ds"/>
+			      <attribute name="Caller-Allowable-Codebase" value="localhost * file://"/>
+			      <attribute name="Application-Library-Allowable-Codebase" value="*"/>
+			      <attribute name="Codebase" value="*"/>
+			</manifest>
+		</jar>
+		<signjar jar="${test.dir}/${test.applet.jar}" 
+				signedjar="${test.dir}/${test.applet.jar}"
+				lazy="false"
+				alias="id di jenia software a comodo ca limited" 
+				keypass="jenia"
+				storepass="jenia"
+				storetype="PKCS12"
+				keystore="${workspace.dir}/JENIA_Software.p12"
+				sigalg="SHA256withRSA"
+		    	digestalg="SHA-256"/>
+		
+	</target>
+	
+</project>

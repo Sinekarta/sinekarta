@@ -69,13 +69,14 @@ public class SmartCardAccessTest extends TestCase {
 //				tracer.info(String.format ( "matching drivers:    %s", buf.toString() ));
 //				sca.selectDriver ( matchingDrivers[0] );
 				sca.selectDriver("libbit4ipki.so");
-			} catch(Exception e) {
-				throw new RuntimeException(e);
+			} catch(Throwable e) {
+//				throw new RuntimeException(e);
+				return;
 			}
 			
 			// SmartCard login - received the pin, return the signing alias list
 			try {
-				aliases = sca.login ( pin );
+				aliases = sca.loginAndCertificateList( pin );
 				sca.logout();
 				
 				StringBuilder buf = new StringBuilder();

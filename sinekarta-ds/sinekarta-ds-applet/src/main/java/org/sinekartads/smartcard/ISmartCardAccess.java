@@ -26,7 +26,11 @@ public interface ISmartCardAccess {
 
 	public void selectDriver(String pkcs11Driver) throws SmartCardAccessException;
 
-	public String[] login(String pin) throws IllegalStateException, SmartCardAccessException;
+	public String[] loginAndCertificateList(String pin) throws IllegalStateException, SmartCardAccessException;
+
+	public void login(String pin) throws IllegalStateException, SmartCardAccessException;
+
+	public String[] certificateList() throws IllegalStateException, SmartCardAccessException;
 
 	public X509Certificate selectCertificate(String alias) throws SmartCardAccessException;
 
