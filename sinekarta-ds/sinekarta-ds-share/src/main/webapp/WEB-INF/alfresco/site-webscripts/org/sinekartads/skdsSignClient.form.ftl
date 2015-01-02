@@ -74,15 +74,28 @@
 				<label>${msg("group.clientType.SMARTCARD")}</label>
 		    </div>
 		    <div id="${htmlid}-clientType-SMARTCARD-body" class="skds-group-body">
-		    	<label>${msg("label.clientType.SMARTCARD")}</label>
 		    	<div>
-		    		<div style="float:right; position: relative; top: 0px; right:0em; height: 100%">
-						<applet name="sinekartaApplet" code="org.sinekartads.applet.SignApplet.class"
-							width="6em" height="2em"    
-							codebase="${page.url.context}/res/components/sinekarta-ds/applet/lib" 
-							archive="sinekarta-ds-applet.jar">                
-						</applet>
-					</div>
+		    		<div id="${htmlid}-clientType-SMARTCARD-enabled">
+						<div class="skds-datarow">
+							<span class="skds-data-caption" style="text-align: left; width:80% !important">
+						    	<label>${msg("label.clientType.SMARTCARD")}</label>
+							</span>
+							<span class="skds-data-input" style="width:20% !important">
+								<applet name="sinekartaApplet" code="org.sinekartads.applet.SignApplet.class"
+									width="60" height="35"     
+									codebase="${page.url.context}/res/components/sinekarta-ds/applet/lib" 
+									archive="sinekarta-ds-applet.jar">                
+								</applet>
+								<!-- applet communication -->
+								<input type="hidden" id="skds-applet-do" value=""/>
+								<input type="hidden" id="skds-applet-function" value=""/>
+								<input type="hidden" id="skds-applet-parms" value=""/>
+								<input type="hidden" id="skds-applet-resp" value=""/>
+							</span>
+					    </div>
+				    </div>
+			    </div>
+		    	<div>
 		    		<div id="${htmlid}-clientType-SMARTCARD-enabled">
 						<!-- wscWizardData.scDriver -->
 						<div class="skds-datarow">
