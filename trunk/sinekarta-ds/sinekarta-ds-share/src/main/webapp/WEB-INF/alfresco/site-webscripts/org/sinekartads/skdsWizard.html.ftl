@@ -207,4 +207,10 @@
 		codebase="${page.url.context}/res/components/sinekarta-ds/applet/lib" 
 		archive="sinekarta-ds-applet.jar">                
 	</applet>
+	<!-- applet communication -->
+	<input type="hidden" id="skds-applet-do" value=""/>
+	<input type="hidden" id="skds-applet-function" value=""/>
+	<input type="hidden" id="skds-applet-parms" value=""/>
+	<input type="hidden" id="skds-applet-resp" value=""/>
+	
 </div>

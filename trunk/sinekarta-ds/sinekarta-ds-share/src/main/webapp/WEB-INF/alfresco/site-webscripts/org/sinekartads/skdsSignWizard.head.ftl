@@ -213,6 +213,59 @@
 </style>
 <!--link   type="text/css" 	  href="${url.context}/css/skds-webscripts.css" rel="stylesheet"-->
 
+<script type="text/javascript">
+	skds_callback=null;
+	function skds_test_alert(message){
+		alert(message);
+	}
+	function skds_checkDo() {
+		return document.getElementById("skds-applet-do").value;
+	}
+	function skds_setDoing() {
+		document.getElementById("skds-applet-do").value="doing";
+	}
+	function skds_setDone() {
+		document.getElementById("skds-applet-do").value="done";
+	}
+	function skds_getFunction() {
+		return document.getElementById("skds-applet-function").value;
+	}
+	function skds_getParms() {
+		return document.getElementById("skds-applet-parms").value;
+	}
+	function skds_setResp(response) {
+		document.getElementById("skds-applet-resp").value=response;
+	}
+	function skds_getResp() {
+		return document.getElementById("skds-applet-resp").value;
+	}
+	function skds_execFunction(func, param, callback) {
+		skds_callback=callback;
+		document.getElementById("skds-applet-do").value="do";
+		document.getElementById("skds-applet-function").value=func;
+		document.getElementById("skds-applet-parms").value=param;
+	}
+	function skds_checkDone(){ 
+		try {
+			if (document.getElementById("skds-applet-do").value=='done') {
+				document.getElementById("skds-applet-do").value='';
+				if (skds_callback!=null) {
+					try {
+						skds_callback();
+					} catch(ex) {
+						alert("error on callback : " + ex);
+					}
+					skds_callback=null;
+				}
+			}
+			window.setTimeout(skds_checkDone,30);
+		} catch(error) {
+	//		alert("error : " + error);
+		}
+	}
+	window.setTimeout(skds_checkDone,30);
+</script>
+
 <script type="text/javascript">//<![CDATA[
 
 	/**
@@ -799,17 +852,21 @@
 				var signature = this.wizardData.documents[0].signatures[last];
 				var hexFingerPrint = signature.digest.hexFingerPrint;
 				this.info ( 'applySignatureSmartCard', 'fingerPrint: ' + signature.digest.hexFingerPrint );
-				var appletResponseJSON = document.sinekartaApplet.signDigest ( hexFingerPrint );
-				var appletResultJSON = this.parseAppletResponse ( appletResponseJSON );
-				if ( appletResultJSON !== undefined ) {
-					signature.hexDigitalSignature = appletResultJSON;  
-					this.updateWizardDataView ( );
-					this.info ( 'applySignatureSmartCard', 'digsig:    ' + signature.hexDigitalSignature );
-					this.callFormOperation ( 'skdsSignSetDigitalSignature', 
-							['skdsSignCallPostSign', 'skdsSignResults'] );
-				} else {
-					this.error ( 'refresh', 'unexpected response: ' + appletResultJSON );
-				}
+				skds_execFunction("signDigest",hexFingerPrint,function(){
+				
+	//				var appletResponseJSON = document.sinekartaApplet.signDigest ( hexFingerPrint );
+					var appletResponseJSON = skds_getResp();
+					var appletResultJSON = Alfresco_skds.parseAppletResponse ( appletResponseJSON );
+					if ( appletResultJSON !== undefined ) {
+						signature.hexDigitalSignature = appletResultJSON;  
+						Alfresco_skds.updateWizardDataView ( );
+						Alfresco_skds.info ( 'applySignatureSmartCard', 'digsig:    ' + signature.hexDigitalSignature );
+						Alfresco_skds.callFormOperation ( 'skdsSignSetDigitalSignature', 
+								['skdsSignCallPostSign', 'skdsSignResults'] );
+					} else {
+						Alfresco_skds.error ( 'refresh', 'unexpected response: ' + appletResultJSON );
+					}
+				});
 			},
 			
 			
@@ -1052,17 +1109,20 @@
 		    	this.updateWizardDataView ( );
 		    	
 		    	var driver = this.wizardData.scDriver;
-		    	var appletResponseJSON = document.sinekartaApplet.selectDriver ( this.wizardData.scDriver );
-				var appletResultJSON = this.parseAppletResponse ( appletResponseJSON );
-				if ( appletResultJSON === undefined ) {
-					this.error ( 'refresh', 'unexpected response: ' + appletResultJSON );
-				}
-				
-				document.getElementById("${htmlid}-scPin").value = '';
-				this.wizardData.scPin = '';
-				this.wizardData.scAliases = new Array();
-				this.wizardData.scUserAlias = '';
-				this.updateScUserAliasSelect ( );
+		    	skds_execFunction("selectDriver",this.wizardData.scDriver,function(){
+//			    	var appletResponseJSON = document.sinekartaApplet.selectDriver ( Alfresco_skds.wizardData.scDriver );
+					var appletResponseJSON = skds_getResp();
+					var appletResultJSON = Alfresco_skds.parseAppletResponse ( appletResponseJSON );
+					if ( appletResultJSON === undefined ) {
+						Alfresco_skds.error ( 'refresh', 'unexpected response: ' + appletResultJSON );
+					}
+					
+					document.getElementById("${htmlid}-scPin").value = '';
+					Alfresco_skds.wizardData.scPin = '';
+					Alfresco_skds.wizardData.scAliases = new Array();
+					Alfresco_skds.wizardData.scUserAlias = '';
+					Alfresco_skds.updateScUserAliasSelect ( );
+				});
 		    },
 		    
 			onScPinChange: function skds_onScPinChange ( ) {
@@ -1071,28 +1131,31 @@
 				var aliases;
 				var html;
 				
-				var appletResponseJSON = document.sinekartaApplet.login ( scPin );
-				var appletResultJSON = this.parseAppletResponse ( appletResponseJSON );
-				if ( appletResultJSON !== undefined ) {
-					this.wizardData.scAliases = JSON.parse ( appletResultJSON );
-					this.wizardData.scUserAlias = '';
-					var singleAlias = this.wizardData.scAliases.length == 1; 
-					if ( singleAlias ) {
-						this.wizardData.scUserAlias = this.wizardData.scAliases[0];
+		    	skds_execFunction("login",scPin,function(){
+//					var appletResponseJSON = document.sinekartaApplet.login ( scPin );
+					var appletResponseJSON = skds_getResp();
+					var appletResultJSON = Alfresco_skds.parseAppletResponse ( appletResponseJSON );
+					if ( appletResultJSON !== undefined ) {
+						Alfresco_skds.wizardData.scAliases = JSON.parse ( appletResultJSON );
+						Alfresco_skds.wizardData.scUserAlias = '';
+						var singleAlias = Alfresco_skds.wizardData.scAliases.length == 1; 
+						if ( singleAlias ) {
+							Alfresco_skds.wizardData.scUserAlias = Alfresco_skds.wizardData.scAliases[0];
+						}
+						Alfresco_skds.updateScUserAliasSelect ( );
+						if ( singleAlias ) {
+							Alfresco_skds.onScUserAliasChange ( );
+						}
+						//document.getElementById('${htmlid}-clientType-SMARTCARD-enabled').style.display = 'block';
+						//document.getElementById('${htmlid}-clientType-SMARTCARD-disabled').style.display = 'none';
+					} else {
+						Alfresco_skds.wizardData.scAliases = new Array();
+						Alfresco_skds.updateScUserAliasSelect ( );
+						//document.getElementById('${htmlid}-clientType-SMARTCARD-enabled').style.display = 'none';
+						//document.getElementById('${htmlid}-clientType-SMARTCARD-disabled').style.display = 'block';
 					}
-					this.updateScUserAliasSelect ( );
-					if ( singleAlias ) {
-						this.onScUserAliasChange ( );
-					}
-					//document.getElementById('${htmlid}-clientType-SMARTCARD-enabled').style.display = 'block';
-					//document.getElementById('${htmlid}-clientType-SMARTCARD-disabled').style.display = 'none';
-				} else {
-					this.wizardData.scAliases = new Array();
-					this.updateScUserAliasSelect ( );
-					//document.getElementById('${htmlid}-clientType-SMARTCARD-enabled').style.display = 'none';
-					//document.getElementById('${htmlid}-clientType-SMARTCARD-disabled').style.display = 'block';
-				}
-				this.updateWizardDataView ( );
+					Alfresco_skds.updateWizardDataView ( );
+				});
 			},
 		    
 		    onScUserAliasChange: function skds_onScUserAliasChange() {
@@ -1100,44 +1163,25 @@
 		    	var scUserAliasSelect = document.getElementById("${htmlid}-scUserAlias");
 				this.wizardData.scUserAlias = scUserAliasSelect.options[scUserAliasSelect.selectedIndex].value;
 				if ( this.wizardData.scUserAlias !== '' ) {
-					var appletResponseJSON = document.sinekartaApplet.selectCertificate(this.wizardData.scUserAlias);
-					var appletResultJSON = this.parseAppletResponse ( appletResponseJSON );
-					if ( appletResultJSON !== undefined ) {
-						this.wizardData.signature.hexCertificateChain[0] = this.parseAppletResponse ( appletResponseJSON );
-					} else {
-						this.error ( 'onScUserAliasChange', 'unexpected response: ' + appletResultJSON );
-					}
+			    	skds_execFunction("selectCertificate",this.wizardData.scUserAlias,function(){
+//						var appletResponseJSON = document.sinekartaApplet.selectCertificate(Alfresco_skds.wizardData.scUserAlias);
+						var appletResponseJSON = skds_getResp();
+						var appletResultJSON = Alfresco_skds.parseAppletResponse ( appletResponseJSON );
+						if ( appletResultJSON !== undefined ) {
+							Alfresco_skds.wizardData.signature.hexCertificateChain[0] = Alfresco_skds.parseAppletResponse ( appletResponseJSON );
+						} else {
+							Alfresco_skds.error ( 'onScUserAliasChange', 'unexpected response: ' + appletResultJSON );
+						}
+					});
 				} else {
-					this.wizardData.signature.hexCertificateChain[0] = '';
+					Alfresco_skds.wizardData.signature.hexCertificateChain[0] = '';
 				}
-				this.updateWizardDataView ( );
+				Alfresco_skds.updateWizardDataView ( );
 			},
 
 		});
 	})();
 	
-	new Alfresco.skds("${htmlid}");
-	
-	
-	// JS Sign Applet START
-	
-
-	
-
-	
-	function signDigest() {
-		var pin = document.getElementById("${htmlid}-sc-sign-id").value;
-		var alias = document.getElementById("${htmlid}-scUserAlias").value;
-		var digestToSign = document.getElementById("${htmlid}-sc-digest-id").value;
-		var signString = document.sinekartaApplet.signDigest(pin, alias, digestToSign);
-		document.getElementById("${htmlid}-sc-sign-id").value = signString;
-	}
-	
-	// JS Sign Applet END
-	
-	
-	
-	
-	
+	Alfresco_skds = new Alfresco.skds("${htmlid}");
 	
 //]]></script>
