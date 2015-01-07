@@ -26,6 +26,7 @@ import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cms.CMSAttributeTableGenerator;
 import org.bouncycastle.cms.CMSException;
+import org.bouncycastle.cms.SignerInfoGenerator;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.DefaultDigestAlgorithmIdentifierFinder;
 import org.bouncycastle.operator.DigestAlgorithmIdentifierFinder;
@@ -34,7 +35,7 @@ import org.bouncycastle.operator.DigestCalculatorProvider;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.util.io.TeeOutputStream;
 
-public class ExtSignerInfoGenerator
+public class ExtSignerInfoGenerator extends SignerInfoGenerator 
 {
     private static final Set RSA_PKCS1d5 = new HashSet();
 
@@ -83,6 +84,7 @@ public class ExtSignerInfoGenerator
         boolean isDirectSignature)
         throws OperatorCreationException
     {
+    	super(signerIdentifier, signer, digesterProvider);
         this.signerIdentifier = signerIdentifier;
         this.signer = signer;
 
@@ -112,6 +114,7 @@ public class ExtSignerInfoGenerator
         CMSAttributeTableGenerator sAttrGen,
         CMSAttributeTableGenerator unsAttrGen)
     {
+    	super(original, sAttrGen, unsAttrGen);
         this.signerIdentifier = original.signerIdentifier;
         this.signer = original.signer;
         this.digester = original.digester;
@@ -127,6 +130,7 @@ public class ExtSignerInfoGenerator
         CMSAttributeTableGenerator unsAttrGen)
         throws OperatorCreationException
     {
+    	super(signerIdentifier, signer, digesterProvider, sAttrGen, unsAttrGen);
         this.signerIdentifier = signerIdentifier;
         this.signer = signer;
 
