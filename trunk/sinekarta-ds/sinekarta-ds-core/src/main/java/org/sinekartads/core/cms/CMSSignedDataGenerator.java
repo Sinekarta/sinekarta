@@ -47,6 +47,7 @@ import org.bouncycastle.cms.CMSProcessableByteArray;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.CMSTypedData;
 import org.bouncycastle.cms.DefaultSignedAttributeTableGenerator;
+import org.bouncycastle.cms.SignerInfoGenerator;
 import org.bouncycastle.cms.SignerInformation;
 import org.bouncycastle.cms.SignerInformationStore;
 import org.bouncycastle.cms.SimpleAttributeTableGenerator;
@@ -81,6 +82,15 @@ import org.sinekartads.core.cms.CMSUtils.SigOutputStream;
  */
 public class CMSSignedDataGenerator
     extends CMSSignedGenerator
+    // ----------------------------------------------------------------------
+    // --- TODO delete this class -------------------------------------------
+    // ----------------------------------------------------------------------
+    // 
+    // Currently the code of this class is the same of bouncycastle, since
+    // ExtSignerInfoGenerator is now extending SignedInfoGeneration. 
+    // If nothing will change in the next versions you should remove it. 
+    //
+    // ----------------------------------------------------------------------
 {
     private List signerInfs = new ArrayList();
 
@@ -610,7 +620,7 @@ public class CMSSignedDataGenerator
 
         for (Iterator it = signerGens.iterator(); it.hasNext();)
         {
-            ExtSignerInfoGenerator sGen = (ExtSignerInfoGenerator)it.next();
+            SignerInfoGenerator sGen = (SignerInfoGenerator)it.next();
 
             if (content != null)
             {
@@ -639,7 +649,7 @@ public class CMSSignedDataGenerator
             SignerInf signer = (SignerInf)it.next();
 
             try
-            {// 4WPBhhE9VV
+            {
                 digestAlgs.add(signer.getDigestAlgorithmID());
                 signerInfos.add(signer.toSignerInfo(contentTypeOID, content, rand, sigProvider,
                     addDefaultAttributes));
@@ -880,7 +890,7 @@ public class CMSSignedDataGenerator
 
         for (Iterator it = signerGens.iterator(); it.hasNext();)
         {
-            ExtSignerInfoGenerator sGen = (ExtSignerInfoGenerator)it.next();
+            SignerInfoGenerator sGen = (SignerInfoGenerator)it.next();
             SignerInfo inf = sGen.generate(contentTypeOID);
 
             digestAlgs.add(inf.getDigestAlgorithm());
