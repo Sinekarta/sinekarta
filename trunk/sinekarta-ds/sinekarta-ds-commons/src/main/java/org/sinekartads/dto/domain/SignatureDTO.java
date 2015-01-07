@@ -347,6 +347,9 @@ public class SignatureDTO extends BaseDTO {
 	private String pdfRevision;
 	@FlagDTOProperty
 	private String pdfCoversWholeDocument;
+	private String pdfHexDocumentId;
+	private String pdfHexFileId;
+	private String pdfUnicodeModDate;
 	
 	public String getPdfSignName() {
 		return pdfSignName;
@@ -384,6 +387,22 @@ public class SignatureDTO extends BaseDTO {
 	public String getPdfCoversWholeDocument() {
 		return pdfCoversWholeDocument;
 	}
+	
+	public String getPdfHexFileId() {
+		return pdfHexFileId;
+	}
+
+	public void setPdfHexFileId(String pdfHexFileId) {
+		this.pdfHexFileId = pdfHexFileId;
+	}
+	
+	public String getPdfUnicodeModDate() {
+		return pdfUnicodeModDate;
+	}
+
+	public void setPdfUnicodeModDate(String pdfUnicodeModDate) {
+		this.pdfUnicodeModDate = pdfUnicodeModDate;
+	}
 
 
 	
@@ -391,14 +410,14 @@ public class SignatureDTO extends BaseDTO {
 	// --- XML signature specific protocol
 	// -
 	
-	private String signatureId;
+	private String xmlSignatureId;
 	
-	public String getSignatureId() {
-		return signatureId;
+	public String getXmlSignatureId() {
+		return xmlSignatureId;
 	}
 
-	public void setSignatureId(String signatureId) {
-		this.signatureId = signatureId;
+	public void setXmlSignatureId(String signatureId) {
+		this.xmlSignatureId = signatureId;
 	}
 
 }
