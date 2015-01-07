@@ -9,6 +9,7 @@ import java.security.NoSuchProviderException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.Date;
 
 import org.apache.commons.io.IOUtils;
 import org.bouncycastle.asn1.ASN1EncodableVector;
@@ -27,8 +28,6 @@ import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSProcessable;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.DefaultSignedAttributeTableGenerator;
-import org.bouncycastle.cms.SignerInfoGenerator;
-import org.bouncycastle.cms.SignerInfoGeneratorBuilder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
@@ -94,11 +93,11 @@ public class CMSSignedDataProxyGenerator {
 				v.add(certHAttribute);
 				AttributeTable at = new AttributeTable(v);
 
-				CMSAttributeTableGenerator attrGen = new DefaultSignedAttributeTableGenerator(at);
-				SignerInfoGeneratorBuilder genBuild =  new SignerInfoGeneratorBuilder(new BcDigestCalculatorProvider());
+				CMSAttributeTableGenerator attrGen = new ExtSignedAttributeTableGenerator(at);
+				ExtSignerInfoGeneratorBuilder genBuild =  new ExtSignerInfoGeneratorBuilder(new BcDigestCalculatorProvider());
 				genBuild.setSignedAttributeGenerator(attrGen);
 			
-				SignerInfoGenerator sifGen = null;
+				sifGen = null;
 				try {
 					sifGen = genBuild.build(sigGen, new X509CertificateHolder(encoded));
 				} catch (OperatorCreationException e) {
@@ -115,7 +114,7 @@ public class CMSSignedDataProxyGenerator {
 	
 	@SuppressWarnings("deprecation")
 	public byte[] evaluateDigest(CMSProcessable content, SignDisposition.CMS disposition) throws CMSException {
-		boolean encapsulate= true;
+		boolean encapsulate = true;
 		// FIXME cancellare la SignatureDisposition da qui appena si vede che è ininfluente
 		/*if(disposition == SignatureDisposition.DETACHED) {
 			encapsulate = false;
@@ -126,6 +125,7 @@ public class CMSSignedDataProxyGenerator {
 		SHA256WithRSAProxySignature.reset();
 		try {
 			generator.generate(content, encapsulate, provider);
+			signingTime = sifGen.getSigningTime();
 		} catch (NoSuchAlgorithmException e) {
 			// never thrown, programmatically set values
 		}
@@ -146,12 +146,23 @@ public class CMSSignedDataProxyGenerator {
 		SHA256WithRSAProxySignature.setSignatureValue(digitalSignature);
 		CMSSignedData signedData;
 		try {
-			// FIXME trovare un modo non deprecato per ottenere lo stesso risultato
+			sifGen.setSigningTime(signingTime);
 			signedData = generator.generate(content, encapsulate, provider);
 		} catch (NoSuchAlgorithmException e) {
 			throw new RuntimeException(e);
 		}		
 
 		return signedData;
+	}
+	
+	private ExtSignerInfoGenerator sifGen = null;
+    private Date signingTime;
+    
+    public Date getSigningTime() {
+		return signingTime;
+	}
+
+	public void setSigningTime(Date signingTime) {
+		this.signingTime = signingTime;
 	}
 }
