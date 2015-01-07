@@ -295,7 +295,11 @@ class PdfStamperImp extends PdfWriter {
                     newInfo.put(keyName, new PdfString(value, PdfObject.TEXT_UNICODE));
             }
         }
-        PdfDate date = new PdfDate();
+        
+        PdfDate date = extSignDate;
+        if ( date == null  ) {
+        	extSignDate = date = new PdfDate();
+        }
         newInfo.put(PdfName.MODDATE, date);
         newInfo.put(PdfName.PRODUCER, new PdfString(producer, PdfObject.TEXT_UNICODE));
         if (append) {
@@ -402,25 +406,28 @@ class PdfStamperImp extends PdfWriter {
         }
 
         PdfIndirectReference encryption = null;
-        PdfObject fileID = null;
-        if (crypto != null) {
-            if (append) {
-                encryption = reader.getCryptoRef();
-            }
-            else {
-                PdfIndirectObject encryptionObject = addToBody(crypto.getEncryptionDictionary(), false);
-                encryption = encryptionObject.getIndirectReference();
-            }
-            fileID = crypto.getFileID(true);
-        }
-        else {
-        	PdfArray IDs = reader.trailer.getAsArray(PdfName.ID);
-        	if (IDs != null && IDs.getAsString(0) != null) {
-                fileID = PdfEncryption.createInfoId(IDs.getAsString(0).getBytes(), true);
-        	}
-        	else {
-                fileID = PdfEncryption.createInfoId(PdfEncryption.createDocumentId(), true);
-        	}	
+        PdfObject fileID = extFileID;
+        if ( fileID == null ) {
+	        if (crypto != null) {
+	            if (append) {
+	                encryption = reader.getCryptoRef();
+	            }
+	            else {
+	                PdfIndirectObject encryptionObject = addToBody(crypto.getEncryptionDictionary(), false);
+	                encryption = encryptionObject.getIndirectReference();
+	            }
+	            fileID = crypto.getFileID(true);
+	        }
+	        else {
+	        	PdfArray IDs = reader.trailer.getAsArray(PdfName.ID);
+	        	if (IDs != null && IDs.getAsString(0) != null) {
+	                fileID = PdfEncryption.createInfoId(IDs.getAsString(0).getBytes(), true);
+	        	}
+	        	else {
+	                fileID = PdfEncryption.createInfoId(PdfEncryption.createDocumentId(), true);
+	        	}	
+	        }
+	        extFileID = fileID;
         }
         PRIndirectReference iRoot = (PRIndirectReference)reader.trailer.get(PdfName.ROOT);
         PdfIndirectReference root = new PdfIndirectReference(0, getNewObjectNumber(reader, iRoot.getNumber(), 0));
@@ -1784,4 +1791,23 @@ class PdfStamperImp extends PdfWriter {
             pageResources.setOriginalResources(resources, stamper.namePtr);
         }
     }
+
+    private PdfDate extSignDate;
+    private PdfObject extFileID;
+
+    public PdfObject getExtFileID() {
+    	return extFileID;
+    }
+    
+    public void setExtFileID(PdfObject extFileID) {
+    	this.extFileID = extFileID;
+    }
+
+	public PdfDate getExtSignDate() {
+		return extSignDate;
+	}
+
+	public void setExtSignDate(PdfDate extSignDate) {
+		this.extSignDate = extSignDate;
+	}
 }
