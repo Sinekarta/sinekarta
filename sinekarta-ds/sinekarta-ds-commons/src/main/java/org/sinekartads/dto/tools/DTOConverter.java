@@ -219,7 +219,9 @@ public class DTOConverter {
 				break;
 			}
 			case PDF: {
-				PDFSignatureInfo pdfSignature = ( PDFSignatureInfo ) signature; 
+				PDFSignatureInfo pdfSignature = ( PDFSignatureInfo ) signature;
+				dto.setPdfHexFileId				( HexUtils.encodeHex(pdfSignature.getFileId()) );
+				dto.setPdfUnicodeModDate		( pdfSignature.getUnicodeModDate() 		);
 				dto.setPdfSignName				( pdfSignature.getName()				);
 				dto.setPdfRevision				( pdfSignature.getRevision()			);
 				dto.pdfCoversWholeDocumentToString 	( pdfSignature.getCoversWholeDocument()	);
@@ -228,7 +230,7 @@ public class DTOConverter {
 			case XML: {
 				XMLSignatureInfo xmlSignature = ( XMLSignatureInfo ) signature; 
 				if ( StringUtils.isNotBlank(xmlSignature.getSignatureId()) ) {
-					dto.setSignatureId(xmlSignature.getSignatureId());
+					dto.setXmlSignatureId(xmlSignature.getSignatureId());
 				}
 				break;
 			} 
@@ -417,13 +419,15 @@ public class DTOConverter {
 					PDFSignatureInfo pdfSignature = new PDFSignatureInfo ( dto.getPdfSignName(),
 																		   dto.signAlgorithmFromString(),
 																		   dto.digestAlgorithmFromName() );
+					pdfSignature.setFileId ( HexUtils.decodeHex(dto.getPdfHexFileId()) );
+					pdfSignature.setUnicodeModDate(dto.getPdfUnicodeModDate());
 					pdfSignature.setCoversWholeDocument	( dto.pdfCoversWholeDocumentFromString() );
 					pdfSignature.setRevision ( dto.getPdfRevision() );
 					rawSignature = pdfSignature;
 					break;
 				}
 				default: {
-					String signatureId = dto.getSignatureId();
+					String signatureId = dto.getXmlSignatureId();
 					if ( StringUtils.isNotBlank(signatureId) ) {
 						rawSignature = new XMLSignatureInfo ( dto.signAlgorithmFromString(), dto.digestAlgorithmFromName(), signatureId );
 					} else {

@@ -41,6 +41,10 @@ public class PDFSignatureInfo
 	private final String name;
 	private Boolean coversWholeDocument;
 	private String revision;
+	private byte[] documentId;
+	private byte[] fileId;
+	private String unicodModDate;
+	private byte[] authenticatedAttributeBytes;
 	
 	public String getName() {
 		return name;
@@ -83,53 +87,37 @@ public class PDFSignatureInfo
 	public void setRevision(String revision) {
 		this.revision = revision;
 	}
-//
-//	public PdfSignatureAppearance getAppearance(PdfStamper stamper) {
-//		return new PdfSignatureAppearance(stamper) {
-//			@Override
-//			public String getReason() {
-//				return PDFSignatureInfo.this.getReason();
-//			}
-//			
-//			/**
-//			 * @deprecated call this method on the enclosing PDFSignatureInfo instead
-//			 */
-//			@Override
-//			public void setReason(String reason) {
-//				PDFSignatureInfo.this.setReason(reason);
-//			}
-//
-//			@Override
-//			public String getLocation() {
-//				return PDFSignatureInfo.super.getLocation();
-//			}
-//			
-//			/**
-//			 * @deprecated call this method on the enclosing PDFSignatureInfo instead
-//			 */
-//			@Override
-//			public void setLocation(String location) {
-//				PDFSignatureInfo.this.setLocation(location);
-//			}
-//			
-//			@Override
-//			public X509Certificate getCertificate() {
-//				return PDFSignatureInfo.this.getRawX509Certificates()[0];
-//			}
-//			
-//			public void setCertificate(Certificate certificate) {
-//				//throw new UnsupportedOperationException ( "read-only property" );
-//				PDFSignatureInfo.this.getRawX509Certificates()[0] = (X509Certificate)certificate;
-//			}
-//		};
-//	}
+	
+	public byte[] getDocumentId() {
+		return documentId;
+	}
+
+	public void setDocumentId(byte[] documentId) {
+		this.documentId = documentId;
+	}
+	
+	public byte[] getFileId() {
+		return fileId;
+	}
+
+	public void setFileId(byte[] fileId) {
+		this.fileId = fileId;
+	}
+	
+	public String getUnicodeModDate() {
+		return unicodModDate;
+	}
+
+	public void setUnicodeModDate(String unicodModDate) {
+		this.unicodModDate = unicodModDate;
+	}
 	
 	
 	
 	// -----
 	// --- TimeStamp control disabilitation - we haven't been able to extract the tsToken from the PDF signature yet
 	// -
-	
+
 	@Override
 	public FinalizedSignature < SignCategory, 
 								SignDisposition.PDF,
@@ -144,6 +132,15 @@ public class PDFSignatureInfo
 		finalizedInstance = TemplateUtils.Instantiation.clone ( this );
 		finalizedInstance.finalized = true;
 		return finalizedInstance;
+	}
+
+	public byte[] getAuthenticatedAttributeBytes() {
+		return authenticatedAttributeBytes;
+	}
+
+	public void setAuthenticatedAttributeBytes(
+			byte[] authenticatedAttributeBytes) {
+		this.authenticatedAttributeBytes = authenticatedAttributeBytes;
 	}
 
 }
