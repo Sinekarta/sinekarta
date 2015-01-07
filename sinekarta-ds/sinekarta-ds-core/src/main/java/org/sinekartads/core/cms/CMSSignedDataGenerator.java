@@ -47,7 +47,6 @@ import org.bouncycastle.cms.CMSProcessableByteArray;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.CMSTypedData;
 import org.bouncycastle.cms.DefaultSignedAttributeTableGenerator;
-import org.bouncycastle.cms.SignerInfoGenerator;
 import org.bouncycastle.cms.SignerInformation;
 import org.bouncycastle.cms.SignerInformationStore;
 import org.bouncycastle.cms.SimpleAttributeTableGenerator;
@@ -611,7 +610,7 @@ public class CMSSignedDataGenerator
 
         for (Iterator it = signerGens.iterator(); it.hasNext();)
         {
-            SignerInfoGenerator sGen = (SignerInfoGenerator)it.next();
+            ExtSignerInfoGenerator sGen = (ExtSignerInfoGenerator)it.next();
 
             if (content != null)
             {
@@ -640,7 +639,7 @@ public class CMSSignedDataGenerator
             SignerInf signer = (SignerInf)it.next();
 
             try
-            {
+            {// 4WPBhhE9VV
                 digestAlgs.add(signer.getDigestAlgorithmID());
                 signerInfos.add(signer.toSignerInfo(contentTypeOID, content, rand, sigProvider,
                     addDefaultAttributes));
@@ -881,7 +880,7 @@ public class CMSSignedDataGenerator
 
         for (Iterator it = signerGens.iterator(); it.hasNext();)
         {
-            SignerInfoGenerator sGen = (SignerInfoGenerator)it.next();
+            ExtSignerInfoGenerator sGen = (ExtSignerInfoGenerator)it.next();
             SignerInfo inf = sGen.generate(contentTypeOID);
 
             digestAlgs.add(inf.getDigestAlgorithm());

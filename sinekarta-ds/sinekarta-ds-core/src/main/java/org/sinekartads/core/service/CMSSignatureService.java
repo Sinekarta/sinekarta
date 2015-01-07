@@ -125,6 +125,7 @@ public class CMSSignatureService
 			generator.embedCertificateChain ( trustedChain );
 			byte[] fingerPrint = generator.evaluateDigest ( processable, disposition );
 			digestInfo = DigestInfo.getInstance ( digestAlgorithm, fingerPrint );
+			chainSignature.setSigningTime(generator.getSigningTime());
 		} catch (CertificateEncodingException e) {
 			// never thrown, certificate validity granted by CertificateInfo
 			throw new RuntimeException(e);
@@ -197,6 +198,7 @@ public class CMSSignatureService
 		byte[] signedDataEnc = null;
 		try {
 			CMSSignedDataProxyGenerator generator = new CMSSignedDataProxyGenerator();
+			generator.setSigningTime(signedSignature.getSigningTime());
 			generator.embedCertificateChain(trustedChain);
 			signedData = generator.generateSignedData(
 					processable, signedSignature.getDigitalSignature(), signDisposition );

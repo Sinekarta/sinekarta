@@ -38,7 +38,6 @@ import org.bouncycastle.asn1.x509.AttributeCertificate;
 import org.bouncycastle.asn1.x9.X9ObjectIdentifiers;
 import org.bouncycastle.cms.CMSAttributeTableGenerator;
 import org.bouncycastle.cms.CMSException;
-import org.bouncycastle.cms.SignerInfoGenerator;
 import org.bouncycastle.cms.SignerInformationStore;
 import org.bouncycastle.jce.interfaces.GOST3410PrivateKey;
 import org.bouncycastle.util.Store;
@@ -294,7 +293,7 @@ public class CMSSignedGenerator
         }
     }
 
-    public void addSignerInfoGenerator(SignerInfoGenerator infoGen)
+    public void addSignerInfoGenerator(ExtSignerInfoGenerator infoGen)
     {
          signerGens.add(infoGen);
     }
