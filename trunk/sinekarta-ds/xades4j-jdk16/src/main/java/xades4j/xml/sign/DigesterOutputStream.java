@@ -82,7 +82,7 @@ public class DigesterOutputStream extends ByteArrayOutputStream {
         } catch (XMLSignatureException e) {
             throw new RuntimeException("" + e);
         }
-        digester.update(arg0);
+        digester.update(arg0, arg1, arg2);
     }
     
     public byte[] getDigest() {
