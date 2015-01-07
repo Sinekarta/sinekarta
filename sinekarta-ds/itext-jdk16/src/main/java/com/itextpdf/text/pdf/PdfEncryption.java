@@ -118,7 +118,7 @@ public class PdfEncryption {
 
 	int permissions;
 
-	byte documentID[];
+	private byte documentID[];
 
 	static long seq = System.currentTimeMillis();
 
@@ -160,6 +160,8 @@ public class PdfEncryption {
 		permissions = enc.permissions;
 		if (enc.documentID != null)
 			documentID = (byte[]) enc.documentID.clone();
+		if (enc.extDocumentID != null)
+			extDocumentID = (byte[]) enc.extDocumentID.clone();
 		revision = enc.revision;
 		keyLength = enc.keyLength;
 		encryptMetadata = enc.encryptMetadata;
@@ -313,7 +315,7 @@ public class PdfEncryption {
 	private void setupUserKey() {
 		if (revision == STANDARD_ENCRYPTION_128 || revision == AES_128) {
 			md5.update(pad);
-			byte digest[] = md5.digest(documentID);
+			byte digest[] = md5.digest(newDocumentID());
 			System.arraycopy(digest, 0, userKey, 0, 16);
 			for (int k = 16; k < 32; ++k)
 				userKey[k] = 0;
@@ -343,7 +345,7 @@ public class PdfEncryption {
             try {
                 if (userPassword == null)
                     userPassword = new byte[0];
-                documentID = createDocumentId();
+                documentID = newDocumentID();
                 byte[] uvs = IVGenerator.getIV(8);
                 byte[] uks = IVGenerator.getIV(8);
                 key = IVGenerator.getIV(32);
@@ -404,7 +406,7 @@ public class PdfEncryption {
             byte ownerPad[] = padPassword(ownerPassword);
 
             this.ownerKey = computeOwnerKey(userPad, ownerPad);
-            documentID = createDocumentId();
+            documentID = newDocumentID();
             setupByUserPad(this.documentID, userPad, this.ownerKey, permissions);
         }
 	}
@@ -783,7 +785,7 @@ public class PdfEncryption {
 	}
 
 	public void addRecipient(Certificate cert, int permission) {
-		documentID = createDocumentId();
+		documentID = newDocumentID();
 		publicKeyHandler.addRecipient(new PdfPublicKeyRecipient(cert,
 				permission));
 	}
@@ -804,5 +806,31 @@ public class PdfEncryption {
 			return userPassword;
 		}
 		return userPad;
+	}
+
+	// -------------------------------------------------------------------------
+    // --- SKDS changes --------------------------------------------------------
+    // -------------------------------------------------------------------------
+    // 
+    // The modDate and the documentId can be added externally
+    //
+    // -------------------------------------------------------------------------
+	
+	private byte extDocumentID[];
+	
+	public byte[] getDocumentID() {
+		return documentID;
+	}
+
+	public void setExtDocumentID(byte extDocumentID[]) {
+		this.extDocumentID = extDocumentID;
+	}
+	
+	private byte[] newDocumentID() {
+		if ( extDocumentID == null ) {
+			return createDocumentId();
+		} else {
+			return extDocumentID;
+		}
 	}
 }

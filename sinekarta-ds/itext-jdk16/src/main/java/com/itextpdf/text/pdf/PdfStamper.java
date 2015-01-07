@@ -802,4 +802,51 @@ public class PdfStamper
 
     }
     
+    
+    
+    // -------------------------------------------------------------------------
+    // --- SKDS changes --------------------------------------------------------
+    // -------------------------------------------------------------------------
+    // 
+    // The modDate has been added externally. When missing, il will be generated
+    // on the current time
+    //
+    // -------------------------------------------------------------------------
+    
+//    public void setSigningTime(Date signingTime) {
+//    	stamper.setSigningTime(signingTime);
+//    }
+//    
+//    public Date getSigningTime() {
+//    	return stamper.getSigningTime();
+//    }
+//    
+//    public PdfDate getModDate() {
+//    	return stamper.getModDate();
+//    }
+    
+    public void setUnicodeModDate(String unicodeModDate) {
+    	stamper.setExtSignDate(new PdfDate(PdfDate.decode(unicodeModDate)));
+    }
+    
+    public String getUnicodeModDate() {
+    	return stamper.getExtSignDate().toUnicodeString();
+    }
+    
+//    public void setDocumentId(byte[] documentId) {
+//    	stamper.setExtDocumentId(documentId);
+//    }
+//    
+//    public byte[] getDocumentId() {
+//    	return stamper.getExtDocumentId();
+//    }
+    
+    public byte[] getFileId() {
+    	return stamper.getExtFileID().getBytes();
+    }
+    
+    public void setFileId(byte[] fileId) {
+    	stamper.setExtFileID(new PdfLiteral(fileId));
+    }
+    
 }
