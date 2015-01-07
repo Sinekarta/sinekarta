@@ -1,12 +1,11 @@
 package org.sinekartads.core.service;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.security.cert.CRL;
@@ -21,6 +20,11 @@ import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.bouncycastle.asn1.ASN1EncodableVector;
+import org.bouncycastle.asn1.DERGeneralString;
+import org.bouncycastle.asn1.DERObjectIdentifier;
+import org.bouncycastle.asn1.DERSequence;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.tsp.TimeStampToken;
 import org.sinekartads.core.provider.ExternalDigester;
 import org.sinekartads.core.provider.ExternalSigner;
@@ -45,13 +49,19 @@ import org.sinekartads.model.oid.SignatureAlgorithm;
 import org.sinekartads.util.x509.X509Utils;
 import org.springframework.util.Assert;
 
-import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.pdf.AcroFields;
+import com.itextpdf.text.pdf.PdfDate;
+import com.itextpdf.text.pdf.PdfDictionary;
+import com.itextpdf.text.pdf.PdfName;
 import com.itextpdf.text.pdf.PdfReader;
+import com.itextpdf.text.pdf.PdfSignature;
 import com.itextpdf.text.pdf.PdfSignatureAppearance;
 import com.itextpdf.text.pdf.PdfStamper;
+import com.itextpdf.text.pdf.PdfString;
+import com.itextpdf.text.pdf.security.BouncyCastleDigest;
 import com.itextpdf.text.pdf.security.CertificateVerification;
-import com.itextpdf.text.pdf.security.MakeSignature;
+import com.itextpdf.text.pdf.security.DigestAlgorithms;
+import com.itextpdf.text.pdf.security.ExternalDigest;
 import com.itextpdf.text.pdf.security.MakeSignature.CryptoStandard;
 import com.itextpdf.text.pdf.security.PdfPKCS7;
 import com.itextpdf.text.pdf.security.TSAClient;
@@ -65,10 +75,6 @@ public class PDFSignatureService
 	static final Logger tracer = Logger.getLogger ( PDFSignatureService.class );
 	
 	
-	
-	// -----
-	// --- PreSign-phase
-	// -
 	
 	// -----
 	// --- Pre-Sign phase
@@ -93,67 +99,107 @@ public class PDFSignatureService
 						  SignDisposition.PDF,
 						  VerifyResult,
 						  PDFSignatureInfo > digestSignature	= null;
-		
-		// Extract the signature options from the chainSignature
-		SignatureAlgorithm signAlgorithm 	= chainSignature.getSignAlgorithm();
-		SignDisposition.PDF signDisposition = chainSignature.getDisposition();
-		X509Certificate[] certificateChain 	= chainSignature.getRawX509Certificates();
-
-		// Evaluate the digestInfo as digestAlgorithm.evalDigest( <content + certificate.chain> )  
-		PdfReader reader = null;
-		PdfStamper stamper = null;
 		try {
-			// Convert the signedSignature to a PDFSignatureInfo to use its own protocol
-			PDFSignatureInfo pdfSignature = (PDFSignatureInfo) chainSignature;
+			TSAClient tsaClient=null;
 			
-			// Create the stamper
-			ByteArrayOutputStream os = new ByteArrayOutputStream(); 
-			CryptoStandard subfilter = CryptoStandard.valueOf(pdfSignature.getSubfilter());
-			reader = new PdfReader(contentIs);
-			stamper = PdfStamper.createSignature(reader, os, '\0');
 			
-			// Create the appearance
-			PdfSignatureAppearance appearance = stamper.getSignatureAppearance();
+			TsRequestInfo tsRequest = chainSignature.getTsRequest();
+			boolean applyMark = tsRequest!=null && StringUtils.isNotBlank(tsRequest.getTsUrl());
+			if ( applyMark ) {
+				tsaClient = new TSAClientBouncyCastle(tsRequest.getTsUrl(), tsRequest.getTsUsername(), tsRequest.getTsPassword());
+			}
+
+			int estimatedSize=0;
+			CryptoStandard sigtype = CryptoStandard.CMS;	// FIXME qui c'era CMS
+			PDFSignatureInfo signature = (PDFSignatureInfo) chainSignature;
 			
-			// Evaluate and return the digest
-			ExternalSigner signer = getExternalSigner ( signAlgorithm );
-			if ( signDisposition == SignDisposition.PDF.DETACHED ) {
-				MakeSignature.signDetached(
-						appearance, 		// visual aspect of the signature
-						digester, 			// digest generator
-						signer, 			// signature generator
-						certificateChain,	// certification chain
-						null,	 			// Collection<CrlClient> crlList <- the CRL list
-						null, 				// OcspClient ocspClient <- Online Certificate Status Protocol 
-						null, 				// TSAClient tsaClient
-						0, 					// the reserved size for the signature. It will be estimated if 0
-						subfilter );		// Either Signature.CMS or Signature.CADES
+			// creo il reader del pdf
+			PdfReader reader = new PdfReader(contentIs);
+
+			// creo lo stamper (se il pdf e' gia' firmato, controfirma,
+			// altrimenti firma
+			PdfStamper stamper = null;
+			if (isPdfSigned(reader)) {
+				if (tracer.isDebugEnabled()) tracer.debug("calculating finger print for document already signed");
+				stamper = PdfStamper.createSignature(reader, null, '\0', null, true);
 			} else {
-				// TODO DEFERRED pdf signature not implemented yet
-				throw new UnsupportedOperationException ( "DEFERRED pdf signature not implemented yet" );
+				if (tracer.isDebugEnabled()) tracer.debug("calculating finger print for document never signed before");
+				stamper = PdfStamper.createSignature(reader, null, '\0');
 			}
-		} catch (DocumentException e) {
+			
+			// questo e' il certificato su cui lavorare
+			Certificate[] chain = signature.getRawX509Certificates();
+//			Certificate[] chain = new Certificate[1];
+//			chain[0] = certificate;
+
+			// creo la signature apparence
+			PdfSignatureAppearance sap = stamper.getSignatureAppearance();
+			ExternalDigest externalDigest = new BouncyCastleDigest();
+			 
+			// inizio codice copiato da MakeSignature
+			
+//			Collection<byte[]> crlBytes = null;
+//	        int i = 0;
+//	        while (crlBytes == null && i < chain.length)
+//	        	crlBytes = MakeSignature.processCrl(chain[i++], crlList);
+	    	if (estimatedSize == 0) {
+	            estimatedSize = 8192;
+//	            if (crlBytes != null) {
+//	                for (byte[] element : crlBytes) {
+//	                    estimatedSize += element.length + 10;
+//	                }
+//	            }
+//	            if (ocspClient != null)
+	                estimatedSize += 4192;
+	            if (tsaClient != null)
+	                estimatedSize += 4192;
+	        }
+	    	Calendar now = Calendar.getInstance();
+	    	PdfDate date = new PdfDate(now);
+	    	
+			sap.setSignDate(now);
+			signature.setSigningTime(now.getTime());
+			signature.setUnicodeModDate(date.toUnicodeString());
+
+			sap.setCertificate(chain[0]);
+			sap.setReason(signature.getReason());
+			sap.setLocation(signature.getLocation());
+
+			PdfSignature dic = new PdfSignature(PdfName.ADOBE_PPKLITE, PdfName.ADBE_PKCS7_DETACHED);
+	        dic.setReason(sap.getReason());
+	        dic.setLocation(sap.getLocation());
+	        dic.setContact(sap.getContact());
+	        dic.setDate(date); // time-stamp will over-rule this
+	        sap.setCryptoDictionary(dic);
+
+	        HashMap<PdfName, Integer> exc = new HashMap<PdfName, Integer>();
+	        exc.put(PdfName.CONTENTS, new Integer(estimatedSize * 2 + 2));
+	        sap.preClose(exc);
+
+	        String hashAlgorithm = signature.getDigestAlgorithm().getName();
+	        PdfPKCS7 sgn = new PdfPKCS7(null, chain, hashAlgorithm, BouncyCastleProvider.PROVIDER_NAME, externalDigest, false);
+	        InputStream data = sap.getRangeStream();
+	        byte hash[] = DigestAlgorithms.digest(data, externalDigest.getMessageDigest(hashAlgorithm));
+	        byte[] authenticatedAttributeBytes = sgn.getAuthenticatedAttributeBytes(hash, now, null, null, sigtype);
+
+	        // calcolo dell'impronta
+	        MessageDigest digester = MessageDigest.getInstance(signature.getDigestAlgorithm().getName());
+	        byte[] fingerPrint = digester.digest(authenticatedAttributeBytes);
+	        
+	     	signature.setAuthenticatedAttributeBytes(authenticatedAttributeBytes);
+	     	signature.setFileId(sap.getStamper().getFileId());
+			signature.setUnicodeModDate(sap.getStamper().getUnicodeModDate());
+			signature.setSigningTime(now.getTime());
+
+			DigestInfo digestInfo = DigestInfo.getInstance(signature.getDigestAlgorithm(), fingerPrint);
+			digestSignature = signature.toDigestSignature ( digestInfo );
+//			digestSignature = PDFTools.calculateFingerPrint(chainSignature, contentIs);
+		} catch (SignatureException e) {
+			throw e;
+		} catch (Exception e) {
 			throw new SignatureException(e);
-		} catch (InvalidKeyException e) {
-			throw new SignatureException(e);
-		} catch (GeneralSecurityException e) {
-			throw new SignatureException(e);
-		} finally {
-			try {
-				if ( reader != null ) {
-					reader.close();
-				}
-//				if ( stamper != null ) {
-//					stamper.close();
-//				}
-			} catch(Exception e) {
-				throw new SignatureException(e);
-			}
 		}
-		
-		// Add the digestInfo to the trustedChainSignature and obtain the digestSignature
-		digestSignature = chainSignature.toDigestSignature ( digester.getDigestInfo() );
-		
+				
 		// Return the digestSignature
 		return digestSignature;
 	}
@@ -185,100 +231,131 @@ public class PDFSignatureService
 									VerifyResult,
 									PDFSignatureInfo >			finalizedSignature = null;
 		
-		// Receive a signedSignature, the content to be signed and some outputStreams for storing the sign products to;  
-		//			the digitalSignature has already been generated externally in some way
-		// The only outputStream which will be used is markedSignOs: it has to be the only one not null. 
-		// The DETACHED pdf signature means that it will applied outside the PDFDictionary, in opposition to the DEFERRED
-		//			signature. To store the signature or the timeStamp into an external file, use a DETACHED CMS type instead.
-		
 		Assert.notNull ( signedSignature );
 		Assert.notNull ( contentIs );
-//		Assert.notNull ( markedSignOs );
-//		Assert.isNull  ( detachedSignOs );
-//		Assert.isNull  ( embeddedSignOs );
-//		Assert.isNull  ( tsResultOs );
 
-		// Extract the signature options from the chainSignature
-		SignatureAlgorithm signAlgorithm 	= signedSignature.getSignAlgorithm();
-		SignDisposition.PDF signDisposition = signedSignature.getDisposition();
-		X509Certificate[] certificateChain 	= signedSignature.getRawX509Certificates();
-
-		// Prepare the TSAClient if required by the signatureType
-		TSAClient tsaClient = null;
+		// Store the signed pdf, and eventually marked, into the markedSignOs
 		TsRequestInfo tsRequest = signedSignature.getTsRequest();
-		if ( tsRequest!=null && StringUtils.isNotBlank(tsRequest.getTsUrl()) ) {
-			tsaClient = new TSAClientBouncyCastle (
-					tsRequest.getTsUrl(), tsRequest.getTsUsername(), tsRequest.getTsPassword() );
-		}
-		
-		// Apply the digitalSignature to the PDF document
-		PdfReader reader = null;
-		PdfStamper stamper = null;
-		byte[] signedPdfEnc;
-		try {
-			// Convert the signedSignature to a PDFSignatureInfo to use its own protocol
-			PDFSignatureInfo pdfSignature = (PDFSignatureInfo) signedSignature;
-			CryptoStandard subfilter = CryptoStandard.valueOf(pdfSignature.getSubfilter());
-			
-			// Create the stamper
-			ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
-			reader = new PdfReader ( IOUtils.toByteArray(contentIs) );
-			stamper = PdfStamper.createSignature ( reader, baos, '\0' );
-			
-			// Create the appearance
-			PdfSignatureAppearance appearance = stamper.getSignatureAppearance();
-			
-			// Create the signed file appending the external-generated digitalSignature
-			ExternalSigner signer = getExternalSigner ( signAlgorithm );
-			if ( signDisposition == SignDisposition.PDF.DETACHED ) {
-				MakeSignature.signDetached(
-						appearance, 		// visual aspect of the signature
-						digester, 			// digest generator
-						signer, 			// signature generator
-						certificateChain,	// certification chain
-						null,	 			// Collection<CrlClient> crlList <- the CRL list
-						null, 				// OcspClient ocspClient <- Online Certificate Status Protocol 
-						tsaClient, 			// TSAClient tsaClient
-						0, 					// the reserved size for the signature. It will be estimated if 0
-						subfilter );		// Either Signature.CMS or Signature.CADES
-
-			} else {
-//				PdfDictionary pdfDictionary = reader.getCatalog();
-//				ExternalSignatureContainer externalSignatureContainer = new ExternalSignatureContainerImpl(pdfDictionary);
-//				OutputStream ostream = null;
-//				MakeSignature.signDeferred(reader, pdfSignature.getName(), ostream, externalSignatureContainer);
-//				// ... will fail
-				
-				// TODO DEFERRED pdf signature not implemented yet
-				throw new UnsupportedOperationException ( "DEFERRED pdf signature not implemented yet" );
-			}
-			// Return the temporary file content
-			signedPdfEnc = baos.toByteArray();
-		} catch (DocumentException e) {
-			throw new SignatureException(e);
-		} catch (GeneralSecurityException e) {
-			throw new SignatureException(e);
-		} finally {
-			try {
-				if ( reader != null ) {
-					reader.close();
-				}
-//				if ( stamper != null ) {
-//					stamper.close();
-//				}
-			} catch(Exception e) {
-				throw new SignatureException(e);
-			}
-		} 
-		
-		// Store the signed pdf, and eventually marked, into the markedSignOs 
-		if ( tsRequest!=null && StringUtils.isNotBlank(tsRequest.getTsUrl()) ) {
-			IOUtils.write ( signedPdfEnc, markedSignOs );
+		boolean applyMark = tsRequest!=null && StringUtils.isNotBlank(tsRequest.getTsUrl());
+		OutputStream envelopedStream;
+		if ( applyMark ) {
+			envelopedStream = markedSignOs;
 		} else {
-			IOUtils.write ( signedPdfEnc, embeddedSignOs );
+			envelopedStream = embeddedSignOs;
 		}
+		
+		try {
+			PDFSignatureInfo signature = (PDFSignatureInfo) signedSignature;
+			TSAClient tsaClient=null;
+			
+			if ( applyMark ) {
+				tsaClient = new TSAClientBouncyCastle(tsRequest.getTsUrl(), tsRequest.getTsUsername(), tsRequest.getTsPassword());
+			}
 
-		finalizedSignature = signedSignature.finalizeSignature();
+			int estimatedSize=0;
+			CryptoStandard sigtype = CryptoStandard.CMS;
+			
+			// creo il reader del pdf
+			PdfReader reader = new PdfReader(contentIs);
+
+			// creo lo stamper (se il pdf e' gia' firmato, controfirma,
+			// altrimenti firma
+			PdfStamper stamper = null;
+			if (isPdfSigned(reader)) {
+				if (tracer.isDebugEnabled()) tracer.debug("document already signed, i will apply another sign");
+				stamper = PdfStamper.createSignature(reader, envelopedStream, '\0', null, true);
+			} else {
+				if (tracer.isDebugEnabled()) tracer.debug("document never signed before, this is first");
+				stamper = PdfStamper.createSignature(reader, envelopedStream, '\0');
+			}
+
+			// questo e' il certificato su cui lavorare
+			Certificate[] chain = signature.getRawX509Certificates();
+//			Certificate[] chain = new Certificate[1];
+//			chain[0] = certificate;
+
+			// creo la signature apparence
+			PdfSignatureAppearance sap = stamper.getSignatureAppearance();
+			ExternalDigest externalDigest = new BouncyCastleDigest();
+			 
+			// inizio codice copiato da MakeSignature
+			
+//			Collection<byte[]> crlBytes = null;
+//	        int i = 0;
+//	        while (crlBytes == null && i < chain.length)
+//	        	crlBytes = MakeSignature.processCrl(chain[i++], crlList);
+	    	if (estimatedSize == 0) {
+	            estimatedSize = 8192;
+//	            if (crlBytes != null) {
+//	                for (byte[] element : crlBytes) {
+//	                    estimatedSize += element.length + 10;
+//	                }
+//	            }
+//	            if (ocspClient != null)
+	                estimatedSize += 4192;
+	            if (tsaClient != null)
+	                estimatedSize += 4192;
+	        }
+	        sap.setCertificate(chain[0]);
+	        sap.setReason(signature.getReason());
+	        sap.setLocation(signature.getLocation());
+	        
+	        Calendar cal = Calendar.getInstance();
+	        cal.setTime(signature.getSigningTime());
+			sap.setSignDate(cal);
+			sap.getStamper().setUnicodeModDate(signature.getUnicodeModDate());
+			sap.getStamper().setFileId(signature.getFileId());
+	        
+			PdfSignature dic = new PdfSignature(PdfName.ADOBE_PPKLITE, PdfName.ADBE_PKCS7_DETACHED);
+	        dic.setReason(sap.getReason());
+	        dic.setLocation(sap.getLocation());
+	        dic.setContact(sap.getContact());
+	        dic.setDate(new PdfDate(sap.getSignDate())); // time-stamp will over-rule this
+	        sap.setCryptoDictionary(dic);
+
+	        HashMap<PdfName, Integer> exc = new HashMap<PdfName, Integer>();
+	        exc.put(PdfName.CONTENTS, new Integer(estimatedSize * 2 + 2));
+	        sap.preClose(exc);
+
+	        String hashAlgorithm = signature.getDigestAlgorithm().getName();
+	        PdfPKCS7 sgn = new PdfPKCS7(null, chain, hashAlgorithm, BouncyCastleProvider.PROVIDER_NAME, externalDigest, false);
+	        InputStream data = sap.getRangeStream();
+	        byte hash[] = DigestAlgorithms.digest(data, externalDigest.getMessageDigest(hashAlgorithm));
+//	        byte[] ocsp = null;
+//	        if (chain.length >= 2 && ocspClient != null) {
+//	            ocsp = ocspClient.getEncoded((X509Certificate) chain[0], (X509Certificate) chain[1], null);
+//	        }
+	        sgn.setExternalDigest(signature.getDigitalSignature(), null, "RSA");
+
+//	        byte[] encodedSig = sgn.getEncodedPKCS7(hash, _getSignDate(doc.getSignDate()), tsaClient, ocsp, crlBytes, sigtype);
+	        byte[] encodedSig = sgn.getEncodedPKCS7(hash, cal, tsaClient, null, null, sigtype);
+
+	        if (estimatedSize + 2 < encodedSig.length)
+	            throw new IOException("Not enough space");
+
+			ASN1EncodableVector extraDataVectorEncoding = new ASN1EncodableVector();
+			// 
+			extraDataVectorEncoding.add(new DERObjectIdentifier("1.2.840.114283")); // encoding attribute 
+			extraDataVectorEncoding.add(new DERGeneralString("115.105.110.101.107.97.114.116.97"));
+
+			// applico la firma al PDF
+			byte[] extraDataVectorEncodingBytes = new DERSequence(new DERSequence(extraDataVectorEncoding)).getEncoded();
+
+	        byte[] paddedSig = new byte[estimatedSize];
+	        System.arraycopy(encodedSig, 0, paddedSig, 0, encodedSig.length);
+			System.arraycopy(extraDataVectorEncodingBytes, 0,paddedSig, encodedSig.length,extraDataVectorEncodingBytes.length); // encoding attribute
+
+	        PdfDictionary dic2 = new PdfDictionary();
+	        dic2.put(PdfName.CONTENTS, new PdfString(paddedSig).setHexWriting(true));
+	        sap.close(dic2);
+	        
+			finalizedSignature = signature.finalizeSignature();
+//			finalizedSignature = PDFTools.sign(signedSignature, contentIs, envelopedStream);
+		} catch (SignatureException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new SignatureException(e);
+		} 
 		
 		return finalizedSignature;
 	}
@@ -521,4 +598,35 @@ public class PDFSignatureService
 		}
 		return signer;
 	}
+	
+	/**
+	 * metodo di utilita' che verifica se il pdf in input e' gia' firmato
+	 * 
+	 * @param reader
+	 * @return
+	 * @throws SignatureException 
+	 */
+	public static boolean isPdfSigned(PdfReader reader) throws SignatureException {
+		if (tracer.isDebugEnabled())
+			tracer.debug("chacking if PDF/A is signed");
+		try {
+			AcroFields af = reader.getAcroFields();
+
+			// Search of the whole signature
+			ArrayList<String> names = af.getSignatureNames();
+
+			// For every signature :
+			if (names.size() > 0) {
+				if (tracer.isDebugEnabled())tracer.debug("yes, it is");
+				return true;
+			} else {
+				if (tracer.isDebugEnabled())tracer.debug("no, it isn't");
+				return false;
+			}
+		} catch (Exception e) {
+			tracer.error("Unable to read PDF. Unable to check if the pdf is signed.",e);
+			throw new SignatureException("Unable to read PDF. Unable to check if the pdf is signed.",e);
+		}
+	}
+
 }
