@@ -100,14 +100,14 @@ public class PDFSignatureService
 						  VerifyResult,
 						  PDFSignatureInfo > digestSignature	= null;
 		try {
-			TSAClient tsaClient=null;
+//			TSAClient tsaClient=null;
 			
 			
-			TsRequestInfo tsRequest = chainSignature.getTsRequest();
-			boolean applyMark = tsRequest!=null && StringUtils.isNotBlank(tsRequest.getTsUrl());
-			if ( applyMark ) {
-				tsaClient = new TSAClientBouncyCastle(tsRequest.getTsUrl(), tsRequest.getTsUsername(), tsRequest.getTsPassword());
-			}
+//			TsRequestInfo tsRequest = chainSignature.getTsRequest();
+//			boolean applyMark = tsRequest!=null && StringUtils.isNotBlank(tsRequest.getTsUrl());
+//			if ( applyMark ) {
+//				tsaClient = new TSAClientBouncyCastle(tsRequest.getTsUrl(), tsRequest.getTsUsername(), tsRequest.getTsPassword());
+//			}
 
 			int estimatedSize=0;
 			CryptoStandard sigtype = CryptoStandard.CMS;	// FIXME qui c'era CMS
@@ -129,8 +129,6 @@ public class PDFSignatureService
 			
 			// questo e' il certificato su cui lavorare
 			Certificate[] chain = signature.getRawX509Certificates();
-//			Certificate[] chain = new Certificate[1];
-//			chain[0] = certificate;
 
 			// creo la signature apparence
 			PdfSignatureAppearance sap = stamper.getSignatureAppearance();
@@ -151,7 +149,7 @@ public class PDFSignatureService
 //	            }
 //	            if (ocspClient != null)
 	                estimatedSize += 4192;
-	            if (tsaClient != null)
+//	            if (tsaClient != null)
 	                estimatedSize += 4192;
 	        }
 	    	Calendar now = Calendar.getInstance();
@@ -293,7 +291,7 @@ public class PDFSignatureService
 //	            }
 //	            if (ocspClient != null)
 	                estimatedSize += 4192;
-	            if (tsaClient != null)
+//	            if (tsaClient != null)
 	                estimatedSize += 4192;
 	        }
 	        sap.setCertificate(chain[0]);
