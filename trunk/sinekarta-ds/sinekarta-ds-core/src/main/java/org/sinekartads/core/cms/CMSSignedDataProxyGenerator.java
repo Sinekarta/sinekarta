@@ -10,24 +10,26 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Enumeration;
 
 import org.apache.commons.io.IOUtils;
 import org.bouncycastle.asn1.ASN1EncodableVector;
+import org.bouncycastle.asn1.ASN1Integer;
+import org.bouncycastle.asn1.DEROctetString;
+import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.DERSet;
+import org.bouncycastle.asn1.DERTaggedObject;
 import org.bouncycastle.asn1.cms.Attribute;
 import org.bouncycastle.asn1.cms.AttributeTable;
-import org.bouncycastle.asn1.ess.ESSCertIDv2;
 import org.bouncycastle.asn1.ess.SigningCertificateV2;
-import org.bouncycastle.asn1.nist.NISTObjectIdentifiers;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
-import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
+import org.bouncycastle.asn1.x509.X509CertificateStructure;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaCertStore;
 import org.bouncycastle.cms.CMSAttributeTableGenerator;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSProcessable;
 import org.bouncycastle.cms.CMSSignedData;
-import org.bouncycastle.cms.DefaultSignedAttributeTableGenerator;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
@@ -37,6 +39,7 @@ import org.bouncycastle.util.Store;
 import org.sinekartads.model.domain.SignDisposition;
 
 public class CMSSignedDataProxyGenerator {
+	
 	
 	private static final CMSProvider provider = new CMSProvider();
 	private CMSSignedDataGenerator generator = new CMSSignedDataGenerator();
@@ -85,10 +88,82 @@ public class CMSSignedDataProxyGenerator {
 				}
 				byte[] certHash = md.digest();
 				
-				ESSCertIDv2 essCert1 = new ESSCertIDv2(new AlgorithmIdentifier(NISTObjectIdentifiers.id_sha256), certHash);
-				ESSCertIDv2[] essCert1Arr = { essCert1 };
-				SigningCertificateV2 scv2 = new SigningCertificateV2(essCert1Arr);
-				Attribute certHAttribute = new Attribute(PKCSObjectIdentifiers.id_aa_signingCertificateV2, new DERSet(scv2));
+				
+				
+				ASN1Integer issuerInteger;
+				DERSequence issuerSequence;
+				
+				DERSequence seq;
+				DERTaggedObject tag;
+				ASN1EncodableVector vect;
+				Enumeration<?> objects;
+				
+				// 	signedData root
+				seq = (DERSequence)((X509CertificateStructure)generator.certs.get(0)).toASN1Object();
+				objects = seq.getObjects();
+				
+//				// 		nested taggedObject, second child
+//				objects.nextElement();		// skip: ASNObjectIdentifier
+//				taggedObject = (DERTaggedObject) objects.nextElement();
+//				
+//				// 			nested sequence
+//				seq = (DERSequence) taggedObject.getObject();
+//				objects = seq.getObjects();
+//				
+//				// 					nested taggedObject, fourth child
+//				objects.nextElement();		// skip: ASN1Integer
+//				objects.nextElement();		// skip: DERSet
+//				objects.nextElement();		// skip: DERSequence
+//				taggedObject = (DERTaggedObject)objects.nextElement();
+//				
+//				// 						nested sequence
+//				seq = (DERSequence) taggedObject.getObject();
+//				objects = seq.getObjects();
+				
+				// 							nested sequence
+				seq = (DERSequence) objects.nextElement();
+				objects = seq.getObjects();
+				
+				//								issuerInteger
+				objects.nextElement();		// skip: DERTaggedObject
+				issuerInteger = (ASN1Integer) objects.nextElement();
+				
+				//								issuerSequence
+				objects.nextElement();		// skip: DERSequence
+				issuerSequence = (DERSequence) objects.nextElement();
+				
+//				vect = new ASN1EncodableVector();
+//				vect.add(issuerSequence);
+//				seq = new DERSequence(vect);
+				
+				tag = new DERTaggedObject(4, issuerSequence); 
+				
+				vect = new ASN1EncodableVector();
+				vect.add(tag);
+				seq = new DERSequence(vect);
+				
+				vect = new ASN1EncodableVector();
+				vect.add(seq);
+				vect.add(issuerInteger);
+				seq = new DERSequence(vect); 
+				
+				
+				vect = new ASN1EncodableVector();
+				vect.add(new DEROctetString(certHash));
+				vect.add(seq);
+				seq = new DERSequence(vect);
+				
+				vect = new ASN1EncodableVector();
+				vect.add(seq);
+				seq = new DERSequence(vect);
+				
+				vect = new ASN1EncodableVector();
+				vect.add(seq);
+				seq = new DERSequence(vect); 
+				
+				Attribute certHAttribute = new Attribute(PKCSObjectIdentifiers.id_aa_signingCertificateV2, new DERSet(seq));
+//				SigningCertificateV2 scv2 = new SigningCertificateV2(seq);
+//				Attribute certHAttribute = new Attribute(PKCSObjectIdentifiers.id_aa_signingCertificateV2, new DERSet(scv2));
 				ASN1EncodableVector v = new ASN1EncodableVector();
 				v.add(certHAttribute);
 				AttributeTable at = new AttributeTable(v);
