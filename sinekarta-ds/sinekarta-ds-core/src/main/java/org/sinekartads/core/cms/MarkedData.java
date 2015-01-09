@@ -273,12 +273,12 @@ public abstract class MarkedData extends ASN1Parser {
 		
 		@Override
 		protected DERObject envelope(DEREncodable derSignedData, DEREncodable derMarkedContent, DEREncodable derVersion) {		
-			ASN1EncodableVector asn1Vect = new ASN1EncodableVector();
+			ASN1EncodableVector asn1Vect;
         
 			// envelope for the tsSignedData (it is already labeled)
-	        ASN1EncodableVector vec01020 = new ASN1EncodableVector();
-	        vec01020.add(derSignedData);
-	        DERSequence seq0120 = new DERSequence(vec01020);         
+			asn1Vect = new ASN1EncodableVector();
+			asn1Vect.add(derSignedData);
+	        DERSequence seq0120 = new DERSequence(asn1Vect);         
 	        // timestampedData body
 	        asn1Vect = new ASN1EncodableVector();
 	        asn1Vect.add( derVersion );

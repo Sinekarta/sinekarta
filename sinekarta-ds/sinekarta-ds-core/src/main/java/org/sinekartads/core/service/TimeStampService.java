@@ -26,7 +26,6 @@ import org.bouncycastle.tsp.TimeStampResponse;
 import org.bouncycastle.tsp.TimeStampToken;
 import org.bouncycastle.tsp.TimeStampTokenInfo;
 import org.bouncycastle.util.Store;
-import org.sinekartads.asn1.ASN1Utils;
 import org.sinekartads.core.CoreConfiguration;
 import org.sinekartads.core.cms.BouncyCastleUtils;
 import org.sinekartads.core.cms.NoFilterSelector;
@@ -38,7 +37,6 @@ import org.sinekartads.model.domain.TsResponseInfo;
 import org.sinekartads.model.oid.DigestAlgorithm;
 import org.sinekartads.model.oid.EncryptionAlgorithm;
 import org.sinekartads.model.oid.SignatureAlgorithm;
-
 
 public class TimeStampService {
 
@@ -87,7 +85,7 @@ public class TimeStampService {
 			rawTimeStampResponse = new TimeStampResponse ( new ByteArrayInputStream(encResponse) );
 			rawTimeStampResponse.validate(rawTimeStampRequest);
 		} catch(TSPException e) {
-			throw new SignatureException(String.format("error during the timeStamp validation", e.getMessage()), e);
+			throw new SignatureException(String.format("error during the timeStamp validation: %s", e.getMessage()), e);
 		}
 		
 		TimeStampToken rawTimeStampToken = rawTimeStampResponse.getTimeStampToken();

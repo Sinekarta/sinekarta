@@ -16,21 +16,8 @@ import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.DERPrintableString;
 import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.DERSet;
+import org.bouncycastle.asn1.DERTaggedObject;
 import org.bouncycastle.asn1.DERUTF8String;
-
-//import org.bouncycastle.asn1.ASN1Boolean;
-//import org.bouncycastle.asn1.ASN1Integer;
-//import org.bouncycastle.asn1.ASN1ObjectIdentifier;
-//import org.bouncycastle.asn1.ASN1TaggedObject;
-//import org.bouncycastle.asn1.ASN1UTCTime;
-//import org.bouncycastle.asn1.DERBitString;
-//import org.bouncycastle.asn1.DEREncodable;
-//import org.bouncycastle.asn1.DERIA5String;
-//import org.bouncycastle.asn1.DEROctetString;
-//import org.bouncycastle.asn1.DERPrintableString;
-//import org.bouncycastle.asn1.DERSequence;
-//import org.bouncycastle.asn1.DERSet;
-//import org.bouncycastle.asn1.DERUTF8String;
 
 public abstract class ASN1Scanner {
 	
@@ -116,6 +103,12 @@ public abstract class ASN1Scanner {
 			} catch(Exception e) {
 				throw new RuntimeException(e);
 			}
+		} else if(object instanceof DERTaggedObject) {
+			value = "tagNo: " + ((DERTaggedObject)object).getTagNo();
+		} else if(object instanceof DERSequence) {
+			value = "elems: " + ((DERSequence)object).size();
+		} else if(object instanceof DERSet) {
+			value = "elems: " + ((DERSet)object).size();			
 		}
 		args.put(ARG_VALUE, value);
 		process(object, parent, args);
