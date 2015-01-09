@@ -21,7 +21,6 @@ import org.bouncycastle.asn1.DERSet;
 import org.bouncycastle.asn1.DERTaggedObject;
 import org.bouncycastle.asn1.cms.Attribute;
 import org.bouncycastle.asn1.cms.AttributeTable;
-import org.bouncycastle.asn1.ess.SigningCertificateV2;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x509.X509CertificateStructure;
 import org.bouncycastle.cert.X509CertificateHolder;
@@ -88,8 +87,6 @@ public class CMSSignedDataProxyGenerator {
 				}
 				byte[] certHash = md.digest();
 				
-				
-				
 				ASN1Integer issuerInteger;
 				DERSequence issuerSequence;
 				
@@ -139,8 +136,6 @@ public class CMSSignedDataProxyGenerator {
 				seq = new DERSequence(vect); 
 				
 				Attribute certHAttribute = new Attribute(PKCSObjectIdentifiers.id_aa_signingCertificateV2, new DERSet(seq));
-//				SigningCertificateV2 scv2 = new SigningCertificateV2(seq);
-//				Attribute certHAttribute = new Attribute(PKCSObjectIdentifiers.id_aa_signingCertificateV2, new DERSet(scv2));
 				ASN1EncodableVector v = new ASN1EncodableVector();
 				v.add(certHAttribute);
 				AttributeTable at = new AttributeTable(v);

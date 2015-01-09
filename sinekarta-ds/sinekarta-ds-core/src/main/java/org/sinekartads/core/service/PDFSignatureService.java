@@ -110,7 +110,7 @@ public class PDFSignatureService
 //			}
 
 			int estimatedSize=0;
-			CryptoStandard sigtype = CryptoStandard.CADES;	// FIXME qui c'era CMS
+			CryptoStandard sigtype = CryptoStandard.CADES;	
 			PDFSignatureInfo signature = (PDFSignatureInfo) chainSignature;
 			
 			// creo il reader del pdf
@@ -163,7 +163,7 @@ public class PDFSignatureService
 			sap.setReason(signature.getReason());
 			sap.setLocation(signature.getLocation());
 
-			PdfSignature dic = new PdfSignature(PdfName.ADOBE_PPKLITE, PdfName.ADBE_PKCS7_DETACHED);
+			PdfSignature dic = new PdfSignature(PdfName.ADOBE_PPKLITE, sigtype == CryptoStandard.CADES ? PdfName.ETSI_CADES_DETACHED : PdfName.ADBE_PKCS7_DETACHED);
 	        dic.setReason(sap.getReason());
 	        dic.setLocation(sap.getLocation());
 	        dic.setContact(sap.getContact());
@@ -304,7 +304,7 @@ public class PDFSignatureService
 			sap.getStamper().setUnicodeModDate(signature.getUnicodeModDate());
 			sap.getStamper().setFileId(signature.getFileId());
 	        
-			PdfSignature dic = new PdfSignature(PdfName.ADOBE_PPKLITE, PdfName.ADBE_PKCS7_DETACHED);
+			PdfSignature dic = new PdfSignature(PdfName.ADOBE_PPKLITE, sigtype == CryptoStandard.CADES ? PdfName.ETSI_CADES_DETACHED : PdfName.ADBE_PKCS7_DETACHED);
 	        dic.setReason(sap.getReason());
 	        dic.setLocation(sap.getLocation());
 	        dic.setContact(sap.getContact());
