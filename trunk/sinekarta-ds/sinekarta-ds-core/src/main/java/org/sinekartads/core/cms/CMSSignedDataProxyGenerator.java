@@ -98,27 +98,9 @@ public class CMSSignedDataProxyGenerator {
 				ASN1EncodableVector vect;
 				Enumeration<?> objects;
 				
-				// 	signedData root
+				// 	certificate root
 				seq = (DERSequence)((X509CertificateStructure)generator.certs.get(0)).toASN1Object();
 				objects = seq.getObjects();
-				
-//				// 		nested taggedObject, second child
-//				objects.nextElement();		// skip: ASNObjectIdentifier
-//				taggedObject = (DERTaggedObject) objects.nextElement();
-//				
-//				// 			nested sequence
-//				seq = (DERSequence) taggedObject.getObject();
-//				objects = seq.getObjects();
-//				
-//				// 					nested taggedObject, fourth child
-//				objects.nextElement();		// skip: ASN1Integer
-//				objects.nextElement();		// skip: DERSet
-//				objects.nextElement();		// skip: DERSequence
-//				taggedObject = (DERTaggedObject)objects.nextElement();
-//				
-//				// 						nested sequence
-//				seq = (DERSequence) taggedObject.getObject();
-//				objects = seq.getObjects();
 				
 				// 							nested sequence
 				seq = (DERSequence) objects.nextElement();
@@ -132,10 +114,6 @@ public class CMSSignedDataProxyGenerator {
 				objects.nextElement();		// skip: DERSequence
 				issuerSequence = (DERSequence) objects.nextElement();
 				
-//				vect = new ASN1EncodableVector();
-//				vect.add(issuerSequence);
-//				seq = new DERSequence(vect);
-				
 				tag = new DERTaggedObject(4, issuerSequence); 
 				
 				vect = new ASN1EncodableVector();
@@ -146,7 +124,6 @@ public class CMSSignedDataProxyGenerator {
 				vect.add(seq);
 				vect.add(issuerInteger);
 				seq = new DERSequence(vect); 
-				
 				
 				vect = new ASN1EncodableVector();
 				vect.add(new DEROctetString(certHash));
