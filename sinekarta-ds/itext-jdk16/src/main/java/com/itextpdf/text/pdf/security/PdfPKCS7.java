@@ -100,6 +100,7 @@ import org.bouncycastle.asn1.ocsp.BasicOCSPResponse;
 import org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
+import org.bouncycastle.asn1.x509.X509CertificateStructure;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.bouncycastle.cert.ocsp.CertificateID;
@@ -972,10 +973,10 @@ public class PdfPKCS7 {
             v.add(new ASN1ObjectIdentifier(SecurityIDs.ID_CONTENT_TYPE));
             v.add(new DERSet(new ASN1ObjectIdentifier(SecurityIDs.ID_PKCS7_DATA)));
             attribute.add(new DERSequence(v));
-            v = new ASN1EncodableVector();
-            v.add(new ASN1ObjectIdentifier(SecurityIDs.ID_SIGNING_TIME));
-            v.add(new DERSet(new DERUTCTime(signingTime.getTime())));
-            attribute.add(new DERSequence(v));
+//            v = new ASN1EncodableVector();
+//            v.add(new ASN1ObjectIdentifier(SecurityIDs.ID_SIGNING_TIME));
+//            v.add(new DERSet(new DERUTCTime(signingTime.getTime())));
+//            attribute.add(new DERSequence(v));
             v = new ASN1EncodableVector();
             v.add(new ASN1ObjectIdentifier(SecurityIDs.ID_MESSAGE_DIGEST));
             v.add(new DERSet(new DEROctetString(secondDigest)));
@@ -989,6 +990,7 @@ public class PdfPKCS7 {
                     }
                 }
             }
+            
             if (ocsp != null || haveCrl) {
                 v = new ASN1EncodableVector();
                 v.add(new ASN1ObjectIdentifier(SecurityIDs.ID_ADBE_REVOCATION));
@@ -1025,16 +1027,30 @@ public class PdfPKCS7 {
                 attribute.add(new DERSequence(v));
             }
             if (sigtype == CryptoStandard.CADES) {
-                v = new ASN1EncodableVector();
+                ASN1InputStream tempstream = new ASN1InputStream(new ByteArrayInputStream(signCert.getEncoded()));
+                DERSequence seq = (DERSequence) tempstream.readObject();
+                tempstream.close();
+				Enumeration<?> objects = seq.getObjects();
+				seq = (DERSequence) objects.nextElement();
+				objects = seq.getObjects();
+				objects.nextElement();										// skip: DERTaggedObject
+				ASN1Integer issuerInteger = (ASN1Integer) objects.nextElement();		// issuerInteger
+				objects.nextElement();										// skip: DERSequence	
+				DERSequence issuerSequence = (DERSequence) objects.nextElement();		// issuerSequence
+
+				v = new ASN1EncodableVector();
                 v.add(new ASN1ObjectIdentifier(SecurityIDs.ID_AA_SIGNING_CERTIFICATE_V2));
 
                 ASN1EncodableVector aaV2 = new ASN1EncodableVector();
-                AlgorithmIdentifier algoId = new AlgorithmIdentifier(new ASN1ObjectIdentifier(digestAlgorithmOid), null);
-                aaV2.add(algoId);
                 MessageDigest md = interfaceDigest.getMessageDigest(getHashAlgorithm());
                 byte[] dig = md.digest(signCert.getEncoded());
                 aaV2.add(new DEROctetString(dig));
-                
+				
+                ASN1EncodableVector v1 = new ASN1EncodableVector();
+                v1.add(new DERSequence(new DERTaggedObject(4, issuerSequence)));
+                v1.add(issuerInteger);
+                aaV2.add(new DERSequence(v1));
+				
                 v.add(new DERSet(new DERSequence(new DERSequence(new DERSequence(aaV2)))));
                 attribute.add(new DERSequence(v));
             }
