@@ -103,14 +103,14 @@ public class PDFSignatureService
 //			TSAClient tsaClient=null;
 			
 			
-//			TsRequestInfo tsRequest = chainSignature.getTsRequest();
-//			boolean applyMark = tsRequest!=null && StringUtils.isNotBlank(tsRequest.getTsUrl());
+			TsRequestInfo tsRequest = chainSignature.getTsRequest();
+			boolean applyMark = tsRequest!=null && StringUtils.isNotBlank(tsRequest.getTsUrl());
 //			if ( applyMark ) {
 //				tsaClient = new TSAClientBouncyCastle(tsRequest.getTsUrl(), tsRequest.getTsUsername(), tsRequest.getTsPassword());
 //			}
 
 			int estimatedSize=0;
-			CryptoStandard sigtype = CryptoStandard.CMS;	// FIXME qui c'era CMS
+			CryptoStandard sigtype = CryptoStandard.CADES;	// FIXME qui c'era CMS
 			PDFSignatureInfo signature = (PDFSignatureInfo) chainSignature;
 			
 			// creo il reader del pdf
@@ -149,7 +149,7 @@ public class PDFSignatureService
 //	            }
 //	            if (ocspClient != null)
 	                estimatedSize += 4192;
-//	            if (tsaClient != null)
+	            if (applyMark)
 	                estimatedSize += 4192;
 	        }
 	    	Calendar now = Calendar.getInstance();
@@ -251,7 +251,7 @@ public class PDFSignatureService
 			}
 
 			int estimatedSize=0;
-			CryptoStandard sigtype = CryptoStandard.CMS;
+			CryptoStandard sigtype = CryptoStandard.CADES;
 			
 			// creo il reader del pdf
 			PdfReader reader = new PdfReader(contentIs);
@@ -291,7 +291,7 @@ public class PDFSignatureService
 //	            }
 //	            if (ocspClient != null)
 	                estimatedSize += 4192;
-//	            if (tsaClient != null)
+	            if (applyMark)
 	                estimatedSize += 4192;
 	        }
 	        sap.setCertificate(chain[0]);
@@ -541,7 +541,7 @@ public class PDFSignatureService
 					// Evaluate the securityLevel
 		            Calendar cal = pdfPkCs7.getSignDate();
 		            Certificate[] pkc = pdfPkCs7.getCertificates();
-					boolean verified = StringUtils.isBlank ( CertificateVerification.verifyCertificate((X509Certificate)pkc[0], new ArrayList<CRL>(), cal) );
+					boolean verified = pdfPkCs7.verify() && StringUtils.isBlank ( CertificateVerification.verifyCertificate((X509Certificate)pkc[0], new ArrayList<CRL>(), cal) );
 					if ( verified ) { 
 						signVerifyResult = minLevel ( signVerifyResult, VerifyResult.VALID );
 					} else {
