@@ -4,9 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.security.InvalidKeyException;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.security.cert.CRL;
 import java.security.cert.Certificate;
@@ -15,7 +13,6 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,8 +23,6 @@ import org.bouncycastle.asn1.DERObjectIdentifier;
 import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.tsp.TimeStampToken;
-import org.sinekartads.core.provider.ExternalDigester;
-import org.sinekartads.core.provider.ExternalSigner;
 import org.sinekartads.model.domain.DigestInfo;
 import org.sinekartads.model.domain.PDFSignatureInfo;
 import org.sinekartads.model.domain.SecurityLevel.VerifyResult;
@@ -581,21 +576,6 @@ public class PDFSignatureService
 	// -----
 	// --- Utility methods
 	// -
-	
-	ExternalDigester digester = new ExternalDigester();
-	Map<SignatureAlgorithm, ExternalSigner> signers = new HashMap<SignatureAlgorithm, ExternalSigner>();
-
-	ExternalSigner getExternalSigner(SignatureAlgorithm signatureAlgorithm) 
-			throws 	InvalidKeyException, NoSuchAlgorithmException {
-		ExternalSigner signer = signers.get ( signatureAlgorithm.getName() );
-		if ( signer == null ) {
-			signer = new ExternalSigner (
-					signatureAlgorithm.getDigestAlgorithm().getName(), 
-					signatureAlgorithm.getEncryptionAlgorithm().getName() );
-			signers.put ( signatureAlgorithm, signer );
-		}
-		return signer;
-	}
 	
 	/**
 	 * metodo di utilita' che verifica se il pdf in input e' gia' firmato

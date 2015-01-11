@@ -13,12 +13,6 @@ import org.bouncycastle.asn1.DEREncodable;
 import org.bouncycastle.asn1.DERNull;
 import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.DERSet;
-//import org.bouncycastle.asn1.ASN1ObjectIdentifier;
-//import org.bouncycastle.asn1.ASN1TaggedObject;
-//import org.bouncycastle.asn1.DEREncodable;
-//import org.bouncycastle.asn1.DERNull;
-//import org.bouncycastle.asn1.DERSequence;
-//import org.bouncycastle.asn1.DERSet;
 
 public abstract class ASN1Selector<Constraint> {
 	
