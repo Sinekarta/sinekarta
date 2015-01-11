@@ -18,13 +18,11 @@ import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
-import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
-import org.bouncycastle.asn1.DERObject;
 import org.bouncycastle.asn1.DERSet;
+import org.bouncycastle.asn1.cms.Attribute;
 import org.bouncycastle.asn1.cms.AttributeTable;
-import org.bouncycastle.asn1.cms.SignerInfo;
-import org.bouncycastle.asn1.x509.Attribute;
+import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cms.CMSException;
@@ -35,8 +33,6 @@ import org.bouncycastle.cms.SignerId;
 import org.bouncycastle.cms.SignerInformation;
 import org.bouncycastle.cms.SignerInformationStore;
 import org.bouncycastle.cms.SignerInformationVerifier;
-import org.bouncycastle.operator.DefaultSignatureAlgorithmIdentifierFinder;
-import org.bouncycastle.operator.SignatureAlgorithmIdentifierFinder;
 import org.bouncycastle.tsp.TSPException;
 import org.bouncycastle.tsp.TimeStampResponse;
 import org.bouncycastle.tsp.TimeStampToken;
@@ -305,29 +301,28 @@ public class CMSSignatureService
         	throw new SignatureException("unable to build a signedData from the given inputStreams, has contentIs been provided?", e);
         }
         
-        // Evaluate the message imprint digest for the tsRequest
-        TsRequestInfo digestTsr = tsRequest.evaluateMessageImprint( signedDataEnc );
-        
-        // Use timeStampService to receive the tsResponse
-        TsResponseInfo tsResponse;
-        byte[] encTimeStampResponse;
-        byte[] encTimeStampToken;
-		tsResponse = timeStampService.processTsTequest ( digestTsr );
-		encTimeStampResponse = tsResponse.getEncTimeStampResponse();
-		encTimeStampToken = tsResponse.getTimeStamp().getEncTimeStampToken();
-		
 		// Store the signedData into the appropriated OutputStream if provided:
 		//		- timestampOs 		for DETACHED dispositions, rawTimeStampResponse as *.tsr
 		//		- markedDataOs 		for ENVELOPING dispositions, Dike-like format as *.tsa
 		//		- markedDataOs 		for ATTRIBUTE dispositions, TS added as unsigned attribute, *.m7m
+        TsResponseInfo tsResponse;
 		switch ( tsRequest.getDisposition() ) {
 			case DETACHED: {
+				throw new UnsupportedOperationException();
 				// Store the rawTimeStampResponse into the timestampOs (*.tsr)
-				Assert.notNull ( timestampOs );
-				IOUtils.write ( encTimeStampResponse, timestampOs );
-				break;
+//				Assert.notNull ( timestampOs );
+//				IOUtils.write ( encTimeStampResponse, timestampOs );
+//				break;
 			}
 			case ENVELOPING: {
+		        // Evaluate the message imprint digest for the tsRequest
+		        TsRequestInfo digestTsr = tsRequest.evaluateMessageImprint( signedDataEnc );
+		        
+		        // Use timeStampService to receive the tsResponse
+		        byte[] encTimeStampToken;
+				tsResponse = timeStampService.processTsTequest ( digestTsr );
+				encTimeStampToken = tsResponse.getTimeStamp().getEncTimeStampToken();
+
 				// Generate a MarkedData as <signedDataEnc + rawTimeStampToken> and convert it to bytes (markedDataEnc)
 				byte[] markedDataEnc = null;
 				try {
@@ -343,38 +338,35 @@ public class CMSSignatureService
 				Assert.notNull ( markedSignOs );
 				IOUtils.write(markedDataEnc, markedSignOs);
 				break;
-			} case ATTRIBUTE: {	
-				// Generate the structure for the tsAttribute value
-		        DERObject tsDER = ASN1Utils.readObject ( encTimeStampToken );
-		        DERSet tsStructure = new DERSet(tsDER);		        
-		        
+			} case ATTRIBUTE: {
+				tsResponse = null;
 		        SignerInformationStore markedStore;
 		        // Generate a new signerStore and fill it with the marked signers
 				Collection<SignerInformation> prevSigners = signedData.getSignerInfos().getSigners();
 				List<SignerInformation> markedSigners = new ArrayList<SignerInformation>();
-				AttributeTable unsignedAttrs;
-		        for(SignerInformation si : prevSigners) {
-		        	ASN1ObjectIdentifier tsTokenOid = new ASN1ObjectIdentifier(SinekartaDsObjectIdentifiers.attr_timeStampToken);
-		        	unsignedAttrs = si.getUnsignedAttributes();
-		        	if ( unsignedAttrs == null ) {
-						Hashtable ht = new Hashtable();
-		                    DERObject derObj = new ASN1InputStream(new
-		ByteArrayInputStream(encTimeStampToken)).readObject();
-		                    DERSet derSet = new DERSet(derObj);
+		        for(SignerInformation signer : prevSigners) {
+		        	// Evaluate the message imprint digest for the tsRequest
+		            TsRequestInfo digestTsr = tsRequest.evaluateMessageImprint( signer.getSignature() );
+		            byte[] encTimeStampToken;
+		    		tsResponse = timeStampService.processTsTequest ( digestTsr );
+		    		encTimeStampToken = tsResponse.getTimeStamp().getEncTimeStampToken();
+		                    
+                    AttributeTable unsigned = signer.getUnsignedAttributes();
+                    Hashtable<ASN1ObjectIdentifier, Attribute> unsignedAttrs = null;
+                    if (unsigned == null) {
+                        unsignedAttrs = new Hashtable<ASN1ObjectIdentifier, Attribute>();
+                    } else {
+                        unsignedAttrs = signer.getUnsignedAttributes().toHashtable();
+                    }
 
-		                    Attribute unsignAtt = new
-		Attribute(tsTokenOid, derSet);
-		                    ht.put(tsTokenOid, unsignAtt);
+                    Attribute attrTimeStamp = new Attribute ( 
+                    		PKCSObjectIdentifiers.id_aa_signatureTimeStampToken, 
+                    		new DERSet(ASN1Utils.readObject(encTimeStampToken)) );
+                    unsignedAttrs.put(PKCSObjectIdentifiers.id_aa_signatureTimeStampToken, attrTimeStamp);
 
-		                    AttributeTable unsignedAtts = new AttributeTable(ht);
-//		        		ASN1EncodableVector vector = new ASN1EncodableVector();
-//		        		vector.add(tsTokenOid);
-//		        		vector.add(tsStructure);
-//		        		unsignedAttrs = new AttributeTable(vector);
-		        	} else { 
-		        		unsignedAttrs = unsignedAttrs.add(tsTokenOid, tsStructure);
-		        	}
-		        	markedSigners.add(SignerInformation.replaceUnsignedAttributes(si, unsignedAttrs));
+                    SignerInformation markedSigner = SignerInformation.replaceUnsignedAttributes(signer, new AttributeTable(unsignedAttrs));
+		                    
+		            markedSigners.add(markedSigner);
 		        }
 		        markedStore = new SignerInformationStore(markedSigners);
 		        
