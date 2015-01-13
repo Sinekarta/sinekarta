@@ -93,11 +93,18 @@ public class TimeStampRequestDTO extends BaseDTO {
 	}
 	
 	public BigInteger nounceFromString() {
+		if ( StringUtils.isBlank(nounce) ) {
+			return null;
+		}
 		return BigInteger.valueOf ( Long.parseLong(nounce) );
 	}
 	
 	public void nounceToString(BigInteger nounce) {
-		this.nounce = nounce.toString(); 
+		if ( nounce != null ) {
+			this.nounce = nounce.toString();			
+		} else {
+			this.nounce = "";
+		}
 	}
 	
 	public SignDisposition.TimeStamp timestampDispositionFromString() {

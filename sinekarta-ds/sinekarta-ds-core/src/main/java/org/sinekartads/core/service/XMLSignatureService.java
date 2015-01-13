@@ -107,7 +107,7 @@ public class XMLSignatureService
         @Override
         public Algorithm getCanonicalizationAlgorithmForTimeStampProperties()
         {
-            return new ExclusiveCanonicalXMLWithoutComments("ds", "xades");
+            return new ExclusiveCanonicalXMLWithoutComments();
         }
 
         @Override
