@@ -42,7 +42,7 @@
 			var wizardData = {};
 			wizardData.nodeRefs = [asset.nodeRef];
 			wizardData.tsSelection = "NONE";
-			wizardData.backUrl = escape(window.location.href);
+			wizardData.backUrl = window.location.href;
 
 			var parameters = {};
 			parameters.wizardDataJSON = JSON.stringify(wizardData);
@@ -58,7 +58,7 @@
 			var wizardData = {};
 			wizardData.nodeRefs = [asset.nodeRef];
 			wizardData.tsSelection = "DEFAULT";
-			wizardData.backUrl = escape(window.location.href);
+			wizardData.backUrl = window.location.href;
 
 			var parameters = {};
 			parameters.wizardDataJSON = JSON.stringify(wizardData);
@@ -72,7 +72,7 @@
 			var url = Alfresco.constants.URL_CONTEXT+"page/skdsVerifyPrepare";
 			var parameters = new Array();
 			parameters["nodeRefs"] = [asset.nodeRef];
-			parameters["backUrl"] = escape(window.location.href);
+			parameters["backUrl"] = window.location.href;
 			location.href = buildUrl(url, parameters);
 		}
    	});

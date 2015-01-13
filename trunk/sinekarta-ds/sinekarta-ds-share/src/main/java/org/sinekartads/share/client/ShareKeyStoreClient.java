@@ -40,21 +40,9 @@ public class ShareKeyStoreClient extends KeyStoreClient {
 			ksoresp = JavaWebscriptTools.postJsonRequest ( 
 					ksoreq, SkdsKeyStoreOpenResponse.class, connectorService );
 		} catch(AlfrescoException e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException(e.getMessage(), e);
 		}
-		ResultCode resultCode = ResultCode.valueOf(ksoresp.getResultCode());
-		switch ( resultCode ) {
-			case SUCCESS: {
-				keyStore = ksoresp.getKeyStore();
-				break;
-			}
-			case BAD_REQUEST: {
-				throw new IllegalArgumentException ( "invalid keystore structre or password" );
-			}
-			default: {
-				throw new RuntimeException ( resultCode.name() );
-			}
-		}
+		keyStore = ksoresp.getKeyStore();
 		loadAliases();
 		
 		return aliases;

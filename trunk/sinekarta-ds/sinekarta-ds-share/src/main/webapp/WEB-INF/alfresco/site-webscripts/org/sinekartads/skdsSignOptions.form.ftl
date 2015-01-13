@@ -31,9 +31,9 @@
 					</span>
 					<span class="skds-data-input"> 
 						<#if wscWizardData.signature.signCategory == 'CMS'>
-							<input id="${htmlid}-signCategory-cms" type="radio" value="CMS" checked />
+							<input id="${htmlid}-signCategory-cms" name="signCategory" type="radio" value="CMS" checked />
 						<#else>
-							<input id="${htmlid}-signCategory-cms" type="radio" value="CMS" />
+							<input id="${htmlid}-signCategory-cms" name="signCategory" type="radio" value="CMS" />
 						</#if>
 						<label for="${htmlid}-signCategory-cms">${msg("label.cms")}</label>
 					</span>
@@ -43,11 +43,11 @@
 					<span class="skds-data-caption"> &nbsp; </span>
 					<span class="skds-data-input">
 						<#if wscWizardData.signature.signCategory == 'PDF'>
-							<input id="${htmlid}-signCategory-pdf" type="radio" value="PDF" checked />
+							<input id="${htmlid}-signCategory-pdf" name="signCategory" type="radio" value="PDF" checked />
 						<#elseif wscWizardData.mimetype?? && wscWizardData.mimetype != 'application/pdf'>
-							<input id="${htmlid}-signCategory-pdf" type="radio" value="PDF" disabled />
+							<input id="${htmlid}-signCategory-pdf" name="signCategory" type="radio" value="PDF" disabled />
 						<#else>
-							<input id="${htmlid}-signCategory-pdf" type="radio" value="PDF" />
+							<input id="${htmlid}-signCategory-pdf" name="signCategory" type="radio" value="PDF" />
 						</#if>
 						<label for="${htmlid}-signCategory-pdf">${msg("label.pdf")}</label> 
 					</span>
@@ -57,11 +57,11 @@
 					<span class="skds-data-caption"> &nbsp; </span>
 					<span class="skds-data-input"> 
 						<#if wscWizardData.signature.signCategory == 'XML'>
-							<input id="${htmlid}-signCategory-xml" type="radio" value="XML" checked />
+							<input id="${htmlid}-signCategory-xml" name="signCategory" type="radio" value="XML" checked />
 						<#elseif wscWizardData.mimetype?? && wscWizardData.mimetype != 'application/xml'>
-							<input id="${htmlid}-signCategory-xml" type="radio" value="XML" disabled />
+							<input id="${htmlid}-signCategory-xml" name="signCategory" type="radio" value="XML" disabled />
 						<#else>
-							<input id="${htmlid}-signCategory-xml" type="radio" value="XML" />
+							<input id="${htmlid}-signCategory-xml" name="signCategory" type="radio" value="XML" />
 						</#if>
 						<label for="${htmlid}-signCategory-xml">${msg("label.xml")}</label> 
 					</span>

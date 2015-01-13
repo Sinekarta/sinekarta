@@ -30,8 +30,6 @@ public class SignWizardDTO extends WizardDTO {
 	private SignatureDTO signature;
 	private String mimetype;
 	
-	private String signCategory;
-	
 	private String clientType;
 	
 	private String ksPin;
@@ -190,29 +188,10 @@ public class SignWizardDTO extends WizardDTO {
 	}
 	
 	
-	// -----
-	// --- Formatted properties
-	// -
-
-	public SignCategory signCategoryFromString() {
-		return SignCategory.valueOf(signCategory);
-	}
-	public void signCategoryToString(SignCategory signCategory) {
-		this.signCategory = signCategory.name();
-	}
-	
-	
 	
 	// -----
 	// --- Direct access to formatted properties
 	// -
-
-	public void setSignCategory(String signCategory) {
-		this.signCategory = signCategory;
-	}
-	public String getSignCategory() {
-		return signCategory;
-	}
 
 	public String getTsSelection() {
 		return tsSelection;

@@ -27,16 +27,10 @@ public class SkdsSignCallKeyStoreOpenWS extends BaseSignController {
 			SignWizardDTO dto ) 
 					throws AlfrescoException {
 		
-//		SignatureDTO signature = dto.getSignature();
 		String sessionId = dto.getSessionId();
 		String keyStorePin = dto.getKsPin();
 		KeyStoreClientCtrl keyStoreClient = clientFactory.getKeyStoreCtrl ( sessionId );
 		dto.setKsAliases ( keyStoreClient.openKeyStore(keyStorePin) );
-		
-//		String ksUserAlias = dto.getKsUserAlias();
-//		String ksUserPassword = dto.getKsUserPassword();
-//		signature.setHexCertificateChain ( 
-//				keyStoreClient.selectIdentity(ksUserAlias, ksUserPassword) );
 	}
 
 	@Override
