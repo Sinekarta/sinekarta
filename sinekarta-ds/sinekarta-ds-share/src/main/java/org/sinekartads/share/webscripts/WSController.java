@@ -24,7 +24,6 @@ import java.util.ResourceBundle;
 
 import org.apache.commons.lang.StringUtils;
 import org.sinekartads.dto.DTOFormatter;
-import org.sinekartads.dto.ResultCode;
 import org.sinekartads.dto.share.WizardDTO;
 import org.sinekartads.dto.share.WizardDTO.ActionErrorDTO;
 import org.sinekartads.dto.share.WizardDTO.FieldErrorDTO;
@@ -199,9 +198,11 @@ public abstract class WSController<DTO extends WizardDTO> extends BaseWS {
 				currentStep = currentStep();
 			}
 			wizardData.setCurrentStep ( toWizardStepDTO(currentStep) );
-			Map<String, WizardStepDTO> wizardSteps = new HashMap<String, WizardStepDTO>(); 
-			for ( WizardStep wizardStep : getWizardSteps() ) {
-				wizardSteps.put ( wizardStep.name, toWizardStepDTO(wizardStep) );
+			
+			WizardStep[] steps = getWizardSteps();
+			WizardStepDTO[] wizardSteps = new WizardStepDTO[steps.length];
+			for ( int i=0; i<steps.length; i++ ) {
+				wizardSteps[i] = toWizardStepDTO(steps[i]);
 			}
 			wizardData.setWizardSteps ( wizardSteps );
 			wizardData.setWizardForms ( getWizardForms() );
@@ -228,13 +229,18 @@ public abstract class WSController<DTO extends WizardDTO> extends BaseWS {
 	
 	protected void processError ( DTO wizardData, String errorMessage, Exception errorCause ) {
 		if ( StringUtils.isBlank(errorMessage) ) {
-			if ( errorCause instanceof AlfrescoException ) { 
-				errorMessage = errorCause.getMessage();
-				if ( StringUtils.isBlank(errorMessage) ) {
-					ResultCode resultCode = ((AlfrescoException)errorCause).getResultCode();
-					errorMessage = getMessage ( String.format(RESULT_CODE, resultCode) );
+			Throwable cause = errorCause;
+			do {
+				errorMessage = errorCause.getMessage(); 
+				cause = cause.getCause();
+			} while ( cause != null && StringUtils.isBlank(errorMessage) );
+			if ( StringUtils.isNotBlank(errorMessage) ) {
+				if ( errorMessage.startsWith("skds.error.") ) {
+					errorMessage = getMessage(errorMessage);
 				}
-			}
+			} else {
+				errorMessage = errorCause.getClass().getName();
+			} 
 		}
 		
 		wizardData.addActionError ( errorMessage, errorCause );

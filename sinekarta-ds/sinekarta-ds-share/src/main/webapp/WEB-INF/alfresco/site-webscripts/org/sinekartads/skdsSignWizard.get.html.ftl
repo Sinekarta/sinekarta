@@ -22,7 +22,7 @@
 <#include "skdsFieldError.ftl" />
 <#include "skdsSignWizard.head.ftl" />
 
-<#assign debug = 'C' />
+<#assign debug = 'AC' />
 <#if debug?contains('A')>
 	<#assign arvDisplay = 'block' />
 <#else>
