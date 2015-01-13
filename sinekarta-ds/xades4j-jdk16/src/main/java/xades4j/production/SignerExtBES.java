@@ -46,6 +46,7 @@ import xades4j.properties.DataObjectDesc;
 import xades4j.properties.QualifyingProperties;
 import xades4j.properties.QualifyingProperty;
 import xades4j.properties.SignedSignatureProperty;
+import xades4j.properties.SigningCertificateProperty;
 import xades4j.properties.UnsignedSignatureProperty;
 import xades4j.properties.data.SigAndDataObjsPropertiesData;
 import xades4j.providers.AlgorithmsProviderEx;
@@ -281,11 +282,12 @@ class SignerExtBES implements XadesSigner, XadesSignerExt
             	// Create the extSignature starting from the xmlSignature XML code
                 extSignature = DOMUtils.xmlSignatureToExt ( xmlSignature, signatureMethodURI );
                 
+                
                 // Inject the digital signature into the extSignature, this will evaluate the digestValues as side effect. The 
                 // 		digestValueElement relative to the signature target is still empty and will need to be injected afterwards
                 extSignature.setDigitalSignature(digitalSignature);
                 digest = extSignature.digest ( keyingProvider.getSigningKey(signingCertificate) );
-                
+
                 // Replace the xmlSignature with the extSignature into the document
                 //		from now any reference to xmlSignature inside this method code will be replaced with extSignature 
                 DOMUtils.searchReplace(docElem, xmlSignature.getElement(), extSignature.getElement());
@@ -551,16 +553,8 @@ class SignerExtBES implements XadesSigner, XadesSignerExt
             Collection<UnsignedSignatureProperty> formatSpecificUnsignedSigProps,
             List<X509Certificate> signingCertificateChain) throws XAdES4jException
     {
-    	// --- FIXME re-enable when stable ------------------------------------------------------------------
-    	// Keeping active the following code leads to Dike validation misbehavior so that is has been replaced 
-    	// by enabling the KeyInfo reference generation within KeyInfoBuilder. This is obtained by setting to 
-    	// true the signature option signSigningCertificate, see BasicSignatureOptionsProvider.
-    	// Fix this code when you get time, or just delete it.
-    	// This method is overridden by SignerExtT to add the timeStamp to the unsigned properties.
-    	// --------------------------------------------------------------------------------------------------
-//        SigningCertificateProperty scp = new SigningCertificateProperty(signingCertificateChain);
-//        formatSpecificSignedSigProps.add(scp);
-    	// --------------------------------------------------------------------------------------------------
+        SigningCertificateProperty scp = new SigningCertificateProperty(signingCertificateChain);
+        formatSpecificSignedSigProps.add(scp);
     }
     
     

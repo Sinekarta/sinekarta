@@ -98,6 +98,7 @@ abstract class ToXmlBaseTimeStampConverter<TData extends BaseXAdESTimeStampData,
         {
             XmlEncapsulatedPKIDataType xmlTSTkn = new XmlEncapsulatedPKIDataType();
             xmlTSTkn.setValue(tsToken);
+            xmlTSTkn.setEncoding("http://uri.etsi.org/01903/v1.3.2##DER");
             xmlTSTokens.add(xmlTSTkn);
         }
 
