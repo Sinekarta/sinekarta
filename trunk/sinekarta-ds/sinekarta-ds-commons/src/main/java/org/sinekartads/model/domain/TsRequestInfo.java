@@ -59,9 +59,9 @@ public class TsRequestInfo implements Serializable {
 		this.tsUsername = tsUsername;
 		this.tsPassword = tsPassword;
 		
-		if ( nounce == null ) {
-			nounce = BigInteger.valueOf ( RandomUtils.nextLong() );
-		}
+//		if ( nounce == null ) {
+//			nounce = BigInteger.valueOf ( RandomUtils.nextLong() );
+//		}
 		this.nounce = nounce;
 	}
 	
