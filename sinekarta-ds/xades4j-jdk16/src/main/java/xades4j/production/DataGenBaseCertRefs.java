@@ -29,7 +29,13 @@ import xades4j.providers.AlgorithmsProviderEx;
 import xades4j.providers.MessageDigestEngineProvider;
 
 /**
- *
+ * This file has been changed during the SineKarta development.
+ * 
+ * In the original version, the first CertRef constructor was cert.getIssuerX509Principal().getName().
+ * This presents some issues into the name parsing and not all the certificate properties were correctly
+ * parsed. To solve this trouble, this code has been replaced with cert.getIssuerDN().getName().
+ * 
+ * @author adeprato
  * @author Luís
  */
 class DataGenBaseCertRefs
