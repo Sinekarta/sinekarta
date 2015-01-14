@@ -78,12 +78,6 @@ class KeyInfoBuilder
                 {
                     String keyInfoId = xmlSig.getId() + "-keyinfo";
                     xmlSig.getKeyInfo().setId(keyInfoId);
-//                    xmlSig.addDocument(
-//                            '#' + keyInfoId,
-//                            null,
-//                            "http://www.w3.org/2001/04/xmlenc#sha256",
-//                            "reference-" + keyInfoId,
-//                            this.algorithmsProvider.getDigestAlgorithmForDataObjsReferences());
                     xmlSig.addDocument(
                     		'#' + keyInfoId, 
                             null, 

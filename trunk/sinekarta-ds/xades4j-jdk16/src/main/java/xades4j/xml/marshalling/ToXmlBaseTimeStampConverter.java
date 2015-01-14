@@ -52,6 +52,16 @@ abstract class ToXmlUnsignedTimeStampDataConverter<TData extends BaseXAdESTimeSt
     }
 }
 
+/**
+ * This file has been changed during the SineKarta development.
+ * 
+ * The verification of XAdES-T signatures failed with ArubaSign and https://vol.actalis.it/volCertif/home.html
+ * because the tag EncapsulatedTimeStamp didn't specify any encoding.
+ * The solution has been adding this information to the xmlTSTkn object.
+ *
+ * @author adeprato
+ * @author Luís
+ */
 abstract class ToXmlBaseTimeStampConverter<TData extends BaseXAdESTimeStampData, TXml> implements QualifyingPropertyDataToXmlConverter<TXml>
 {
 
