@@ -26,15 +26,15 @@ public abstract class BaseSignController extends WSController<SignWizardDTO> {
 	protected static final String[] WIZARD_FORMS = {
 		"skdsSignOptions", "skdsSignClient", "skdsSignResults"
 	};
-	protected static final WizardStep STEP_INIT 	= new WizardStep("skdsSignInit",     		 	"skdsSignOptions", false);
-	protected static final WizardStep STEP_OPTIONS 	= new WizardStep("skdsSignOptions",  		 	"skdsSignOptions", true);
-	protected static final WizardStep STEP_CLIENT 	= new WizardStep("skdsSignClient",   		 	"skdsSignClient",  false);
-	protected static final WizardStep STEP_KSOPEN 	= new WizardStep("skdsSignCallKeyStoreOpen", 	"skdsSignClient",  false);
-	protected static final WizardStep STEP_KSREAD 	= new WizardStep("skdsSignCallKeyStoreRead",	"skdsSignClient",  false);
-	protected static final WizardStep STEP_DIGSIG 	= new WizardStep("skdsSignSetDigitalSignature", "skdsSignClient",  false);
-	protected static final WizardStep STEP_PRESIGN 	= new WizardStep("skdsSignPreSign",  		 	"skdsSignClient",  false);
-	protected static final WizardStep STEP_POSTSIGN = new WizardStep("skdsSignPostSign", 		 	"skdsSignClient",  true);
-	protected static final WizardStep STEP_RESULTS 	= new WizardStep("skdsSignResults",  		 	"skdsSignResults", false);
+	protected static final int STEP_INIT 	 = 0;
+	protected static final int STEP_OPTIONS  = 1;
+	protected static final int STEP_CLIENT 	 = 2;
+	protected static final int STEP_KSOPEN 	 = 3;
+	protected static final int STEP_KSREAD 	 = 4;
+	protected static final int STEP_DIGSIG 	 = 5;
+	protected static final int STEP_PRESIGN  = 6;
+	protected static final int STEP_POSTSIGN = 7;
+	protected static final int STEP_RESULTS	 = 8;
 	
 	SignatureClientFactory clientFactory = SignatureClientFactory.getInstance();
 	
@@ -45,8 +45,15 @@ public abstract class BaseSignController extends WSController<SignWizardDTO> {
 	
 	@Override
 	protected WizardStep[] getWizardSteps() {
-		return new WizardStep[] { STEP_INIT, STEP_OPTIONS, STEP_CLIENT,
-								  STEP_KSOPEN, STEP_KSREAD, STEP_DIGSIG,
-								  STEP_PRESIGN, STEP_POSTSIGN, STEP_RESULTS };
+		return new WizardStep[] { 
+				new WizardStep("skdsSignInit",     		 	"skdsSignOptions"), 
+				new WizardStep("skdsSignOptions",  		 	"skdsSignOptions"), 
+				new WizardStep("skdsSignClient",   		 	"skdsSignClient"),
+				new WizardStep("skdsSignCallKeyStoreOpen", 	"skdsSignClient"), 
+				new WizardStep("skdsSignCallKeyStoreRead",	"skdsSignClient"), 
+				new WizardStep("skdsSignSetDigitalSignature", "skdsSignClient"),
+				new WizardStep("skdsSignPreSign",  		 	"skdsSignClient"), 
+				new WizardStep("skdsSignPostSign", 		 	"skdsSignClient"), 
+				new WizardStep("skdsSignResults",  		 	"skdsSignResults") };
 	}
 }

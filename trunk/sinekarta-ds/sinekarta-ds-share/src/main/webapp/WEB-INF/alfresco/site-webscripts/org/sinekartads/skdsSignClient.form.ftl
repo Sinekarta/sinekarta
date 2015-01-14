@@ -29,18 +29,21 @@
 				<div id="${htmlid}-clientType-KEYSTORE-enabled">
 					<label>${msg("label.clientType.KEYSTORE")}</label>
 							    	
-			    	<!-- wscWizardData.ksPin -->
+			    	<!-- wizardData.ksPin -->
 					<div class="skds-datarow">
 						<span class="skds-data-caption">
 							<label for="${htmlid}-ksPin">${msg("label.ksPin")}</label>
 						</span>
 						<span class="skds-data-input">
-							<input id="${htmlid}-ksPin" type="password" value="${wscWizardData.ksPin}" />
+							<input id="${htmlid}-ksPin" type="password" />
 						</span>
+						<button id="${htmlid}-ksLoadAliases-button" type='button'> 
+							${msg("skds-button.load")}
+						</button>
 						<@fieldError field='ksPin' />
 					</div>
 					
-					<!-- wscWizardData.ksUserAlias -->
+					<!-- wizardData.ksUserAlias -->
 					<div class="skds-datarow">
 						<span class="skds-data-caption">
 							<label for="${htmlid}-ksUserAlias">${msg("label.ksUserAlias")}</label>
@@ -53,13 +56,13 @@
 						<@fieldError field='ksUserAlias' />
 					</div>
 			    	
-	   				<!-- wscWizardData.ksUserPassword -->
+	   				<!-- wizardData.ksUserPassword -->
 					<div class="skds-datarow" style="display:none">
 						<span class="skds-data-caption">
 							<label for="${htmlid}-ksUserPassword">${msg("label.ksUserPassword")}</label>
 						</span>
 						<span class="skds-data-input">
-							<input id="${htmlid}-ksUserPassword" type="text" value="${wscWizardData.ksUserPassword}" />
+							<input id="${htmlid}-ksUserPassword" type="text" />
 						</span>
 						<@fieldError field='ksUserPassword' />
 					</div>
@@ -97,7 +100,7 @@
 			    </div>
 		    	<div>
 		    		<div id="${htmlid}-clientType-SMARTCARD-enabled">
-						<!-- wscWizardData.scDriver -->
+						<!-- wizardData.scDriver -->
 						<div class="skds-datarow">
 							<span class="skds-data-caption">
 								<label for="${htmlid}-scDriver">${msg("label.scDriver")}</label>
@@ -110,18 +113,21 @@
 							<@fieldError field='scDriver' />
 						</div>
 			    	
-				    	<!-- wscWizardData.scPin -->
+				    	<!-- wizardData.scPin -->
 						<div class="skds-datarow">
 							<span class="skds-data-caption">
 								<label for="${htmlid}-scPin">${msg("label.scPin")}</label>
 							</span>
 							<span class="skds-data-input">
-								<input id="${htmlid}-scPin" type="password" value="${wscWizardData.scPin}" />
+								<input id="${htmlid}-scPin" type="password" />
 							</span>
+							<button id="${htmlid}-scLoadAliases-button" type='button'> 
+								${msg("skds-button.load")}
+							</button>
 							<@fieldError field='scPin' />
 						</div>
 						
-						<!-- wscWizardData.ksUserAlias -->
+						<!-- wizardData.ksUserAlias -->
 						<div class="skds-datarow">
 							<span class="skds-data-caption">
 								<label for="${htmlid}-scUserAlias">${msg("label.scUserAlias")}</label>

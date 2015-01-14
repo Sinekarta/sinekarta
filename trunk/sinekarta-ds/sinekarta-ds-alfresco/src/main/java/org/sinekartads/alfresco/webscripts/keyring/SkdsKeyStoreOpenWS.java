@@ -3,20 +3,18 @@ package org.sinekartads.alfresco.webscripts.keyring;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.security.KeyStore;
+import java.security.UnrecoverableKeyException;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.repository.ContentReader;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 import org.sinekartads.alfresco.webscripts.BaseAlfrescoWS;
-import org.sinekartads.dto.ResultCode;
 import org.sinekartads.dto.domain.KeyStoreDTO;
 import org.sinekartads.dto.request.SkdsKeyStoreRequest.SkdsKeyStoreOpenRequest;
 import org.sinekartads.dto.response.SkdsKeyStoreResponse.SkdsKeyStoreOpenResponse;
 import org.sinekartads.model.domain.KeyStoreType;
-import org.sinekartads.model.domain.SecurityLevel.KeyRingSupport;
 import org.sinekartads.util.TemplateUtils;
 import org.springframework.extensions.webscripts.Cache;
 import org.springframework.extensions.webscripts.Status;
@@ -71,8 +69,12 @@ public class SkdsKeyStoreOpenWS
 					keyStore.load ( is, ksPwd );
 				}
 			} catch(Exception e) {
+				if ( e.getCause() instanceof UnrecoverableKeyException ) {
+					processError(resp, e, "skds.error.keyStorePinWrong");
+				} else {
+					processError(resp, e, "skds.error.keyStoreUnavailable");
+				}
 				keyStore = null;
-				processError(resp, e, "skds.error.keyStoreUnavailable");
 			}
 		}
 			
@@ -82,7 +84,6 @@ public class SkdsKeyStoreOpenWS
 				if ( keyStore != null ) {
 					ksDto.setName(keyStoreName);
 					ksDto.setPin(keyStorePin);
-					ksDto.setSupport(KeyRingSupport.ALFRESCO.name());
 					ksDto.setType(type.getType());
 					ksDto.setProvider(type.getProvider());
 					ksDto.setAliases ( TemplateUtils.Conversion.enumerationToArray(keyStore.aliases()) );

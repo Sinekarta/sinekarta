@@ -16,11 +16,10 @@
  */
 package org.sinekartads.share.webscripts.sign;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sinekartads.dto.share.SignWizardDTO;
+import org.sinekartads.model.client.SignatureClient.SignatureClientType;
 import org.sinekartads.share.util.AlfrescoException;
-import org.sinekartads.util.x509.X509Utils;
 import org.springframework.util.Assert;
 
 public class SkdsSignClientWS extends BaseSignController {
@@ -32,79 +31,31 @@ public class SkdsSignClientWS extends BaseSignController {
 		
 		try {
 			Assert.notNull ( dto.getSignature() );
-			Assert.isTrue ( ArrayUtils.isNotEmpty(dto.getSignature().getHexCertificateChain()) );
-			for ( String hexCertificate : dto.getSignature().getHexCertificateChain() ) {
-				if ( StringUtils.isBlank(hexCertificate) ) {
-					addFieldError(dto, "ksUserAlias", "campo obbligatorio");
-				} else {
-					X509Utils.rawX509CertificateFromHex ( hexCertificate );
+			if ( StringUtils.equals(dto.getClientType(), SignatureClientType.KEYSTORE.name()) ) {
+				if ( StringUtils.isBlank(dto.getKsUserAlias()) ) {
+					addFieldError(dto, "ksUserAlias", getMessage(MANDATORY));
+				}
+				if ( StringUtils.isBlank(dto.getScDriver()) ) {
+					addFieldError(dto, "ksPin", getMessage(MANDATORY));
+				}
+			} else if ( StringUtils.equals(dto.getClientType(), SignatureClientType.SMARTCARD.name()) ) {
+				if ( StringUtils.isBlank(dto.getScDriver()) ) {
+					addFieldError(dto, "scDriver", getMessage(MANDATORY));
+				}
+				if ( StringUtils.isBlank(dto.getScDriver()) ) {
+					addFieldError(dto, "scPin", getMessage(MANDATORY));
+				}
+				if ( StringUtils.isBlank(dto.getScUserAlias()) ) {
+					addFieldError(dto, "scUserAlias", getMessage(MANDATORY));
 				}
 			}
 		} catch(Exception e) {
 			processError ( dto, e.getMessage() );
 		}
-		
-//		String sessionId = dto.getSessionId();
-//		DocumentDTO[] documents     	= dto.getDocuments();
-//		SignatureDTO chainSignature		= dto.getSignature();
-//		TimeStampRequestDTO timeStampRequest = chainSignature.getTimeStampRequest();
-//		TsSelection tsSelection = TsSelection.valueOf(dto.getTsSelection());
-//				
-//		switch ( tsSelection ) {
-//			case NONE: {
-//				timeStampRequest.setTsUrl ( "" );
-//				timeStampRequest.setTsUsername ( "" );
-//				timeStampRequest.setTsPassword ( "" );
-//				break;
-//			} 
-//			case DEFAULT: {
-//				timeStampRequest.setTsUrl ( conf.getTsaUrl() );
-//				timeStampRequest.setTsUsername ( conf.getTsaUser() );
-//				timeStampRequest.setTsPassword ( conf.getTsaPassword() );
-//				break;
-//			}
-//			default: {	}
-//		}
-//		
-//		for ( DocumentDTO document : documents ) {
-//			document.setSignatures ( 
-//					(SignatureDTO[]) ArrayUtils.add ( 
-//							document.getSignatures(), chainSignature ) );
-//		}
-//		
-//		// Execute the pre-sign to the documents.
-//		try {
-//			SkdsPreSignRequest prereq = new SkdsPreSignRequest();
-//	    	prereq.documentsToBase64(documents);
-//	    	SkdsPreSignResponse dsiresp = postJsonRequest ( prereq, SkdsPreSignResponse.class );
-//	    	documents = dsiresp.documentsFromBase64();
-//			dto.setDocuments(documents);
-//		} catch(AlfrescoException e) {
-//			throw new RuntimeException(e);
-//		}
-//		
-//		try {
-//			SignatureClientType clientType	= SignatureClientType.valueOf(dto.getClientType());
-//			SignatureClientCtrl<?> client = clientFactory.getSignatureCtrl(sessionId, clientType);
-//		
-//			documents = client.sign(documents);
-//		
-//	    	// call the postSign service	
-//	    	SkdsPostSignRequest postreq = new SkdsPostSignRequest();
-//	    	postreq.documentsToBase64(documents);
-//	    	SkdsPostSignResponse dsiresp = postJsonRequest ( postreq, SkdsPostSignResponse.class );
-//	    	documents = dsiresp.documentsFromBase64();
-//	    	
-//	    	// take the updated documentDtos
-//	    	dto.setDocuments(documents);
-//    	
-//		} catch ( Exception e ) {
-//			throw new RuntimeException(e);
-//		}
 	}
 	
 	@Override
-	protected WizardStep currentStep() {
+	protected int currentStep() {
 		return STEP_CLIENT;
 	}
 }

@@ -52,7 +52,7 @@ public class SkdsSignCallPreSignWS extends BaseSignController {
 			TsSelection tsSelection = TsSelection.valueOf(dto.getTsSelection());
 			SignatureDTO chainSignature	= TemplateUtils.Instantiation.clone ( signature );
 			TimeStampRequestDTO timeStampRequest = chainSignature.getTimeStampRequest();
-			timeStampRequest.timestampDispositionToString(SignDisposition.TimeStamp.ATTRIBUTE);
+			timeStampRequest.timestampDispositionToString(SignDisposition.TimeStamp.ENVELOPING);
 			timeStampRequest.messageImprintAlgorithmToString(DigestAlgorithm.SHA256);
 			timeStampRequest.nounceToString(BigInteger.ONE);
 					
@@ -111,7 +111,7 @@ public class SkdsSignCallPreSignWS extends BaseSignController {
 	}
 
 	@Override
-	protected WizardStep currentStep() {
+	protected int currentStep() {
 		return STEP_PRESIGN;
 	}
 }

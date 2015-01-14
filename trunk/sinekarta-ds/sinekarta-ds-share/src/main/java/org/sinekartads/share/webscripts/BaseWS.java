@@ -20,7 +20,6 @@ package org.sinekartads.share.webscripts;
 import java.io.Serializable;
 import java.util.ResourceBundle;
 
-import org.apache.log4j.Logger;
 import org.sinekartads.dto.request.BaseRequest;
 import org.sinekartads.dto.response.BaseResponse;
 import org.sinekartads.share.util.AlfrescoException;
@@ -32,8 +31,6 @@ import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.connector.ConnectorService;
 
 public abstract class BaseWS extends DeclarativeWebScript {
-	
-	static final Logger tracer = Logger.getLogger(BaseWS.class);
 	
 	protected ConnectorService connectorService;
     

@@ -302,9 +302,6 @@
 			wizardData:  	{},
 			actionErrors:	{},
 			fieldErrors:	{},
-			wizardForms:	new Array(),
-			currentStep:	{},
-			backupDataJSON: '',
 			signApplet: 	document.sinekartaApplet,
 			
 			activeGroups: 	{
@@ -322,7 +319,9 @@
 			onReady: function skds_onReady ( )
 			{
 				// Refresh the page and force the first form to be displayed
-				this.refresh ( <#escape x as jsonUtils.encodeJSONString(x)> "${wizardDataJSON}" </#escape> );
+				this.wizardData = this.parseJSON ( <#escape x as jsonUtils.encodeJSONString(x)> "${wizardDataJSON}" </#escape> );
+				this.wizardData.currentStep = "1";
+				this.refresh ( );
 				
 				// DebugBox buttons listeners
 				Event.addListener ( Dom.get('${htmlid}-clearJsConsole-button'), 'click', this.onClearJsConsoleClick, this, true );
@@ -330,7 +329,6 @@
 				// Navigation buttons listeners
 				Event.addListener ( Dom.get('${htmlid}-cancel-button'), 'click', this.onCancelClick, this, true );
 				Event.addListener ( Dom.get('${htmlid}-back-button'),	'click', this.onBackClick,   this, true );
-				Event.addListener ( Dom.get('${htmlid}-undo-button'),	'click', this.onUndoClick,	 this, true );
 				Event.addListener ( Dom.get('${htmlid}-next-button'),   'click', this.onNextClick,   this, true );
 				Event.addListener ( Dom.get('${htmlid}-end-button'),    'click', this.onEndClick,    this, true );
 				
@@ -342,7 +340,6 @@
 				
 				// skdsSignOptions.form panels and groups listeners
 				Event.addListener ( Dom.get('${htmlid}-signCategory-header'),    	'click', this.onSignCategoryClick,    	this, true );
-				Event.addListener ( Dom.get('${htmlid}-tsSelection-NONE-header'),   'click', this.onTsSelectionNoneClick,   this, true );
 				Event.addListener ( Dom.get('${htmlid}-tsSelection-DEFAULT-header'),'click', this.onTsSelectionDefaultClick,this, true );
 				Event.addListener ( Dom.get('${htmlid}-tsSelection-CUSTOM-header'), 'click', this.onTsSelectionCustomClick, this, true );
 				Event.addListener ( Dom.get('${htmlid}-destOptions-header'), 		'click', this.onTsDestOptionsClick, 	this, true );
@@ -359,19 +356,18 @@
 				Event.addListener ( Dom.get('${htmlid}-location'), 			 		'change', this.onLocationChange, 		this, true );
 				
 				// skdsSignClient.form panels and groups listeners								  
-				Event.addListener ( Dom.get('${htmlid}-clientType-KEYSTORE-header'),	'click', this.onClientTypeKeyStoreClick,	this, true );
+				Event.addListener ( Dom.get('${htmlid}-clientType-KEYSTORE-header'), 	'click', this.onClientTypeKeyStoreClick,	this, true );
 				Event.addListener ( Dom.get('${htmlid}-clientType-SMARTCARD-header'),	'click', this.onClientTypeSmartCardClick,	this, true );
-				Event.addListener ( Dom.get('${htmlid}-clientType-SIGN_WS-header'),		'click', this.onClientTypeSignWsClick,		this, true );
+//				Event.addListener ( Dom.get('${htmlid}-clientType-SIGN_WS-header'),		'click', this.onClientTypeSignWsClick,		this, true );
 				
 				// skdsSignClient.form input components listeners
-				Event.addListener ( Dom.get('${htmlid}-ksPin'),						'change', this.onKsPinChange, 			this, true );
+				Event.addListener ( Dom.get('${htmlid}-ksLoadAliases-button'),		'click',  this.onKsLoadAliasesClick, 	this, true );
 				Event.addListener ( Dom.get('${htmlid}-ksUserAlias'),				'change', this.onKsUserAliasChange, 	this, true );
 				Event.addListener ( Dom.get('${htmlid}-ksUserPassword'),			'change', this.onKsUserPasswordChange, 	this, true );
 				
 				Event.addListener ( Dom.get('${htmlid}-scDriver'),					'change', this.onScDriverChange, 		this, true );
-				Event.addListener ( Dom.get('${htmlid}-scPin'),						'change', this.onScPinChange, 			this, true );
+				Event.addListener ( Dom.get('${htmlid}-scLoadAliases-button'),		'click',  this.onScLoadAliasesClick, 	this, true );
 				Event.addListener ( Dom.get("${htmlid}-scUserAlias"),				'change', this.onScUserAliasChange, 	this, true );
-				
 			},
 			
 			
@@ -433,7 +429,23 @@
 					dataForm : Dom.get("${htmlid}-form"),
 					successCallback : {
 						fn : function(res) {
-							this.refresh ( res.serverResponse.responseText );
+							this.wizardData = this.parseJSON ( res.serverResponse.responseText );
+							
+							// If the operation has been successfully performed, it might require to step to the next form.
+							// This happen when the step performed is the last referring to its own form.
+							if ( this.wizardData.resultCode === 'SUCCESS' ) {
+								// Locate the next step
+								var step = parseInt(this.wizardData.currentStep);
+								var currStep = this.wizardData.wizardSteps[step];
+								var nextStep = this.wizardData.wizardSteps[step+1];
+								// Set is as current step if it refers to another form
+								if ( nextStep.form !== currStep.form ) {
+									this.wizardData.currentStep = ""+(step+1);
+								}
+							}
+							// The refresh call will update the wizard view with the values returned by the Java Controller,
+							this.refresh ( );
+							
 							// Recursivelly call on the next forms
 							if ( this.wizardData.resultCode === 'SUCCESS' ) {
 								if ( nextForms !== undefined && nextForms.length > 0 ) {
@@ -545,7 +557,7 @@
 				var select = document.getElementById("${htmlid}-"+name);
 				var selected;
 				var found = false;
-				select.options = new Array();
+				select.options.length = 0;
 				select.options[0] = new Option("${msg('select.dummy')}", '', false, false);
 				for ( i=0; i<options.length; i++) {
 					value = options[i];
@@ -558,20 +570,6 @@
 					select.options[0].selected = true;
 				} 
 			},
-/*			
-			clearValues: function skds_clearValues ( ) {
-				var element;
-				for (var i = 0; i < arguments.length; i++) {
-					element = document.getElementById("${htmlid}-" + arguments[i]);
-					if ( element.tagName === 'select' ) {
-						element.options[0].selected = true;
-					} else {
-						element.value = "";
-					}
-				}
-			}
-*/			
-			
 			
 			// -----
 			// --- DebugBox - Panels and groups visibility
@@ -662,27 +660,23 @@
 			onBackClick: function skds_onBackClick(e) 
 			{
 				// Determinate the previous form into the wizard
+				var currForm = this.wizardData.wizardSteps[parseInt(this.wizardData.currentStep)].form;
 				var prevStep = undefined;
 				for ( i=0; i<this.wizardData.wizardSteps.length-1 && prevStep === undefined; i++ ) {
-					if( this.wizardData.wizardSteps[i+1].form === this.wizardData.currentStep.form ) {
-						prevStep = this.wizardData.wizardSteps [ i ];
+					if( this.wizardData.wizardSteps[i+1].form === currForm ) {
+						prevStep = i;
 					}
 				}
 				
 				// Ask the controller to display the previous form but keeping the current wizard data status
-		    	this.refresh ( this.formatJSON ( this.wizardData ), prevStep );
-			},
-			
-			onUndoClick: function skds_onUndoClick(e) 
-			{
-				// Ask the controller to undo the form changes to the last saved wizard data status 
-				this.refresh ( this.backupDataJSON,  undefined );
+				this.wizardData.currentStep = ""+prevStep;
+		    	this.refresh ( );
 			},
 			
 			onNextClick: function skds_onNextClick(e) 
 			{
-				var callerForm = this.wizardData.currentStep.form;
-				if ( callerForm === 'skdsSignClient' ) {
+				var currForm = this.wizardData.wizardSteps[parseInt(this.wizardData.currentStep)].form;
+				if ( currForm === 'skdsSignClient' ) {
 					var nextForms;
 					if ( this.wizardData.clientType === 'KEYSTORE' ) {
 						this.callFormOperation ( 'skdsSignClient', 
@@ -696,7 +690,7 @@
 					//   - the same form if any error occurres
 					//   - the next form if succeed
 					// if the form changed it needs to be prepared
-					this.callFormOperation ( callerForm );
+					this.callFormOperation ( currForm );
 				}
 			},
 			
@@ -705,36 +699,27 @@
 				location.href = this.wizardData.backUrl;
 			},
 			
-			refresh: function skds_refresh ( wizardDataJSON, targetStep ) 
+			refresh: function skds_refresh ( ) 
 			{
-				// update the wizard data view box 
-				this.updateWizardDataView ( );
-				
-				// jsConsole refresh
-				//this.clearJsConsole ( );
-				
+		    	// update the wizard data view box 
+				this.updateWizardDataView ( );			
+			
 				// update the header and title bar
 				<#-- document.getElementById('${htmlid}-header').value = "${msg('header.'+this.wizardData.currentStep.form)}";
 				document.getElementById('${htmlid}-description').value = "${msg('description.'+this.wizardData.currentStep.form)}"; -->
-				
-				// wizardData parsing and backup
-				this.backupDataJSON = wizardDataJSON;
-		    	this.wizardData = this.parseJSON ( this.backupDataJSON );
 		    	
-				// Update the displayed form if changed
-		    	if ( targetStep !== undefined ) {
-		    		// Update the currentStep with the targetStep if provided
-					this.wizardData.currentStep = targetStep;
+				// hide the tsSelection
+				if ( this.wizardData.tsSelection === 'NONE' ) {
+					document.getElementById('${htmlid}-tsSelection-group').style.display = 'none'; 
 				}
-				this.currentStep = this.wizardData.currentStep
-				this.wizardForms = this.wizardData.wizardForms;
 				
+ 				var currForm = this.wizardData.wizardSteps[parseInt(this.wizardData.currentStep)].form;		
 				var display;
 				var form;
 				var currentIndex;
-				for ( i=0; i<this.wizardForms.length; i++ ) {
-					form = this.wizardForms[i];
-					if ( form === this.wizardData.currentStep.form ) {
+				for ( i=0; i<this.wizardData.wizardForms.length; i++ ) {
+					form = this.wizardData.wizardForms[i];
+					if ( form === currForm ) {
 						currentIndex = i;
 						display = 'block';
 					} else {
@@ -747,31 +732,25 @@
 				var display; 
 				
 				display = 'block';
-				if ( currentIndex == this.wizardForms.length ) {
+				if ( currentIndex == this.wizardData.wizardForms.length-1 ) {
 					display = 'none';
 				}
 				document.getElementById('${htmlid}-cancel').style.display = display;
 				
 				display = 'block';
-				if ( currentIndex == this.wizardForms.length-1 || currentIndex == 0 ) {
+				if ( currentIndex == this.wizardData.wizardForms.length-1 || currentIndex == 0 ) {
 					display = 'none';
 				}
 				document.getElementById('${htmlid}-back').style.display = display;
 				
 				display = 'block';
-				if ( currentIndex == this.wizardForms.length-1 ) {
-					display = 'none';
-				}
-				document.getElementById('${htmlid}-undo').style.display = display;
-				
-				display = 'block';
-				if ( currentIndex == this.wizardForms.length-1 ) {
+				if ( currentIndex == this.wizardData.wizardForms.length-1 ) {
 					display = 'none';
 				}
 				document.getElementById('${htmlid}-next').style.display = display;
 				
 				display = 'block';
-				if ( currentIndex < this.wizardForms.length-1 ) {
+				if ( currentIndex < this.wizardData.wizardForms.length-1 ) {
 					display = 'none';
 				}
 				document.getElementById('${htmlid}-end').style.display = display;
@@ -786,13 +765,34 @@
 		    	document.getElementById("${htmlid}-destName").value 	= this.wizardData.documents[0].destName;
 		    	document.getElementById("${htmlid}-location").value 	= this.wizardData.signature.location;
 		    	document.getElementById("${htmlid}-reason").value 		= this.wizardData.signature.reason;
-		    	// updateTsSelection() will update destName and wizardDataView as side-effect
-				this.updateTsSelection ( this.wizardData.tsSelection );
+		    	
+				this.updateTsSelection ( this.wizardData.tsSelection );	  // this will update destName as side-effect
 				
-				// updateClientType() will update wizardDataView as side-effect
-				this.updateClientType  ( this.wizardData.clientType );
+				// Set the SignCategory checkbox activation status
+				if ( this.wizardData.signature.signCategory === undefined ) {
+					if ( this.wizardData.mimetype === 'application/pdf' ) {
+						this.wizardData.signature.signCategory = 'PDF';
+					} else if ( this.wizardData.mimetype === 'text/xml' ) {
+						this.wizardData.signature.signCategory = 'XML';
+					} else {
+						this.wizardData.signature.signCategory = 'CMS';
+					}
+				}
+				document.getElementById("${htmlid}-signCategory-pdf").disabled = this.wizardData.mimetype !== 'application/pdf';
+				document.getElementById("${htmlid}-signCategory-xml").disabled = this.wizardData.mimetype !== 'text/xml';
+				if ( this.wizardData.signature.signCategory === 'XML' ) {
+					document.getElementById("${htmlid}-signCategory-xml").checked = true;
+				} else if ( this.wizardData.signature.signCategory === 'PDF' ) {
+					document.getElementById("${htmlid}-signCategory-pdf").checked = true;
+				} else {
+					document.getElementById("${htmlid}-signCategory-cms").checked = true;
+				}
+
+				// FIXME Set the skdsSignClient widget activation status
+				document.getElementById("${htmlid}-signCategory-pdf").disabled = (this.wizardData.scDriver === "");
 				
 				// Update the skdsSignClient keyStore and smartCard aliases select components
+				this.updateClientType  ( this.wizardData.clientType );
 				this.updateKsUserAliasSelect ( );
 				this.updateScUserAliasSelect ( );
 				this.updateScDriverSelect ( );
@@ -800,10 +800,6 @@
 
 			displayErrors: function skds_displayErrors ( actionErrors, fieldErrors ) {
 
-				this.error ( 'refresh',
-						'fieldErrors:  ' + this.formatJSON(this.fieldErrors) + '\n' +
-						'actionErrors: ' + this.formatJSON(this.actionErrors) );
-				
 				var html;
 				html = '';
 				for ( i=0; i<actionErrors.length; i++ ) {
@@ -842,8 +838,6 @@
 				var signature = this.wizardData.documents[0].signatures[last];
 				var hexFingerPrint = signature.digest.hexFingerPrint;
 				skds_execFunction("signDigest",hexFingerPrint,function(){
-				
-	//				var appletResponseJSON = document.sinekartaApplet.signDigest ( hexFingerPrint );
 					var appletResponseJSON = skds_getResp();
 					var appletResultJSON = Alfresco_skds.parseAppletResponse ( appletResponseJSON );
 					if ( appletResultJSON !== undefined ) {
@@ -869,11 +863,6 @@
 		    	this.togglePanelDisplay ( 'signCategory' );
 		    },
 		    
-		    onTsSelectionNoneClick: function skds_onTsSelectionNoneClick ( ) 
-		    {
-		    	this.updateTsSelection ( 'NONE' );
-		    },
-		    
 		    onTsSelectionDefaultClick: function skds_onTsSelectionDefaultClick ( ) 
 		    {
 		    	this.updateTsSelection ( 'DEFAULT' );
@@ -886,9 +875,10 @@
 		    
 		    updateTsSelection: function skds_updateTsSelection ( tsSelection ) 
 		    {
-		    	this.switchActiveGroup ( 'tsSelection', tsSelection );
-		    	this.wizardData.tsSelection = tsSelection;
-		    	// updateDestName() will update wizardDataView as side-effect
+		    	if ( this.wizardData.tsSelection !== 'NONE' ) {
+			    	this.switchActiveGroup ( 'tsSelection', tsSelection );
+			    	this.wizardData.tsSelection = tsSelection;
+		    	}
 		    	this.updateDestName();
 		    },
 		    
@@ -927,8 +917,6 @@
 		    updateSignCategory: function skds_onSignCategoryChange ( signCategory ) 
 			{
 		    	this.wizardData.signature.signCategory = signCategory;
-		    	// updateDestName() will update the destination name and the wizardDataView panel
-		    	
 		    	this.updateDestName();
 		    },
 		    
@@ -1070,9 +1058,9 @@
 		    // --- SignClient - Input widget change events
 		    // -
 		    
-		    onKsPinChange: function skds_onKsPinChange ( e ) {
+		    onKsLoadAliasesClick: function skds_onKsLoadAliasesClick ( e ) {
 		    	document.getElementById('${htmlid}-ksPin-error').innerHTML = '';
-		    	this.wizardData.ksPin = e.target.value;
+		    	this.wizardData.ksPin = document.getElementById('${htmlid}-ksPin').value;
 		    	this.updateWizardDataView ( );
 		    	this.callFormOperation ( 'skdsSignCallKeyStoreOpen' );
 		    },
@@ -1093,46 +1081,43 @@
 		    onScDriverChange: function skds_onScDriverChange ( e ) {
 		    	document.getElementById('${htmlid}-scDriver-error').innerHTML = '';
 		    	this.wizardData.scDriver = e.target.value;
+		    	
+		    	// Clear the previous smartCard values 
+		    	document.getElementById("${htmlid}-scPin").value = '';
+				Alfresco_skds.wizardData.scPin = '';
+				Alfresco_skds.wizardData.scAliases = new Array();
+				Alfresco_skds.wizardData.scUserAlias = '';
+				Alfresco_skds.updateScUserAliasSelect ( );
 		    	this.updateWizardDataView ( );
 		    	
-		    	var driver = this.wizardData.scDriver;
-		    	skds_execFunction("selectDriver",this.wizardData.scDriver,function(){
-//			    	var appletResponseJSON = document.sinekartaApplet.selectDriver ( Alfresco_skds.wizardData.scDriver );
-					var appletResponseJSON = skds_getResp();
-					var appletResultJSON = Alfresco_skds.parseAppletResponse ( appletResponseJSON );
-					if ( appletResultJSON === undefined ) {
-						Alfresco_skds.error ( 'refresh', 'unexpected response: ' + appletResultJSON );
-					}
-					
-					document.getElementById("${htmlid}-scPin").value = '';
-					Alfresco_skds.wizardData.scPin = '';
-					Alfresco_skds.wizardData.scAliases = new Array();
-					Alfresco_skds.wizardData.scUserAlias = '';
-					Alfresco_skds.updateScUserAliasSelect ( );
-				});
+		    	if ( this.wizardData.scDriver !== '' ) {
+		    		document.getElementById("${htmlid}-signCategory-pdf").disabled = true;
+		    		var driver = this.wizardData.scDriver;
+			    	skds_execFunction("selectDriver",this.wizardData.scDriver,function(){
+						var appletResponseJSON = skds_getResp();
+						var appletResultJSON = Alfresco_skds.parseAppletResponse ( appletResponseJSON );
+						if ( appletResultJSON === undefined ) {
+							Alfresco_skds.error ( 'onScDriverChange', 'unexpected response: ' + appletResultJSON );
+						}
+					});
+		    	} else {
+		    		document.getElementById("${htmlid}-signCategory-pdf").disabled = false;
+		    	}
 		    },
 		    
-			onScPinChange: function skds_onScPinChange ( ) {
+			onScLoadAliasesClick: function skds_onScLoadAliasesClick ( ) {
 				document.getElementById('${htmlid}-scPin-error').innerHTML = '';
 				var scPin = document.getElementById("${htmlid}-scPin").value;
 				var aliases;
 				var html;
 				
 		    	skds_execFunction("login",scPin,function(){
-//					var appletResponseJSON = document.sinekartaApplet.login ( scPin );
 					var appletResponseJSON = skds_getResp();
 					var appletResultJSON = Alfresco_skds.parseAppletResponse ( appletResponseJSON );
 					if ( appletResultJSON !== undefined ) {
 						Alfresco_skds.wizardData.scAliases = JSON.parse ( appletResultJSON );
 						Alfresco_skds.wizardData.scUserAlias = '';
-						var singleAlias = Alfresco_skds.wizardData.scAliases.length == 1; 
-						if ( singleAlias ) {
-							Alfresco_skds.wizardData.scUserAlias = Alfresco_skds.wizardData.scAliases[0];
-						}
 						Alfresco_skds.updateScUserAliasSelect ( );
-						if ( singleAlias ) {
-							Alfresco_skds.onScUserAliasChange ( );
-						}
 						//document.getElementById('${htmlid}-clientType-SMARTCARD-enabled').style.display = 'block';
 						//document.getElementById('${htmlid}-clientType-SMARTCARD-disabled').style.display = 'none';
 					} else {
@@ -1151,19 +1136,20 @@
 				this.wizardData.scUserAlias = scUserAliasSelect.options[scUserAliasSelect.selectedIndex].value;
 				if ( this.wizardData.scUserAlias !== '' ) {
 			    	skds_execFunction("selectCertificate",this.wizardData.scUserAlias,function(){
-//						var appletResponseJSON = document.sinekartaApplet.selectCertificate(Alfresco_skds.wizardData.scUserAlias);
+			    		Alfresco_skds.info ( 'onScUserAliasChange', 'selectCertificate' );
 						var appletResponseJSON = skds_getResp();
 						var appletResultJSON = Alfresco_skds.parseAppletResponse ( appletResponseJSON );
 						if ( appletResultJSON !== undefined ) {
 							Alfresco_skds.wizardData.signature.hexCertificateChain[0] = Alfresco_skds.parseAppletResponse ( appletResponseJSON );
+							Alfresco_skds.updateWizardDataView ( );
 						} else {
 							Alfresco_skds.error ( 'onScUserAliasChange', 'unexpected response: ' + appletResultJSON );
 						}
 					});
 				} else {
 					Alfresco_skds.wizardData.signature.hexCertificateChain[0] = '';
+					Alfresco_skds.updateWizardDataView ( );
 				}
-				Alfresco_skds.updateWizardDataView ( );
 			},
 
 		});

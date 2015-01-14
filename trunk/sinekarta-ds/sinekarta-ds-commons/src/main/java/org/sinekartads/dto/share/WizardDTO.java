@@ -37,8 +37,8 @@ public abstract class WizardDTO extends BaseDTO {
 	
 	private String backUrl;
 	private String[] wizardForms;
+	private String currentStep;
 	private WizardStepDTO[] wizardSteps;
-	private WizardStepDTO currentStep;
 	private ActionErrorDTO[] actionErrors = new ActionErrorDTO[0];
 	private FieldErrorDTO[] fieldErrors = new FieldErrorDTO[0];
 
@@ -79,11 +79,11 @@ public abstract class WizardDTO extends BaseDTO {
 		this.wizardSteps = wizardSteps;
 	}
 
-	public WizardStepDTO getCurrentStep() {
+	public String getCurrentStep() {
 		return currentStep;
 	}
 
-	public void setCurrentStep(WizardStepDTO currentStep) {
+	public void setCurrentStep(String currentStep) {
 		this.currentStep = currentStep;
 	}
 

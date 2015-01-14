@@ -31,12 +31,12 @@ public class SkdsSignSetDigitalSignatureWS extends BaseSignController {
 		int LAST = dto.getDocuments()[0].getSignatures().length - 1;
 		SignatureDTO signature = dto.getDocuments()[0].getSignatures()[LAST];
 		String sessionId = dto.getSessionId();
-		SmartCardClientCtrl keyStoreClient = clientFactory.getSmartCardCtrl ( sessionId );
+		SmartCardClientCtrl keyStoreClient = clientFactory.getSmartCardCtrl( sessionId );
 		keyStoreClient.setDigitalSignature ( signature.digitalSignatureFromHex() );
 	}
 
 	@Override
-	protected WizardStep currentStep() {
+	protected int currentStep() {
 		return STEP_DIGSIG;
 	}
 }
