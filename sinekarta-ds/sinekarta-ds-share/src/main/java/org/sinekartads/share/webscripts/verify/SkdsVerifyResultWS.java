@@ -71,7 +71,7 @@ public class SkdsVerifyResultWS extends BaseVerifyWS {
 	}
 
 	@Override
-	protected WizardStep currentStep() {
+	protected int currentStep() {
 		return STEP_RESULTS;
 	}
 }

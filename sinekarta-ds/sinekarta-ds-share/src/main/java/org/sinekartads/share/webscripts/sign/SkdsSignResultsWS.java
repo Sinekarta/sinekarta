@@ -30,32 +30,10 @@ public class SkdsSignResultsWS extends BaseSignController {
 	protected void processData (
 			SignWizardDTO dto ) 
 					throws AlfrescoException {
-		
-//		try {
-//			DocumentDTO[] documents = dto.getDocuments();
-//			String sessionId = dto.getSessionId();
-//			
-//			SignatureClientType clientType	= SignatureClientType.valueOf(dto.getClientType());
-//			SignatureClientCtrl<?> client = clientFactory.getSignatureCtrl(sessionId, clientType);
-//		
-//			documents = client.sign(documents);
-//		
-//	    	// call the postSign service	
-//	    	SkdsPostSignRequest postreq = new SkdsPostSignRequest();
-//	    	postreq.documentsToBase64(documents);
-//	    	SkdsPostSignResponse dsiresp = postJsonRequest ( postreq, SkdsPostSignResponse.class );
-//	    	documents = dsiresp.documentsFromBase64();
-//	    	
-//	    	// take the updated documentDtos
-//	    	dto.setDocuments(documents);
-//    	
-//		} catch ( DigitalSignatureException e ) {
-//			tracer.error(e.getMessage(), e);
-//		}
 	}
 
 	@Override
-	protected WizardStep currentStep() {
+	protected int currentStep() {
 		return STEP_RESULTS;
 	}
 }

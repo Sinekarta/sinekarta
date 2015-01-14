@@ -22,7 +22,7 @@
 <#include "skdsFieldError.ftl" />
 <#include "skdsSignWizard.head.ftl" />
 
-<#assign debug = 'AC' />
+<#assign debug = '' />
 <#if debug?contains('A')>
 	<#assign arvDisplay = 'block' />
 <#else>
@@ -112,7 +112,7 @@
 	</div>
 <#attempt>
 	<#-- macro json_string string>${string?js_string?replace("\\'", "\'")?replace("\\>", ">")}</#macro -->
-	<form id="${htmlid}-form" action="${wscWizardData.currentStep.form}" method="post" class="skds-form">
+	<form id="${htmlid}-form" method="post" class="skds-form">
 	
 		<input type="hidden" id="${htmlid}-htmlid"			name="htmlid" 		  value='${htmlid}' />
 		<input type="hidden" id="${htmlid}-wizardDataJSON" 	name="wizardDataJSON" value="${wizardDataJSON}" />
@@ -150,13 +150,6 @@
 								</button>
 							</span>
 						</span>			
-						<span class="yui-button yui-submit-button">
-							<span id="${htmlid}-undo" class="first-child">
-								<button id="${htmlid}-undo-button" type="button" name="next"> 
-									${msg("skds-button.undo")} 
-								</button>
-							</span>
-						</span>
 						<span class="yui-button yui-submit-button">
 							<span id="${htmlid}-next" class="first-child">
 								<button id="${htmlid}-next-button" type="button" name="next"> 

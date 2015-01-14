@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.sinekartads.dto.DTOFormatter;
 import org.sinekartads.dto.share.WizardDTO;
 import org.sinekartads.dto.share.WizardDTO.ActionErrorDTO;
@@ -39,6 +40,8 @@ import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 
 public abstract class WSController<DTO extends WizardDTO> extends BaseWS {
+	
+	final Logger tracer = Logger.getLogger(getClass());
 	
 	// -----
 	// --- Communication with the form
@@ -72,48 +75,13 @@ public abstract class WSController<DTO extends WizardDTO> extends BaseWS {
 	 */
 	public static final String OUT_WIZARDDATA	= "wscWizardData";
 	
-	/**
-	 * User data error communication unit.
-	 * At the beginning of the form process phase, the WS controller validates the received
-	 * user data. Any error, such as a missing mandatory field, will halt the execution and
-	 * be reported to the form with the <i>fieldErrors</i> output parameter using the JSON
-	 * format: <pre>
-	 * 		[
-	 *			[ field_0, [ error_0_0 ] ]
-	 *			[ field_1, [ error_1_0, error_1_1, error_1_2 ] ]
-	 *			[ field_2, [ error_2_0, error_0_1 ] ]
-	 *			...
-	 *		]
-	 * </pre>
-	 * Used as output parameter.
-	 */
-//	public static final String OUT_FIELD_ERRORS	  =	"fieldErrors";
-
-	/**
-	 * Generic user and system error communication unit.
-	 * Any error that do not regard a form field will be shown into the top section of the
-	 * wizard page. Those will be communicated to the JS controller with the JSON format: <pre>
-	 * 		[
-	 * 			[ errorMessage: errorMessage_0, errorCause: errorCause_0 ]
-	 * 			[ errorMessage: errorMessage_1, errorCause: errorCause_1 ]
-	 * 			[ errorMessage: errorMessage_2, errorCause: errorCause_2 ]
-	 * 			...
-	 * 		]
-	 * </pre>
-	 * Used as output parameter.
-	 */
-//	public static final String OUT_ACTION_ERRORS  = "actionErrors";
-	public static final String AE_ERROR_MESSAGE = "errorMessage";
-	public static final String AE_ERROR_CAUSE = "errorCause";
-	
-	
 	
 	// -----
 	// --- Required bundle resources
 	// -
 
 	// LABELS - dictionary of the system labels, have to be declared into the bundle in any format
-	public static final String MANDATORY  	  = "mandatory";
+	public static final String MANDATORY  	  = "error.mandatory";
 	
 	// ERRORS - dictionary of the known errors, have to be declared into the bundle
 	//		Any error into sineKarta platform is expected to appear with the form error.<type>, such as
@@ -189,21 +157,12 @@ public abstract class WSController<DTO extends WizardDTO> extends BaseWS {
 		} catch(Exception e) {
 			processError ( wizardData, e );
 		} finally {
-			// Select the currentForm to be displayed by the JS controller 
-			WizardStep currentStep;
-			if ( StringUtils.equals ( 
-					wizardData.getResultCode(), WizardDTO.SUCCESS ) ) {
-				currentStep = nextStep ( currentStep() );
-			} else {
-				currentStep = currentStep();
-			}
-			wizardData.setCurrentStep ( toWizardStepDTO(currentStep) );
-			
 			WizardStep[] steps = getWizardSteps();
 			WizardStepDTO[] wizardSteps = new WizardStepDTO[steps.length];
 			for ( int i=0; i<steps.length; i++ ) {
 				wizardSteps[i] = toWizardStepDTO(steps[i]);
 			}
+			wizardData.setCurrentStep ( Integer.toString(currentStep()) );
 			wizardData.setWizardSteps ( wizardSteps );
 			wizardData.setWizardForms ( getWizardForms() );
 			
@@ -251,40 +210,11 @@ public abstract class WSController<DTO extends WizardDTO> extends BaseWS {
 			DTO wizardDto ) 
 					throws AlfrescoException ;
 	
-	protected WizardStep nextStep ( WizardStep step ) {
-		if ( !step.stepsOver )										return step; 
-		int index = stepIndex ( step );
-		WizardStep nextStep = step;
-		while ( StringUtils.equals(step.form, nextStep.form) && 
-				index < getWizardSteps().length-1 ) {
-			index ++;
-			nextStep = getWizardSteps() [ index ];
-		}
-		return nextStep;
-	}
-	
-	private int stepIndex ( WizardStep step ) {
-		WizardStep[] wizardSteps = getWizardSteps();
-		int stepIndex = -1;
-		for ( int idx=0; idx<wizardSteps.length && stepIndex==-1; idx++ ) {
-			if ( step.equals(wizardSteps[idx]) ) {
-				stepIndex = idx;
-			}
-		}
-		if ( stepIndex == -1 ) {
-			throw new UnsupportedOperationException ( 
-					String.format ( "Page form not found - %s \nThe known wizard steps are: %s", 
-								    step, StringUtils.join(wizardSteps) ) );
-		}
-		return stepIndex;
-	}
-
 	public static class WizardStep {
 		
-		public WizardStep ( String name, String form, boolean stepsOver ) {
+		public WizardStep ( String name, String form ) {
 			this.name = name;
 			this.form = form;
-			this.stepsOver = stepsOver;
 		}
 		
 		public boolean equals ( WizardStep step ) {
@@ -293,22 +223,13 @@ public abstract class WSController<DTO extends WizardDTO> extends BaseWS {
 		
 		final String name;
 		final String form; 
-		final boolean stepsOver;
 	}
 
 	protected abstract String[] getWizardForms ( ) ;
 	
 	protected abstract WizardStep[] getWizardSteps ( ) ;
 	
-	protected abstract WizardStep currentStep ( ) ;
-	
-//	private WizardStepDTO[] toWizardStepDTO ( WizardStep[] wizardSteps ) {
-//		WizardStepDTO[] dtos  = new WizardStepDTO[wizardSteps.length];
-//		for ( int i=0; i<wizardSteps.length; i++ ) {
-//			dtos[i] = toWizardStepDTO ( wizardSteps[i] );
-//		}
-//		return dtos;
-//	}
+	protected abstract int currentStep ( ) ;
 	
 	private WizardStepDTO toWizardStepDTO ( WizardStep wizardStep ) {
 		WizardStepDTO dto = new WizardStepDTO();

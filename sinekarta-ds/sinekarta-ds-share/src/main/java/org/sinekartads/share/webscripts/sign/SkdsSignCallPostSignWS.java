@@ -66,7 +66,7 @@ public class SkdsSignCallPostSignWS extends BaseSignController {
 	}
 
 	@Override
-	protected WizardStep currentStep() {
+	protected int currentStep() {
 		return STEP_POSTSIGN;
 	}
 }
