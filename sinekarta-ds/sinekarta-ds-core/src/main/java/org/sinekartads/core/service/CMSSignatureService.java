@@ -122,6 +122,8 @@ public class CMSSignatureService
 		try {
 			CMSProcessable processable = new CMSProcessableByteArray ( IOUtils.toByteArray(contentIs) );
 			CMSSignedDataProxyGenerator generator = new CMSSignedDataProxyGenerator ( );
+			generator.setLocation(chainSignature.getLocation());
+			generator.setReason(chainSignature.getReason());
 			generator.embedCertificateChain ( trustedChain );
 			byte[] fingerPrint = generator.evaluateDigest ( processable, disposition );
 			digestInfo = DigestInfo.getInstance ( digestAlgorithm, fingerPrint );
@@ -198,6 +200,8 @@ public class CMSSignatureService
 		byte[] signedDataEnc = null;
 		try {
 			CMSSignedDataProxyGenerator generator = new CMSSignedDataProxyGenerator();
+			generator.setLocation(signedSignature.getLocation());
+			generator.setReason(signedSignature.getReason());
 			generator.setSigningTime(signedSignature.getSigningTime());
 			generator.embedCertificateChain(trustedChain);
 			signedData = generator.generateSignedData(
