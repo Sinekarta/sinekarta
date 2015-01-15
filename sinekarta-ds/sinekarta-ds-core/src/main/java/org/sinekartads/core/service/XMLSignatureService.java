@@ -50,6 +50,7 @@ import xades4j.production.XadesExtTSigningProfile;
 import xades4j.production.XadesSignatureResult;
 import xades4j.production.XadesSignerExt;
 import xades4j.production.XadesSigningProfile;
+import xades4j.properties.AllDataObjsCommitmentTypeProperty;
 import xades4j.properties.DataObjectDesc;
 import xades4j.providers.TimeStampTokenGenerationException;
 import xades4j.providers.TimeStampTokenProvider;
@@ -190,6 +191,7 @@ public class XMLSignatureService
 	        String rootUri = DOMUtils.evalRootUri(root);
 	        DataObjectDesc obj1 = new DataObjectReference(rootUri).withTransform( XPath2Filter.subtract("/descendant::ds:Signature") );
 	        SignedDataObjects dataObjs = new SignedDataObjects(obj1);
+	        dataObjs.withCommitmentType(new AllDataObjsCommitmentTypeProperty("http://uri.etsi.org/01903/v1.2.2#ProofOfOrigin", chainSignature.getReason()));
 	        
 	        // Digest evaluation
 	        byte[] digest = signer.digest(dataObjs, root);
@@ -271,11 +273,13 @@ public class XMLSignatureService
 	        
 	        // SigningTime injection
 	        extSignPropertiesProvider.setSigningTime ( signedSignature.getSigningTime() );
+	        extSignPropertiesProvider.setLocation ( signedSignature.getLocation() );
 
 	        // Creation of the reference to the root element
 	        String rootUri = DOMUtils.evalRootUri(root);
 	        DataObjectDesc obj1 = new DataObjectReference(rootUri).withTransform( XPath2Filter.subtract("/descendant::ds:Signature") );
 	        SignedDataObjects dataObjs = new SignedDataObjects(obj1);
+	        dataObjs.withCommitmentType(new AllDataObjsCommitmentTypeProperty("http://uri.etsi.org/01903/v1.2.2#ProofOfOrigin", signedSignature.getReason()));
 	        
 	        // Inject the digitalSignature into the signer
 	        signer.setSignatureId(((XMLSignatureInfo)signedSignature).getSignatureId());

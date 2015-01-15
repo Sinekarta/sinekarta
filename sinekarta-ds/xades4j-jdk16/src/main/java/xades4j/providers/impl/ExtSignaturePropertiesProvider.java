@@ -19,6 +19,9 @@ package xades4j.providers.impl;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.apache.commons.lang3.StringUtils;
+
+import xades4j.properties.SignatureProductionPlaceProperty;
 import xades4j.properties.SigningTimeProperty;
 import xades4j.providers.SignaturePropertiesCollector;
 import xades4j.providers.SignaturePropertiesProvider;
@@ -31,6 +34,7 @@ import xades4j.providers.SignaturePropertiesProvider;
 public class ExtSignaturePropertiesProvider implements SignaturePropertiesProvider
 {
 	private Date signingTime;
+	private String location;
 	
     @Override
     public void provideProperties(SignaturePropertiesCollector signaturePropsCol)
@@ -42,7 +46,19 @@ public class ExtSignaturePropertiesProvider implements SignaturePropertiesProvid
     		cal.setTime(signingTime);
     	}
     	signaturePropsCol.setSigningTime(new SigningTimeProperty(cal));
+    	location = "Topolinia";
+    	if ( StringUtils.isNotBlank(location) ) {
+    		signaturePropsCol.setSignatureProductionPlace(new SignatureProductionPlaceProperty(location, null));
+    	}
     }
+
+	public String getLocation() {
+		return location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
+	}
 
 	public Date getSigningTime() {
 		return signingTime;
