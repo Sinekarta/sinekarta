@@ -148,11 +148,16 @@ public class SignApplet extends BaseApplet {
 		
 		AppletResponseDTO resp = new AppletResponseDTO ( FUNCTION_LOGIN );
 		try {
-			digitalSignatureClient.setPin(pin);
-			String[] aliases = digitalSignatureClient.certificateList ();
-			if ( ArrayUtils.isNotEmpty(aliases) ) {
-				String aliasesJSON = JSONUtils.serializeJSON ( aliases );
-				resp.setResult ( aliasesJSON );
+			if ( digitalSignatureClient!=null && StringUtils.isNotBlank(digitalSignatureClient.getDriver()) ) {
+				digitalSignatureClient.setPin(pin);
+				String[] aliases = digitalSignatureClient.certificateList ();
+				if ( ArrayUtils.isNotEmpty(aliases) ) {
+					String aliasesJSON = JSONUtils.serializeJSON ( aliases );
+					resp.setResult ( aliasesJSON );
+				}
+			} else {
+				tracer.error("Specificare un driver smartcard");
+				resp.addFieldError("scDriver", "Campo obbligatorio");
 			}
 		} catch (InvalidPinException e) {
 			tracer.error("pin non riconosciuto", e);
