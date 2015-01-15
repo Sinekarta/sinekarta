@@ -325,4 +325,20 @@ public class ExtSignerInfoGenerator extends SignerInfoGenerator
 	public void setSigningTime(Date signingTime) {
 		((ExtSignedAttributeTableGenerator)sAttrGen).setSigningTime(signingTime);
 	}
+
+    public String getReason() {
+		return ((ExtSignedAttributeTableGenerator)sAttrGen).getReason();
+	}
+
+	public void setReason(String reason) {
+		((ExtSignedAttributeTableGenerator)sAttrGen).setReason(reason);
+	}
+	
+    public String getLocation() {
+		return ((ExtSignedAttributeTableGenerator)sAttrGen).getLocation();
+	}
+
+	public void setLocation(String location) {
+		((ExtSignedAttributeTableGenerator)sAttrGen).setLocation(location);
+	}
 }

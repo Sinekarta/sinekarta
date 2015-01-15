@@ -171,6 +171,8 @@ public class CMSSignedDataProxyGenerator {
 		
 		SHA256WithRSAProxySignature.reset();
 		try {
+			sifGen.setReason(reason);
+			sifGen.setLocation(location);
 			generator.generate(content, encapsulate, provider);
 			signingTime = sifGen.getSigningTime();
 		} catch (NoSuchAlgorithmException e) {
@@ -194,6 +196,8 @@ public class CMSSignedDataProxyGenerator {
 		CMSSignedData signedData;
 		try {
 			sifGen.setSigningTime(signingTime);
+			sifGen.setReason(reason);
+			sifGen.setLocation(location);
 			signedData = generator.generate(content, encapsulate, provider);
 		} catch (NoSuchAlgorithmException e) {
 			throw new RuntimeException(e);
@@ -204,6 +208,8 @@ public class CMSSignedDataProxyGenerator {
 	
 	private ExtSignerInfoGenerator sifGen = null;
     private Date signingTime;
+    private String reason;
+    private String location;
     
     public Date getSigningTime() {
 		return signingTime;
@@ -211,5 +217,21 @@ public class CMSSignedDataProxyGenerator {
 
 	public void setSigningTime(Date signingTime) {
 		this.signingTime = signingTime;
+	}
+
+	public String getReason() {
+		return reason;
+	}
+
+	public void setReason(String reason) {
+		this.reason = reason;
+	}
+
+	public String getLocation() {
+		return location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
 	}
 }
