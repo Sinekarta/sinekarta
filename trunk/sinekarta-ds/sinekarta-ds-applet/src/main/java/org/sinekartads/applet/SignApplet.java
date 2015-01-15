@@ -157,7 +157,7 @@ public class SignApplet extends BaseApplet {
 				}
 			} else {
 				tracer.error("Specificare un driver smartcard");
-				resp.addFieldError("scDriver", "Campo obbligatorio");
+				resp.addFieldError("scDriver", "campo obbligatorio");
 			}
 		} catch (InvalidPinException e) {
 			tracer.error("pin non riconosciuto", e);
