@@ -19,4 +19,10 @@
 <#include "/org/alfresco/include/alfresco-macros.lib.ftl" />
 <#assign el=htmlid?js_string>
 
-<label>${msg("label.success")}</label>
+<p>
+	<label>${msg("label.success")}</label>
+</p>
+<p>
+	<label>${msg("label.signedDocuments")}</label><br/>
+	<a id="${htmlid}-result"></a>
+</p>

@@ -686,10 +686,6 @@
 								['skdsSignCallPreSign', this.applySignatureSmartCard] );
 					}
 				} else {
-					// callFormOperation() will refresh the whole form and change the value of 
-					//   - the same form if any error occurres
-					//   - the next form if succeed
-					// if the form changed it needs to be prepared
 					this.callFormOperation ( currForm );
 				}
 			},
@@ -788,14 +784,14 @@
 					document.getElementById("${htmlid}-signCategory-cms").checked = true;
 				}
 
-				// FIXME Set the skdsSignClient widget activation status
-				document.getElementById("${htmlid}-signCategory-pdf").disabled = (this.wizardData.scDriver === "");
-				
 				// Update the skdsSignClient keyStore and smartCard aliases select components
 				this.updateClientType  ( this.wizardData.clientType );
 				this.updateKsUserAliasSelect ( );
 				this.updateScUserAliasSelect ( );
 				this.updateScDriverSelect ( );
+				
+				// Display the resulting document details on the skdsSignResults form
+				this.updateResult ( );
 			},
 
 			displayErrors: function skds_displayErrors ( actionErrors, fieldErrors ) {
@@ -843,7 +839,6 @@
 					if ( appletResultJSON !== undefined ) {
 						signature.hexDigitalSignature = appletResultJSON;  
 						Alfresco_skds.updateWizardDataView ( );
-						Alfresco_skds.info ( 'applySignatureSmartCard', 'digsig:    ' + signature.hexDigitalSignature );
 						Alfresco_skds.callFormOperation ( 'skdsSignSetDigitalSignature', 
 								['skdsSignCallPostSign', 'skdsSignResults'] );
 					} else {
@@ -1096,9 +1091,6 @@
 			    	skds_execFunction("selectDriver",this.wizardData.scDriver,function(){
 						var appletResponseJSON = skds_getResp();
 						var appletResultJSON = Alfresco_skds.parseAppletResponse ( appletResponseJSON );
-						if ( appletResultJSON === undefined ) {
-							Alfresco_skds.error ( 'onScDriverChange', 'unexpected response: ' + appletResultJSON );
-						}
 					});
 		    	} else {
 		    		document.getElementById("${htmlid}-signCategory-pdf").disabled = false;
@@ -1129,7 +1121,7 @@
 					Alfresco_skds.updateWizardDataView ( );
 				});
 			},
-		    
+
 		    onScUserAliasChange: function skds_onScUserAliasChange() {
 		    	document.getElementById('${htmlid}-scUserAlias-error').innerHTML = '';
 		    	var scUserAliasSelect = document.getElementById("${htmlid}-scUserAlias");
@@ -1147,11 +1139,30 @@
 						}
 					});
 				} else {
-					Alfresco_skds.wizardData.signature.hexCertificateChain[0] = '';
-					Alfresco_skds.updateWizardDataView ( );
+					this.wizardData.signature.hexCertificateChain[0] = '';
+					this.updateWizardDataView ( );
 				}
 			},
 
+
+
+			// -----
+		    // --- SignResults - Display the resulting documents
+		    // -
+		    
+		    updateResult: function skds_updateKsUserAliasSelect ( ) {
+		    	var destNode;
+		    	if ( this.wizardData.tsSelection === 'NONE' ) {
+		    		destNode = this.wizardData.documents[0].embeddedSign;
+		    	} else {
+		    		destNode = this.wizardData.documents[0].markedSign;
+		    	}
+		    	if ( destNode != null && destNode.nodeRef !== '' ) {
+		    		document.getElementById("${htmlid}-result").href = "${page.url.context}/page/context/mine/document-details?nodeRef=" + destNode.nodeRef;
+		    		document.getElementById("${htmlid}-result").innerHTML = destNode.fileName;
+		    	}
+		    },
+			
 		});
 	})();
 	
