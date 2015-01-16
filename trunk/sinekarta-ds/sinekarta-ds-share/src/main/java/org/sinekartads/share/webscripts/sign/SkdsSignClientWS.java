@@ -16,6 +16,7 @@
  */
 package org.sinekartads.share.webscripts.sign;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sinekartads.dto.share.SignWizardDTO;
 import org.sinekartads.model.client.SignatureClient.SignatureClientType;
@@ -32,11 +33,11 @@ public class SkdsSignClientWS extends BaseSignController {
 		try {
 			Assert.notNull ( dto.getSignature() );
 			if ( StringUtils.equals(dto.getClientType(), SignatureClientType.KEYSTORE.name()) ) {
-				if ( StringUtils.isBlank(dto.getKsUserAlias()) ) {
-					addFieldError(dto, "ksUserAlias", getMessage(MANDATORY));
-				}
-				if ( StringUtils.isBlank(dto.getScDriver()) ) {
+				if ( StringUtils.isBlank(dto.getKsPin()) ) {
 					addFieldError(dto, "ksPin", getMessage(MANDATORY));
+				}
+				if ( StringUtils.isBlank(dto.getKsUserAlias()) || ArrayUtils.isEmpty(dto.getSignature().getHexCertificateChain()) ) {
+					addFieldError(dto, "ksUserAlias", getMessage(MANDATORY));
 				}
 			} else if ( StringUtils.equals(dto.getClientType(), SignatureClientType.SMARTCARD.name()) ) {
 				if ( StringUtils.isBlank(dto.getScDriver()) ) {
@@ -45,7 +46,7 @@ public class SkdsSignClientWS extends BaseSignController {
 				if ( StringUtils.isBlank(dto.getScDriver()) ) {
 					addFieldError(dto, "scPin", getMessage(MANDATORY));
 				}
-				if ( StringUtils.isBlank(dto.getScUserAlias()) ) {
+				if ( StringUtils.isBlank(dto.getScUserAlias()) || ArrayUtils.isEmpty(dto.getSignature().getHexCertificateChain()) ) {
 					addFieldError(dto, "scUserAlias", getMessage(MANDATORY));
 				}
 			}
