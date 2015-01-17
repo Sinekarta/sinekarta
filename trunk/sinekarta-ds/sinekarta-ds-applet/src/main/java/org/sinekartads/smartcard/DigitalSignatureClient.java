@@ -170,4 +170,16 @@ public class DigitalSignatureClient {
 		this.alias = alias;
 	}
 	
+	public boolean isEmptyDriver() {
+		return StringUtils.isEmpty(driver);
+	}
+	
+	public boolean isEmptyPin() {
+		return StringUtils.isEmpty(pin);
+	}
+	
+	public boolean isEmptyAlias() {
+		return StringUtils.isEmpty(alias);
+	}
+	
 }

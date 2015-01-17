@@ -18,6 +18,7 @@
  */
 package org.sinekartads.applet;
 
+import java.beans.Transient;
 import java.io.Serializable;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -45,11 +46,6 @@ public class AppletResponseDTO implements Serializable {
 	
 	private String appletMethod;
 	private String result;
-	/**
-	 * @deprecated ignore this field - fake field for serialization only proposes
-	 */
-	@SuppressWarnings("unused")
-	private String resultCode;
 	private ActionErrorDTO[] actionErrors = new ActionErrorDTO[0];
 	private FieldErrorDTO[] fieldErrors = new FieldErrorDTO[0];
 	
@@ -107,12 +103,20 @@ public class AppletResponseDTO implements Serializable {
 	// --- Elaboration status transmission
 	// -
 
-	public String getResultCode() {
+	private String getResultCode() {
 		if ( ArrayUtils.isEmpty(actionErrors) && ArrayUtils.isEmpty(fieldErrors) ) {
-			return "SUCCESS";
+			return SUCCESS;
 		} else {
-			return "ERROR";
+			return ERROR;
 		}
+	}
+	
+	public boolean checkError() {
+		return getResultCode().equalsIgnoreCase(ERROR);
+	}
+
+	public boolean checkSuccess() {
+		return getResultCode().equalsIgnoreCase(SUCCESS);
 	}
 
 	public ActionErrorDTO[] getActionErrors() {
