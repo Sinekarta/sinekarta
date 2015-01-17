@@ -36,69 +36,18 @@ import org.sinekartads.smartcard.DigitalSignatureClient;
 import org.sinekartads.utils.JSONUtils;
 import org.sinekartads.utils.X509Utils;
 
-public class SignApplet extends BaseApplet {
+public class SignNOApplet {
 
 	private static final String FUNCTION_SIGN_DIGEST = "signDigest";
 	private static final String FUNCTION_SELECT_CERTIFICATE = "selectCertificate";
 	private static final String FUNCTION_LOGIN = "login";
 	private static final String FUNCTION_SELECT_DRIVER = "selectDriver";
 	
-	private static final long serialVersionUID = -2886113966359858032L;
-	
-	private static final Logger tracer = Logger.getLogger(SignApplet.class);
+	private static final Logger tracer = Logger.getLogger(SignNOApplet.class);
 	
 	private transient DigitalSignatureClient digitalSignatureClient;
 	
-	@Override
-	public void init ( ) {
-		tracer.info("Initializing the signing applet.");
-		super.init();
-	}
-	
-	@Override
-	public void destroy() {
-		if (digitalSignatureClient!=null) {
-			try {
-				digitalSignatureClient.close();
-			} catch (SmartCardAccessException e) {
-				// nothing to do..
-			}
-		}
-		super.destroy();
-		tracer.info("signing applet destroyed");
-	}
-		
-	@Override
-	public void stop() {
-		tracer.info("stop requested");
-		if (digitalSignatureClient!=null) {
-			try {
-				digitalSignatureClient.close();
-			} catch (SmartCardAccessException e) {
-				// nothing to do..
-			}
-		}
-		super.stop();
-		tracer.info("stop done");
-	}
-
-	@Override
-	public String execFunction(String function, String param) {
-		if (function.equals(FUNCTION_SELECT_DRIVER)) {
-			return selectDriver(param);
-		} else if (function.equals(FUNCTION_LOGIN)) {
-			return login(param);
-		} else if (function.equals(FUNCTION_SELECT_CERTIFICATE)) {
-			return selectCertificate(param);
-		} else if (function.equals(FUNCTION_SIGN_DIGEST)) {
-			return signDigest(param);
-		}
-		return null;
-	}
-
-	public String selectDriver ( String param ) {
-		
-		AppletRequestDTO request = JSONUtils.deserializeJSON(AppletRequestDTO.class, param);
+	public AppletResponseDTO selectDriver ( AppletRequestDTO request ) {
 		
 		String driver = StringUtils.trim(request.getDriver());
 		if (digitalSignatureClient==null) {
@@ -141,22 +90,19 @@ public class SignApplet extends BaseApplet {
 		}
 		
 		tracer.info(String.format("respJSON: %s", JSONUtils.serializeJSON ( resp )));
-		return JSONUtils.serializeJSON ( resp );
+		return resp;
 	}
 	
-	public String login ( String param ) {
+	public AppletResponseDTO login ( AppletRequestDTO request ) {
 
-		AppletRequestDTO request = JSONUtils.deserializeJSON(AppletRequestDTO.class, param);
-		
 		String pin = StringUtils.trim(request.getPin());
 		tracer.info(FUNCTION_LOGIN);
 		tracer.info(String.format("pin:    %s", pin));
 
 		if (digitalSignatureClient.isEmptyDriver()) {
-			String selectDriverResp = selectDriver(param);
-			AppletResponseDTO respSelectDriver = JSONUtils.deserializeJSON(AppletResponseDTO.class, selectDriverResp);
+			AppletResponseDTO respSelectDriver = selectDriver(request);
 			if (respSelectDriver.checkError()) {
-				return JSONUtils.serializeJSON(respSelectDriver);
+				return respSelectDriver;
 			}
 		}
 
@@ -188,30 +134,26 @@ public class SignApplet extends BaseApplet {
 		}
 		
 		tracer.info(String.format("respJSON: %s", JSONUtils.serializeJSON(resp)));
-		return JSONUtils.serializeJSON ( resp );
+		return resp;
 	}
 	
-	public String selectCertificate ( String param ) {
+	public AppletResponseDTO selectCertificate ( AppletRequestDTO request ) {
 
-		AppletRequestDTO request = JSONUtils.deserializeJSON(AppletRequestDTO.class, param);
-		
 		String alias = StringUtils.trim(request.getAlias());
 		tracer.info(FUNCTION_SELECT_CERTIFICATE);
 		tracer.info(String.format("alias:  %s", alias));
 		
 		if (digitalSignatureClient.isEmptyDriver()) {
-			String selectDriverResp = selectDriver(param);
-			AppletResponseDTO respSelectDriver = JSONUtils.deserializeJSON(AppletResponseDTO.class, selectDriverResp);
+			AppletResponseDTO respSelectDriver = selectDriver(request);
 			if (respSelectDriver.checkError()) {
-				return JSONUtils.serializeJSON(respSelectDriver);
+				return respSelectDriver;
 			}
 		}
 
 		if (digitalSignatureClient.isEmptyPin()) {
-			String loginResp = login(param);
-			AppletResponseDTO respLogin = JSONUtils.deserializeJSON(AppletResponseDTO.class, loginResp);
+			AppletResponseDTO respLogin = login(request);
 			if (respLogin.checkError()) {
-				return JSONUtils.serializeJSON(respLogin);
+				return respLogin;
 			}
 		}
 
@@ -234,37 +176,32 @@ public class SignApplet extends BaseApplet {
 		}
 		
 		tracer.info(String.format("respJSON: %s", JSONUtils.serializeJSON( resp )));
-		return JSONUtils.serializeJSON(resp);
+		return resp;
 	}
 	
-	public String signDigest ( String param ) {
+	public AppletResponseDTO signDigest ( AppletRequestDTO request ) {
 
-		AppletRequestDTO request = JSONUtils.deserializeJSON(AppletRequestDTO.class, param);
-		
 		String hexDigest = StringUtils.trim(request.getHexDigest());
 		tracer.info(FUNCTION_SIGN_DIGEST);
 		
 		if (digitalSignatureClient.isEmptyDriver()) {
-			String selectDriverResp = selectDriver(param);
-			AppletResponseDTO respSelectDriver = JSONUtils.deserializeJSON(AppletResponseDTO.class, selectDriverResp);
+			AppletResponseDTO respSelectDriver = selectDriver(request);
 			if (respSelectDriver.checkError()) {
-				return JSONUtils.serializeJSON(respSelectDriver);
+				return respSelectDriver;
 			}
 		}
 
 		if (digitalSignatureClient.isEmptyPin()) {
-			String loginResp = login(param);
-			AppletResponseDTO respLogin = JSONUtils.deserializeJSON(AppletResponseDTO.class, loginResp);
+			AppletResponseDTO respLogin = login(request);
 			if (respLogin.checkError()) {
-				return JSONUtils.serializeJSON(respLogin);
+				return respLogin;
 			}
 		}
 
 		if (digitalSignatureClient.isEmptyAlias()) {
-			String selectCertificateResp = selectCertificate(param);
-			AppletResponseDTO respSelectCertificate = JSONUtils.deserializeJSON(AppletResponseDTO.class, selectCertificateResp);
+			AppletResponseDTO respSelectCertificate = selectCertificate(request);
 			if (respSelectCertificate.checkError()) {
-				return JSONUtils.serializeJSON(respSelectCertificate);
+				return respSelectCertificate;
 			}
 		}
 
@@ -277,7 +214,17 @@ public class SignApplet extends BaseApplet {
 		}
 		
 		tracer.info(String.format("respJSON: %s", JSONUtils.serializeJSON ( resp )));
-		return JSONUtils.serializeJSON(resp);
+		return resp;
+	}
+	
+	public void close() {
+		if (digitalSignatureClient!=null) {
+			try {
+				digitalSignatureClient.close();
+			} catch (SmartCardAccessException e) {
+				// nothing to do..
+			}
+		}
 	}
 	
 	private void processError ( AppletResponseDTO resp, String errorMessage, Throwable errorCause ) {
