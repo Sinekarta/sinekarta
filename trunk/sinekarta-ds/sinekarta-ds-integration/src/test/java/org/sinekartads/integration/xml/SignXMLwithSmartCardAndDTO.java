@@ -11,15 +11,14 @@ import java.util.Date;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Test;
+import org.sinekartads.applet.AppletRequestDTO;
 import org.sinekartads.applet.AppletResponseDTO;
 import org.sinekartads.applet.AppletResponseDTO.ActionErrorDTO;
 import org.sinekartads.applet.AppletResponseDTO.FieldErrorDTO;
-import org.sinekartads.applet.SignApplet;
-import org.sinekartads.core.service.TimeStampService;
+import org.sinekartads.applet.SignNOApplet;
 import org.sinekartads.core.service.XMLSignatureService;
 import org.sinekartads.dto.BaseDTO;
 import org.sinekartads.dto.ResultCode;
@@ -75,7 +74,7 @@ public class SignXMLwithSmartCardAndDTO extends BaseIntegrationTC {
 			Security.addProvider(new BouncyCastleProvider());
 		}
 		
-		SignApplet applet = new SignApplet();
+		SignNOApplet applet = new SignNOApplet();
 		try {
 			
 			// Main options
@@ -122,9 +121,9 @@ public class SignXMLwithSmartCardAndDTO extends BaseIntegrationTC {
 			
 			// Init the applet
 			try {
-				applet.init();
-				jsonResp = applet.selectDriver ( driver );
-				appletResponse = (AppletResponseDTO) JSONUtils.deserializeJSON(AppletResponseDTO.class, jsonResp);
+				AppletRequestDTO req = new AppletRequestDTO();
+				req.setDriver(driver);
+				appletResponse = applet.selectDriver ( req );
 			} catch(Exception e) {
 				tracer.error("error during the applet initialization", e);
 				throw e;
@@ -132,8 +131,10 @@ public class SignXMLwithSmartCardAndDTO extends BaseIntegrationTC {
 			
 			// Login with the smartCard
 			try {
-				jsonResp = applet.login ( scPin );
-				appletResponse = (AppletResponseDTO) JSONUtils.deserializeJSON(AppletResponseDTO.class, jsonResp);
+				AppletRequestDTO req = new AppletRequestDTO();
+				req.setDriver(driver);
+				req.setPin(scPin);
+				appletResponse = applet.login ( req );
 				aliases = (String[]) JSONUtils.deserializeJSON ( String[].class, extractJSON(appletResponse) );
 			} catch(Exception e) {
 				tracer.error("error during the applet login", e);
@@ -151,8 +152,11 @@ public class SignXMLwithSmartCardAndDTO extends BaseIntegrationTC {
 			
 			// Load the certificate chain from the applet
 			try {
-				jsonResp = applet.selectCertificate ( alias );
-				appletResponse = (AppletResponseDTO) JSONUtils.deserializeJSON(AppletResponseDTO.class, jsonResp);
+				AppletRequestDTO req = new AppletRequestDTO();
+				req.setDriver(driver);
+				req.setPin(scPin);
+				req.setAlias(alias);
+				appletResponse = applet.selectCertificate ( req );
 				certificate = (X509Certificate) X509Utils.rawX509CertificateFromHex( extractJSON(appletResponse) );
 				tracer.info(String.format ( "certificate:         %s", certificate ));
 				certificateChain = new X509Certificate[] { certificate };
@@ -223,8 +227,12 @@ public class SignXMLwithSmartCardAndDTO extends BaseIntegrationTC {
 				DigestInfo digest = digestSignature.getDigest();
 				fingerPrint = digest.getFingerPrint();
 				tracer.info(String.format ( "fingerPrint:         %s", HexUtils.encodeHex(fingerPrint) ));
-				jsonResp = applet.signDigest( HexUtils.encodeHex(fingerPrint) );
-				appletResponse = (AppletResponseDTO) JSONUtils.deserializeJSON(AppletResponseDTO.class, jsonResp);
+				AppletRequestDTO req = new AppletRequestDTO();
+				req.setDriver(driver);
+				req.setPin(scPin);
+				req.setAlias(alias);
+				req.setHexDigest(HexUtils.encodeHex(fingerPrint));
+				appletResponse = applet.signDigest( req );
 				digitalSignature = HexUtils.decodeHex ( (String) extractJSON(appletResponse) );
 				tracer.info(String.format ( "digitalSignature:    %s", HexUtils.encodeHex(digitalSignature) ));
 				signedSignature = digestSignature.toSignedSignature ( digitalSignature );
@@ -371,7 +379,7 @@ public class SignXMLwithSmartCardAndDTO extends BaseIntegrationTC {
 			tracer.error(e.getMessage(), e);
 			throw e;
 		} finally {
-			applet.destroy();
+			applet.close();
 		}
 	}
 	
@@ -388,9 +396,8 @@ public class SignXMLwithSmartCardAndDTO extends BaseIntegrationTC {
 	}
 	
 	private String extractJSON(AppletResponseDTO resp) throws Exception {
-		String resultCode = resp.getResultCode();
 		String json;
-		if ( StringUtils.equals(resultCode, AppletResponseDTO.SUCCESS) ) {
+		if ( resp.checkSuccess() ) {
 			json = resp.getResult();
 		} else {
 			StringBuilder buf = new StringBuilder();
