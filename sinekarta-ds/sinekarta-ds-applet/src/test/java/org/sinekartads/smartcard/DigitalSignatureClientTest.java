@@ -33,7 +33,7 @@ public class DigitalSignatureClientTest extends TestCase {
 
 		String driver = "fake";
 		String pin = "123";
-		String alias = "Andrea Tessaro Porta"; 
+		String alias = "SineKarta"; 
 
 		DigitalSignatureClient digitalSignatureClient = new DigitalSignatureClient(driver, pin, alias);
 		try {
