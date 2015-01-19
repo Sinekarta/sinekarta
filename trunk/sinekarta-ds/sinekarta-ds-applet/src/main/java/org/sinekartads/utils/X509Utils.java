@@ -119,10 +119,7 @@ public class X509Utils {
 		
 		PrivateKey privateKey;
 		try {
-	    	//create a keyfactory - use whichever algorithm and provider
 			KeyFactory kf = KeyFactory.getInstance("RSA", "SunJSSE");
-//	    	KeyFactory kf = KeyFactory.getInstance(encryptionAlgorithm.getName(), "SunJSSE");
-	    	//for private keys use PKCS8EncodedKeySpec; for public keys use X509EncodedKeySpec
 	    	PKCS8EncodedKeySpec ks = new PKCS8EncodedKeySpec(privateKeyEnc);
 	    	privateKey = kf.generatePrivate(ks);
     	} catch (NoSuchAlgorithmException e) {
