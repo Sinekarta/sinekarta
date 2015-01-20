@@ -239,11 +239,11 @@
 	function skds_getResp() {
 		return document.getElementById("skds-applet-resp").value;
 	}
-	function skds_execFunction(func, param, callback) {
+	function skds_execFunction(func, callback) {
 		skds_callback=callback;
 		document.getElementById("skds-applet-do").value="do";
 		document.getElementById("skds-applet-function").value=func;
-		document.getElementById("skds-applet-parms").value=param;
+		document.getElementById("skds-applet-parms").value=Alfresco_skds.createAppletRequest();
 	}
 	function skds_checkDone(){ 
 		try {
@@ -432,10 +432,11 @@
 							this.wizardData = this.parseJSON ( res.serverResponse.responseText );
 							
 							// If the operation has been successfully performed, it might require to step to the next form.
-							// This happen when the step performed is the last referring to its own form.
-							if ( this.wizardData.resultCode === 'SUCCESS' ) {
+							// This happen when the step performed is the last referring to its own form, but not with the
+							// last wizard step.
+							var step = parseInt(this.wizardData.currentStep);
+							if ( this.wizardData.resultCode === 'SUCCESS' && step < this.wizardData.wizardSteps.length-1 ) {
 								// Locate the next step
-								var step = parseInt(this.wizardData.currentStep);
 								var currStep = this.wizardData.wizardSteps[step];
 								var nextStep = this.wizardData.wizardSteps[step+1];
 								// Set is as current step if it refers to another form
@@ -502,7 +503,7 @@
 				if ( appletResponseJSON !== undefined ) {
 					var appletResponse = this.parseJSON ( appletResponseJSON );
 					if ( appletResponse !== undefined ) {
-						if ( appletResponse.resultCode === 'SUCCESS' ) {
+						if ( appletResponse.fieldErrors.length == 0 && appletResponse.actionErrors.length == 0 ) {
 							resultJSON = appletResponse.result;
 						} else {
 							this.displayErrors ( appletResponse.actionErrors, appletResponse.fieldErrors );
@@ -833,14 +834,14 @@
 				var last = this.wizardData.documents[0].signatures.length-1;
 				var signature = this.wizardData.documents[0].signatures[last];
 				var hexFingerPrint = signature.digest.hexFingerPrint;
-				skds_execFunction("signDigest",hexFingerPrint,function(){
+				skds_execFunction("signDigest",function(){
 					var appletResponseJSON = skds_getResp();
 					var appletResultJSON = Alfresco_skds.parseAppletResponse ( appletResponseJSON );
 					if ( appletResultJSON !== undefined ) {
 						signature.hexDigitalSignature = appletResultJSON;  
 						Alfresco_skds.updateWizardDataView ( );
-						Alfresco_skds.callFormOperation ( 'skdsSignSetDigitalSignature', 
-								['skdsSignCallPostSign', 'skdsSignResults'] );
+						Alfresco_skds.callFormOperation ( 'skdsSignCallPostSign', 
+								['skdsSignResults'] );
 					} else {
 						Alfresco_skds.error ( 'refresh', 'unexpected response: ' + appletResultJSON );
 					}
@@ -1088,7 +1089,7 @@
 		    	if ( this.wizardData.scDriver !== '' ) {
 		    		document.getElementById("${htmlid}-signCategory-pdf").disabled = true;
 		    		var driver = this.wizardData.scDriver;
-			    	skds_execFunction("selectDriver",this.wizardData.scDriver,function(){
+			    	skds_execFunction("selectDriver",function(){
 						var appletResponseJSON = skds_getResp();
 						var appletResultJSON = Alfresco_skds.parseAppletResponse ( appletResponseJSON );
 					});
@@ -1099,11 +1100,11 @@
 		    
 			onScLoadAliasesClick: function skds_onScLoadAliasesClick ( ) {
 				document.getElementById('${htmlid}-scPin-error').innerHTML = '';
-				var scPin = document.getElementById("${htmlid}-scPin").value;
+				this.wizardData.scPin = document.getElementById("${htmlid}-scPin").value;
 				var aliases;
 				var html;
 				
-		    	skds_execFunction("login",scPin,function(){
+		    	skds_execFunction("login",function(){
 					var appletResponseJSON = skds_getResp();
 					var appletResultJSON = Alfresco_skds.parseAppletResponse ( appletResponseJSON );
 					if ( appletResultJSON !== undefined ) {
@@ -1127,7 +1128,7 @@
 		    	var scUserAliasSelect = document.getElementById("${htmlid}-scUserAlias");
 				this.wizardData.scUserAlias = scUserAliasSelect.options[scUserAliasSelect.selectedIndex].value;
 				if ( this.wizardData.scUserAlias !== '' ) {
-			    	skds_execFunction("selectCertificate",this.wizardData.scUserAlias,function(){
+			    	skds_execFunction("selectCertificate",function(){
 			    		Alfresco_skds.info ( 'onScUserAliasChange', 'selectCertificate' );
 						var appletResponseJSON = skds_getResp();
 						var appletResultJSON = Alfresco_skds.parseAppletResponse ( appletResponseJSON );
@@ -1142,6 +1143,19 @@
 					this.wizardData.signature.hexCertificateChain[0] = '';
 					this.updateWizardDataView ( );
 				}
+			},
+			
+			createAppletRequest: function skds_createAppletRequest ( ) {
+				var request = new Object();
+				request.driver = this.wizardData.scDriver;
+				request.pin = this.wizardData.scPin;
+				request.alias = this.wizardData.scUserAlias;
+				var last = this.wizardData.documents[0].signatures.length-1;
+				if ( last >= 0) {
+					var signature = this.wizardData.documents[0].signatures[last];
+					request.hexDigest = signature.digest.hexFingerPrint;
+				}
+				return this.formatJSON(request);
 			},
 
 
