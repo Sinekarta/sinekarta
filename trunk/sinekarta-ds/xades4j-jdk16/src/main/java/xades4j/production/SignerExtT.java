@@ -37,6 +37,11 @@ import xades4j.xml.marshalling.algorithms.AlgorithmsParametersMarshallingProvide
 import com.google.inject.Inject;
 
 /**
+ * *** SKDSFIX ************************************************************
+ * <p>This class extends SignerExtBES instead of SignerBES, there are no
+ * other difference with the original one.
+ * ************************************************************************
+ * 
  * Produces XAdES-T signatures. Doesn't extend SignerEPES because XAdES-T may be
  * based on XAdES-BES. If T+EPES is needed, a {@code SignaturePolicyInfoProvider}
  * will be injected after construction via {@code setPolicyProvider}.

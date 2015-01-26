@@ -16,18 +16,10 @@
  */
 package xades4j.production;
 
-import xades4j.providers.KeyingDataProvider;
-import xades4j.providers.SignaturePolicyInfoProvider;
 import xades4j.providers.impl.ExtKeyringDataProvider;
 
 /**
- * A profile for producing XAdES-T signatures. A {@link KeyingDataProvider} has
- * to be supplied. The library has a default {@link xades4j.providers.TimeStampTokenProvider}
- * that will be used to configure the {@code XadesSigner}. As all teh other components
- * it can be exchanged.
- * <p>
- * A {@link SignaturePolicyInfoProvider} should be added to produce a XAdES-T based
- * on XAdES-EPES.
+ * A profile for to generate SignerExtBES instances.
  * @see XadesSigningProfile
  * @author Luís
  */

@@ -16,13 +16,10 @@
  */
 package xades4j.production;
 
-import xades4j.providers.KeyingDataProvider;
 import xades4j.providers.impl.ExtKeyringDataProvider;
 
 /**
- * A profile for producing XAdES-BES signatures. A {@link KeyingDataProvider} has
- * to be supplied.
- * @see XadesSigningProfile
+ * A profile for to generate SignerExtBES instances.
  * @author www.jenia.it
  */
 public final class XadesExtBesSigningProfile extends XadesSigningProfile

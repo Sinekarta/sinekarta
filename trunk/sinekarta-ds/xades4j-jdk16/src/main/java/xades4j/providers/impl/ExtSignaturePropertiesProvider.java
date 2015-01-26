@@ -27,8 +27,14 @@ import xades4j.providers.SignaturePropertiesCollector;
 import xades4j.providers.SignaturePropertiesProvider;
 
 /**
- * The default implementation of {@link SignaturePropertiesProvider}. It provides
- * the {@code SigningTime} signed property.
+ * *** SKDSFIX ************************************************************
+ * <p>This class extends SignerExtBES instead of SignerBES, there are no
+ * other difference with the original one.
+ * ************************************************************************
+ * 
+ * An implementation of {@link SignaturePropertiesProvider} which can generate 
+ * and return the SigningTime when not externally set. It can receive
+ * even the Location  externally.
  * @author Luís
  */
 public class ExtSignaturePropertiesProvider implements SignaturePropertiesProvider
@@ -46,7 +52,6 @@ public class ExtSignaturePropertiesProvider implements SignaturePropertiesProvid
     		cal.setTime(signingTime);
     	}
     	signaturePropsCol.setSigningTime(new SigningTimeProperty(cal));
-    	location = "Topolinia";
     	if ( StringUtils.isNotBlank(location) ) {
     		signaturePropsCol.setSignatureProductionPlace(new SignatureProductionPlaceProperty(location, null));
     	}

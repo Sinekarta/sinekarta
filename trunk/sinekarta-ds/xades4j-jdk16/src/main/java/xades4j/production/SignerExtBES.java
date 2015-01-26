@@ -66,6 +66,23 @@ import xades4j.xml.sign.ExtXMLSignature;
 import com.google.inject.Inject;
 
 /**
+* *** SKDSFIX ************************************************************
+ * <p>This class is a modification of the original SignerBES of xades4j. It
+ * has been necessary to rewrite the full code since the origina was final.
+ * 
+ * <p>This update introduce the {@link #digest(SignedDataObjects, Node)} 
+ * method to evaluate the digest for the xml envelope. This process is 
+ * equivalent to the original sign() code, until the application of the 
+ * digital signature inside the XMLSignature. This object is then converted 
+ * to ExtXMLSignature which will evaluate the digest.
+ * 
+ * <p>The {@link #sign(SignedDataObjects, Node)} method uses the same 
+ * signatureId that have been created in the previous step  injects the 
+ * signature value inside the ExtXMLSignature. After that the signature
+ * process is completed, the ExtXMLSignature is converted to XMLSignature
+ * and returned into an XadesSignatureResult.
+ * ************************************************************************
+ * 
  * Base logic for producing XAdES signatures (XAdES-BES).
  * @author Luís
  */
@@ -288,9 +305,6 @@ class SignerExtBES implements XadesSigner, XadesSignerExt
                 extSignature.setDigitalSignature(digitalSignature);
                 digest = extSignature.digest ( keyingProvider.getSigningKey(signingCertificate) );
 
-                // Replace the xmlSignature with the extSignature into the document
-                //		from now any reference to xmlSignature inside this method code will be replaced with extSignature 
-                DOMUtils.searchReplace(docElem, xmlSignature.getElement(), extSignature.getElement());
 
             }
             catch (XMLSignatureException/* | XPathExpressionException*/ ex)
