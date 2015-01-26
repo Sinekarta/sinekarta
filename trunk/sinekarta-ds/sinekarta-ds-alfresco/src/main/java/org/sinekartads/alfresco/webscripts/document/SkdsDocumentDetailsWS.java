@@ -58,9 +58,9 @@ public class SkdsDocumentDetailsWS
 				document = new DocumentDTO();
 				document.setBaseDocument ( baseDocument );
 				documentList.add ( document );
-				resp.documentsToBase64 ( documentList.toArray(new DocumentDTO[documentList.size()]) );
-				resp.resultCodeToString(ResultCode.SUCCESS);
 			}
+			resp.documentsToBase64 ( documentList.toArray(new DocumentDTO[documentList.size()]) );
+			resp.resultCodeToString(ResultCode.SUCCESS);
 		} catch(Exception e) {
 			Logger.getLogger(getClass()).error(e.getMessage(), e);
 			resp.resultCodeToString(ResultCode.INTERNAL_SERVER_ERROR);

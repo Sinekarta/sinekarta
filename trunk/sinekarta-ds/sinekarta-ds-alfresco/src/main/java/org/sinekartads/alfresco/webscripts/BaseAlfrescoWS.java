@@ -21,6 +21,7 @@ import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthenticationService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.PersonService;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -172,10 +173,10 @@ public abstract class BaseAlfrescoWS<Request extends BaseRequest, Response exten
 
 	protected void storeIntoNode ( 
 			NodeDTO node, 
-			String hex ) {
+			String base64 ) {
 		
-		if ( StringUtils.isBlank(hex) ) {
-			hex = "";
+		if ( StringUtils.isBlank(base64) ) {
+			base64 = "";
 		}
 		
 		if ( node != null ) {
@@ -212,7 +213,7 @@ public abstract class BaseAlfrescoWS<Request extends BaseRequest, Response exten
 				Assert.isTrue ( nodeService.exists(nodeRef) );
 			}
 			
-			byte[] output = HexUtils.decodeHex ( hex );
+			byte[] output = Base64.decodeBase64( base64 );
 			ContentWriter writer = contentService.getWriter ( 
 					nodeRef, ContentModel.PROP_CONTENT, true );
 			writer.putContent ( new ByteArrayInputStream ( output ) );
@@ -220,7 +221,7 @@ public abstract class BaseAlfrescoWS<Request extends BaseRequest, Response exten
 	}
 	
 	protected String loadFromNode( NodeDTO node ) throws IOException {
-		String contentHex = null;
+		String contentBase64 = null;
 		InputStream is = null;
 		if ( node != null && StringUtils.isNotBlank(node.getNodeRef()) ) {
 			try {
@@ -228,11 +229,11 @@ public abstract class BaseAlfrescoWS<Request extends BaseRequest, Response exten
 				ContentReader contentReader = contentService.getReader(
 						nodeRef, ContentModel.PROP_CONTENT);
 				is = contentReader.getContentInputStream();
-				contentHex = HexUtils.encodeHex(IOUtils.toByteArray(is));
+				contentBase64 = Base64.encodeBase64String(IOUtils.toByteArray(is));
 			} finally {
 				IOUtils.closeQuietly(is);
 			}
 		}
-		return contentHex;
+		return contentBase64;
 	}
 }

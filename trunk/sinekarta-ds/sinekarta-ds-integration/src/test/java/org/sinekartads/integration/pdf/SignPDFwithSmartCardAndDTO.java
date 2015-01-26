@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -80,7 +81,7 @@ public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 		try {
 			
 			// Main options
-			String contentHex = HexUtils.encodeHex (
+			String contentHex = Base64.encodeBase64String (
 					FileUtils.readFileToByteArray ( 
 							getTestResource ( SOURCE_FILE ) ) );
 			boolean applyMark = true;
@@ -289,7 +290,7 @@ public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 					hexSignedData = postSignResp.getEmbeddedSign();
 					envelopeFile = getTestResource(SIGNED_FILE);
 				}
-				signedData = HexUtils.decodeHex(hexSignedData);
+				signedData = Base64.decodeBase64 (hexSignedData);
 				FileUtils.writeByteArrayToFile ( envelopeFile, signedData );
 			} catch(IOException e) {
 				tracer.error("unable to obtain the digestSignature from the DTO", e);
@@ -309,7 +310,7 @@ public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 			
 			// Read the signed envelope
 			try {
-				envelopeHex = HexUtils.encodeHex ( FileUtils.readFileToByteArray(envelopeFile) );
+				envelopeHex = Base64.encodeBase64String ( FileUtils.readFileToByteArray(envelopeFile) );
 			} catch(Exception e) {
 				tracer.error("unable to read the signed envelope", e);
 				throw e;
@@ -317,7 +318,7 @@ public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 			
 			// Verify phase - load the envelope content and verify the nested signature 
 			try {
-				jsonResp = signatureService.verify ( envelopeHex, null, null, VerifyResult.VALID.name() );
+				jsonResp = signatureService.verify ( envelopeHex, null, null );
 				verifyDTO = extractResult ( VerifyDTO.class, jsonResp );
 			} catch(Exception e) {
 				tracer.error("error during the envelope verification", e);

@@ -82,15 +82,6 @@ import org.sinekartads.core.cms.CMSUtils.SigOutputStream;
  */
 public class CMSSignedDataGenerator
     extends CMSSignedGenerator
-    // ----------------------------------------------------------------------
-    // --- TODO delete this class -------------------------------------------
-    // ----------------------------------------------------------------------
-    // 
-    // Currently the code of this class is the same of bouncycastle, since
-    // ExtSignerInfoGenerator is now extending SignedInfoGeneration. 
-    // If nothing will change in the next versions you should remove it. 
-    //
-    // ----------------------------------------------------------------------
 {
     private List signerInfs = new ArrayList();
 

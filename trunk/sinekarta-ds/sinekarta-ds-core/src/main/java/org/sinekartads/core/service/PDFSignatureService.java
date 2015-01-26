@@ -8,7 +8,6 @@ import java.security.MessageDigest;
 import java.security.SignatureException;
 import java.security.cert.CRL;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -23,6 +22,8 @@ import org.bouncycastle.asn1.DERObjectIdentifier;
 import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.tsp.TimeStampToken;
+import org.sinekartads.core.cms.ExtCMSSignedDataGenerator;
+import org.sinekartads.core.cms.MarkedData;
 import org.sinekartads.model.domain.DigestInfo;
 import org.sinekartads.model.domain.PDFSignatureInfo;
 import org.sinekartads.model.domain.SecurityLevel.VerifyResult;
@@ -62,6 +63,43 @@ import com.itextpdf.text.pdf.security.PdfPKCS7;
 import com.itextpdf.text.pdf.security.TSAClient;
 import com.itextpdf.text.pdf.security.TSAClientBouncyCastle;
 
+/**
+ * <p>
+ * Implementation of SignatureService protocol for the PAdES signature.<br/>
+ * The result of a PDF signature will be a PDF file which hosts a CAdES envelope as a
+ * dictionary attribute. If a timeStamp is required, the timeStamp token returned by the 
+ * TimeStampAuthority is stored as a unsigned attribute of the nested CMS signature.
+ * In order to grant that the digest obtained by the preSign phase will match with the envelope
+ * created by the postSign, the SignatureDTO must carry the signingTime information from the 
+ * first step to the second one and the fileId of the pdf document.
+ * </p>
+ * <br>
+ * <h3>PAdES signature architecture</h3>
+ * <p>
+ * The PDFSignatureService is based on itext, the preSign and postSign methods are based on the
+ * {@link MakeSignature} code for the envelope generation.
+ * The itext {@link PDFStamper} and {@link PDFStamperImp} classes have been patched in order to set 
+ * externally the signingTime and the fileId at the closure of the stamper.
+ * </p><br>
+ * <h3>PAdES signature process</h3>
+ * <p>
+ * The preSign and postSign phases starts with the same steps. 
+ * The service open A PDFReader on the content stream and use it to read the pdf bytes that will 
+ * signed by the PDFStamper during the signature process. Then the MakeSignature code is processed,
+ * resulting with the CAdES envelope evaluation. 
+ * At this point the preSign ends returning the envelope digest. During this process the SignerStamperImp
+ * generate and store the fileId object that will be stored inside the pdf structure as the id of the 
+ * document. The PDFSignatureService obtain this quantity as a byte array through the PDFStamper and add
+ * it to the SignatureDTO.
+ * The values carried by the dto are then used by the service during the postSign in order to obtain
+ * an envelope which matches with the previously evaluated digest. After that the postSign phase goes on
+ * with the signed pdf creation and store its signed bytes by means of the outputStream.
+ * </p><p>
+ * The timeStamp is added automatically by itext, by using a {@link TSAClientBouncyCastle} instantiated
+ * when the SignatureDTO requires a timeStamp.
+ * </p> 
+ * @author adeprato
+ */
 public class PDFSignatureService 
 		extends AbstractSignatureService < SignCategory,
 										   SignDisposition.PDF,
@@ -75,6 +113,17 @@ public class PDFSignatureService
 	// --- Pre-Sign phase
 	// -
 	
+	/**
+	 * PreSign implementation for the PAdES signature.
+	 * The service creates the PDFSignatureAppearance, fills its attributes  with the values 
+	 * carried by the SignatureDTO and set the signing time with the current one.  
+	 * {@link PdfPKCS7}, inits now the signature envelope with the certificate chain, join the 
+	 * digest of the original file content and the signingTime and build the CAdES structure.
+	 * At the end of the CAdES generation the appearance is closed, involving the closure of 
+	 * PDFStamperImp. Itext starts now with the PDF structure generation and creates the pdf
+	 * fileId, which is caught and stored.
+	 * The method evaluate then the digest and add it to the SignatureDTO. 
+	 */
 	@Override
 	public DigestSignature < SignCategory, 
 							 SignDisposition.PDF, 
@@ -95,42 +144,25 @@ public class PDFSignatureService
 						  VerifyResult,
 						  PDFSignatureInfo > digestSignature	= null;
 		try {
-//			TSAClient tsaClient=null;
-			
-			
 			TsRequestInfo tsRequest = chainSignature.getTsRequest();
 			boolean applyMark = tsRequest!=null && StringUtils.isNotBlank(tsRequest.getTsUrl());
-//			if ( applyMark ) {
-//				tsaClient = new TSAClientBouncyCastle(tsRequest.getTsUrl(), tsRequest.getTsUsername(), tsRequest.getTsPassword());
-//			}
 
 			int estimatedSize=0;
 			CryptoStandard sigtype = CryptoStandard.CADES;	
 			PDFSignatureInfo signature = (PDFSignatureInfo) chainSignature;
-			
-			// creo il reader del pdf
-			PdfReader reader = new PdfReader(contentIs);
-
-			// creo lo stamper (se il pdf e' gia' firmato, controfirma,
-			// altrimenti firma
-			PdfStamper stamper = null;
-			if (isPdfSigned(reader)) {
-				if (tracer.isDebugEnabled()) tracer.debug("calculating finger print for document already signed");
-				stamper = PdfStamper.createSignature(reader, null, '\0', null, true);
-			} else {
-				if (tracer.isDebugEnabled()) tracer.debug("calculating finger print for document never signed before");
-				stamper = PdfStamper.createSignature(reader, null, '\0');
-			}
-			
-			// questo e' il certificato su cui lavorare
 			Certificate[] chain = signature.getRawX509Certificates();
-
-			// creo la signature apparence
+			
+			// Create the stamper that will be used to create the signed file
+			PdfReader reader = new PdfReader(contentIs);
+			PdfStamper stamper = PdfStamper.createSignature (
+					reader,		// embed the reader to access to the pdf bytes
+					null, 		// don't save the generated signed pdf anywhere
+					'\0' );		// use the last PDF version
+			
 			PdfSignatureAppearance sap = stamper.getSignatureAppearance();
 			ExternalDigest externalDigest = new BouncyCastleDigest();
 			 
-			// inizio codice copiato da MakeSignature
-			
+			// --- Code extracted by MakeSignature ---
 //			Collection<byte[]> crlBytes = null;
 //	        int i = 0;
 //	        while (crlBytes == null && i < chain.length)
@@ -149,11 +181,8 @@ public class PDFSignatureService
 	        }
 	    	Calendar now = Calendar.getInstance();
 	    	PdfDate date = new PdfDate(now);
-	    	
-			sap.setSignDate(now);
-			signature.setSigningTime(now.getTime());
-			signature.setUnicodeModDate(date.toUnicodeString());
 
+	    	sap.setSignDate(now);
 			sap.setCertificate(chain[0]);
 			sap.setReason(signature.getReason());
 			sap.setLocation(signature.getLocation());
@@ -162,7 +191,7 @@ public class PDFSignatureService
 	        dic.setReason(sap.getReason());
 	        dic.setLocation(sap.getLocation());
 	        dic.setContact(sap.getContact());
-	        dic.setDate(date); // time-stamp will over-rule this
+	        dic.setDate(date); 
 	        sap.setCryptoDictionary(dic);
 
 	        HashMap<PdfName, Integer> exc = new HashMap<PdfName, Integer>();
@@ -174,19 +203,18 @@ public class PDFSignatureService
 	        InputStream data = sap.getRangeStream();
 	        byte hash[] = DigestAlgorithms.digest(data, externalDigest.getMessageDigest(hashAlgorithm));
 	        byte[] authenticatedAttributeBytes = sgn.getAuthenticatedAttributeBytes(hash, now, null, null, sigtype);
-
-	        // calcolo dell'impronta
-	        MessageDigest digester = MessageDigest.getInstance(signature.getDigestAlgorithm().getName());
-	        byte[] fingerPrint = digester.digest(authenticatedAttributeBytes);
+	        // ---------------------------------------
 	        
-	     	signature.setAuthenticatedAttributeBytes(authenticatedAttributeBytes);
+	        // Add to the signature the specific PDF signature attributes 
 	     	signature.setFileId(sap.getStamper().getFileId());
 			signature.setUnicodeModDate(sap.getStamper().getUnicodeModDate());
 			signature.setSigningTime(now.getTime());
-
-			DigestInfo digestInfo = DigestInfo.getInstance(signature.getDigestAlgorithm(), fingerPrint);
+	        
+	        // Store the fingerPrint of the nested CAdES signature, this value will then be signed on the clientSide 
+	        MessageDigest digester = MessageDigest.getInstance(signature.getDigestAlgorithm().getName());
+	        byte[] fingerPrint = digester.digest(authenticatedAttributeBytes);
+	        DigestInfo digestInfo = DigestInfo.getInstance(signature.getDigestAlgorithm(), fingerPrint);
 			digestSignature = signature.toDigestSignature ( digestInfo );
-//			digestSignature = PDFTools.calculateFingerPrint(chainSignature, contentIs);
 		} catch (SignatureException e) {
 			throw e;
 		} catch (Exception e) {
@@ -203,6 +231,11 @@ public class PDFSignatureService
 	// --- Post-Sign phase
 	// -
 	
+	/**
+	 * PostSign implementation for the PAdES signature.
+	 * The method follows almost the same steps of the preSign. Still, in this case signing time
+	 * and fileId are taken from the SignatureDTO.
+	 */
 	@Override
 	public FinalizedSignature < SignCategory,
 							 	SignDisposition.PDF, 
@@ -227,7 +260,7 @@ public class PDFSignatureService
 		Assert.notNull ( signedSignature );
 		Assert.notNull ( contentIs );
 
-		// Store the signed pdf, and eventually marked, into the markedSignOs
+		// Generate the outputStream which will receive the signed PDF
 		TsRequestInfo tsRequest = signedSignature.getTsRequest();
 		boolean applyMark = tsRequest!=null && StringUtils.isNotBlank(tsRequest.getTsUrl());
 		OutputStream envelopedStream;
@@ -239,8 +272,10 @@ public class PDFSignatureService
 		
 		try {
 			PDFSignatureInfo signature = (PDFSignatureInfo) signedSignature;
-			TSAClient tsaClient=null;
+			Certificate[] chain = signature.getRawX509Certificates();
 			
+			// Create the TSA client if a timeStamp is required
+			TSAClient tsaClient=null;
 			if ( applyMark ) {
 				tsaClient = new TSAClientBouncyCastle(tsRequest.getTsUrl(), tsRequest.getTsUsername(), tsRequest.getTsPassword());
 			}
@@ -248,31 +283,17 @@ public class PDFSignatureService
 			int estimatedSize=0;
 			CryptoStandard sigtype = CryptoStandard.CADES;
 			
-			// creo il reader del pdf
+			// Create the stamper that will be used to create the signed file
 			PdfReader reader = new PdfReader(contentIs);
+			PdfStamper stamper = PdfStamper.createSignature (
+					reader,				// embed the reader to access to the pdf bytes
+					envelopedStream, 	// store the signed pdf bytes into through the outputStream
+					'\0' );				// use the last PDF version
 
-			// creo lo stamper (se il pdf e' gia' firmato, controfirma,
-			// altrimenti firma
-			PdfStamper stamper = null;
-			if (isPdfSigned(reader)) {
-				if (tracer.isDebugEnabled()) tracer.debug("document already signed, i will apply another sign");
-				stamper = PdfStamper.createSignature(reader, envelopedStream, '\0', null, true);
-			} else {
-				if (tracer.isDebugEnabled()) tracer.debug("document never signed before, this is first");
-				stamper = PdfStamper.createSignature(reader, envelopedStream, '\0');
-			}
-
-			// questo e' il certificato su cui lavorare
-			Certificate[] chain = signature.getRawX509Certificates();
-//			Certificate[] chain = new Certificate[1];
-//			chain[0] = certificate;
-
-			// creo la signature apparence
 			PdfSignatureAppearance sap = stamper.getSignatureAppearance();
 			ExternalDigest externalDigest = new BouncyCastleDigest();
 			 
-			// inizio codice copiato da MakeSignature
-			
+			// --- Code extracted by MakeSignature ---
 //			Collection<byte[]> crlBytes = null;
 //	        int i = 0;
 //	        while (crlBytes == null && i < chain.length)
@@ -325,25 +346,24 @@ public class PDFSignatureService
 
 	        if (estimatedSize + 2 < encodedSig.length)
 	            throw new IOException("Not enough space");
-
+	        // ---------------------------------------
+	        
 			ASN1EncodableVector extraDataVectorEncoding = new ASN1EncodableVector();
-			// 
 			extraDataVectorEncoding.add(new DERObjectIdentifier("1.2.840.114283")); // encoding attribute 
 			extraDataVectorEncoding.add(new DERGeneralString("115.105.110.101.107.97.114.116.97"));
 
-			// applico la firma al PDF
+			// Add the CAdES enveloped as the signature content
 			byte[] extraDataVectorEncodingBytes = new DERSequence(new DERSequence(extraDataVectorEncoding)).getEncoded();
-
 	        byte[] paddedSig = new byte[estimatedSize];
 	        System.arraycopy(encodedSig, 0, paddedSig, 0, encodedSig.length);
 			System.arraycopy(extraDataVectorEncodingBytes, 0,paddedSig, encodedSig.length,extraDataVectorEncodingBytes.length); // encoding attribute
-
 	        PdfDictionary dic2 = new PdfDictionary();
 	        dic2.put(PdfName.CONTENTS, new PdfString(paddedSig).setHexWriting(true));
+	        
+	        // close the appearance, this will flush the signed pdf bytes and close the stamper as a sideEffect
 	        sap.close(dic2);
 	        
 			finalizedSignature = signature.finalizeSignature();
-//			finalizedSignature = PDFTools.sign(signedSignature, contentIs, envelopedStream);
 		} catch (SignatureException e) {
 			throw e;
 		} catch (Exception e) {
@@ -368,8 +388,7 @@ public class PDFSignatureService
 			OutputStream timestampOs,
 			OutputStream markedSignOs ) 
 			throws SignatureException,
-					IOException, 
-					CertificateException {
+					IOException {
 		
 //		// Verify that the digestInfo in the tsRequest does match with the signedData
 //		DigestInfo digestInfo = tsRequest.getMessageImprintInfo();
@@ -426,10 +445,8 @@ public class PDFSignatureService
 			InputStream contentIs,
 			InputStream tsResponseIs,
 			InputStream envelopeIs,
-			VerifyResult requiredSecurityLevel,			
 			OutputStream extractedOs ) 
 					throws SignatureException,
-							CertificateException,
 							IOException {
 		
 		Assert.notNull ( envelopeIs );
@@ -562,9 +579,7 @@ public class PDFSignatureService
 			if ( reader != null ) {
 				reader.close();
 			}
-			if ( requiredSecurityLevel.compareTo(signVerifyResult) < 0 ) {
-				IOUtils.write ( envelope, extractedOs );
-			}
+			IOUtils.write ( envelope, extractedOs );
 			
 		}
 		

@@ -2,7 +2,6 @@ package org.sinekartads.dto.share;
 
 import org.sinekartads.dto.domain.DocumentDTO;
 import org.sinekartads.dto.domain.SignatureDTO;
-import org.sinekartads.model.domain.SignatureType.SignCategory;
 
 public class SignWizardDTO extends WizardDTO {
 
@@ -33,9 +32,11 @@ public class SignWizardDTO extends WizardDTO {
 	private String clientType;
 	
 	private String ksPin;
+	private String ksRef;
 	private String[] ksAliases;
 	private String ksUserAlias;
 	private String ksUserPassword;
+	private String ksHexPrivateKey;
 
 	private String[] scDriverNames;
 	private String[] scDriverDescriptions;
@@ -107,6 +108,14 @@ public class SignWizardDTO extends WizardDTO {
 		this.ksPin = ksPin;
 	}
 	
+	public String getKsRef() {
+		return ksRef;
+	}
+
+	public void setKsRef(String ksRef) {
+		this.ksRef = ksRef;
+	}
+	
 	public String[] getKsAliases() {
 		return ksAliases;
 	}
@@ -131,6 +140,14 @@ public class SignWizardDTO extends WizardDTO {
 		this.ksUserPassword = ksUserPassword;
 	}
 	
+	public String getKsHexPrivateKey() {
+		return ksHexPrivateKey;
+	}
+
+	public void setKsHexPrivateKey(String ksHexPrivateKey) {
+		this.ksHexPrivateKey = ksHexPrivateKey;
+	}
+
 	public String[] getScDriverNames() {
 		return scDriverNames;
 	}

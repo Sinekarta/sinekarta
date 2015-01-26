@@ -37,7 +37,7 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.util.Store;
 import org.sinekartads.model.domain.SignDisposition;
 
-public class CMSSignedDataProxyGenerator {
+public class ExtCMSSignedDataGenerator {
 	
 	
 	private static final CMSProvider provider = new CMSProvider();
@@ -50,7 +50,7 @@ public class CMSSignedDataProxyGenerator {
 			Store certStore = new JcaCertStore(Arrays.asList(signingCertificateChain));
 			generator.addCertificates(certStore);
 
-			// init a contentSigner on a fake-key and the manually-coded certificates
+			// init a contentSigner on a fake-key and the certificates
 			ContentSigner sigGen;
 			try {
 				sigGen = new JcaContentSignerBuilder("SHA256withRSA")
@@ -95,6 +95,7 @@ public class CMSSignedDataProxyGenerator {
 				ASN1EncodableVector vect;
 				Enumeration<?> objects;
 				
+				// This are required to obtain a valid CMS signature.
 				// 	certificate root
 				seq = (DERSequence)((X509CertificateStructure)generator.certs.get(0)).toASN1Object();
 				objects = seq.getObjects();
@@ -103,6 +104,8 @@ public class CMSSignedDataProxyGenerator {
 				seq = (DERSequence) objects.nextElement();
 				objects = seq.getObjects();
 				
+				
+				// 
 				//								issuerInteger
 				objects.nextElement();		// skip: DERTaggedObject
 				issuerInteger = (ASN1Integer) objects.nextElement();
@@ -110,6 +113,8 @@ public class CMSSignedDataProxyGenerator {
 				//								issuerSequence
 				objects.nextElement();		// skip: DERSequence
 				issuerSequence = (DERSequence) objects.nextElement();
+				
+				//----------------------------------------------------------
 				
 				tag = new DERTaggedObject(4, issuerSequence); 
 				

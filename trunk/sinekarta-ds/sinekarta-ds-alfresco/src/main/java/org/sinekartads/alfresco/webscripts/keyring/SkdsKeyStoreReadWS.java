@@ -3,6 +3,7 @@ package org.sinekartads.alfresco.webscripts.keyring;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.security.KeyStore;
+import java.security.UnrecoverableKeyException;
 import java.security.KeyStore.PasswordProtection;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
@@ -15,7 +16,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.sinekartads.alfresco.webscripts.BaseAlfrescoWS;
 import org.sinekartads.dto.ResultCode;
-import org.sinekartads.dto.domain.KeyStoreDTO;
 import org.sinekartads.dto.request.SkdsKeyStoreRequest.SkdsKeyStoreReadRequest;
 import org.sinekartads.dto.response.SkdsKeyStoreResponse.SkdsKeyStoreReadResponse;
 import org.sinekartads.model.domain.KeyStoreType;
@@ -36,52 +36,72 @@ public class SkdsKeyStoreReadWS
 			Status status, Cache cache ) {
 		
 		SkdsKeyStoreReadResponse resp = new SkdsKeyStoreReadResponse();
-		KeyStoreDTO ksDTO = req.getKeyStore();
+		String ksRef = req.getKsRef();
+		String ksPin = req.getKsPin();
 		String userAlias = req.getUserAlias();
 //		String userPassword = req.getUserPassword();
 		
-		try {
-			Assert.notNull ( ksDTO );
-			Assert.isTrue ( StringUtils.isNotBlank(userAlias) );
-			
-			NodeRef keyStoreRef = new NodeRef ( ksDTO.getReference() );
-			ContentReader reader = contentService.getReader(keyStoreRef, ContentModel.PROP_CONTENT);
-			InputStream is = reader.getContentInputStream ( );
-			byte[] keyStoreBytes = IOUtils.toByteArray ( is );
-			IOUtils.closeQuietly(is);
-			
-			String keyStorePin = ksDTO.getPin();
-			char[] ksPwd = null;
-			if ( StringUtils.isNotBlank(keyStorePin) ) {
-				ksPwd = keyStorePin.toCharArray();
-			}
-//			char[] userPwd = null;
-//			if ( StringUtils.isNotBlank(userPassword) ) {
-//				userPwd = userPassword.toCharArray();
-//			}
-			
-			is = new ByteArrayInputStream ( keyStoreBytes );
-			KeyStoreType type = KeyStoreType.getInstance(ksDTO.getType());
-			KeyStore keyStore = KeyStore.getInstance ( type.getType(), type.getProvider() );
-			keyStore.load ( is, ksPwd );
-			
-			KeyStore.PrivateKeyEntry privateKeyEntry = (KeyStore.PrivateKeyEntry) 
-					keyStore.getEntry(userAlias, new PasswordProtection(ksPwd));
-			X509Certificate certificate = (X509Certificate) privateKeyEntry.getCertificate();
-			X509Certificate[] certificateChain = TemplateUtils.Cast.cast ( 
-					X509Certificate.class, privateKeyEntry.getCertificateChain() );
-			PrivateKey privateKey = privateKeyEntry.getPrivateKey();
-			
-			resp.setCertificate ( X509Utils.rawX509CertificateToHex(certificate) );
-			resp.setCertificateChain ( X509Utils.rawX509CertificatesToHex(certificateChain) );
-			resp.setPrivateKey ( X509Utils.privateKeyToHex(privateKey) );
-			resp.resultCodeToString(ResultCode.SUCCESS);
-		} catch(Exception e) {
-			resp.setCertificate ( null );
-			resp.setCertificateChain ( null );
-			resp.setPrivateKey ( null );
-		} 
 		
+		Assert.isTrue ( StringUtils.isNotBlank(ksRef) );
+		Assert.isTrue ( StringUtils.isNotBlank(ksRef) );
+		Assert.isTrue ( StringUtils.isNotBlank(ksPin) );
+		Assert.isTrue ( StringUtils.isNotBlank(userAlias) );
+			
+		
+		byte[] keyStoreBytes = null;
+		InputStream is = null;
+		try {
+			NodeRef keyStoreRef = new NodeRef ( ksRef );
+			ContentReader reader = contentService.getReader(keyStoreRef, ContentModel.PROP_CONTENT);
+			is = reader.getContentInputStream ( );
+			keyStoreBytes = IOUtils.toByteArray ( is );
+		} catch(Exception e) {
+			keyStoreBytes = null;
+			processError(resp, e, "skds.error.missingKeyStore");
+		} finally {
+			IOUtils.closeQuietly(is);
+		}
+
+		String keyStorePin = req.getKsPin();
+		KeyStore keyStore = null;
+		char[] ksPwd = null;
+		if ( keyStoreBytes != null ) {
+			try {
+				if ( StringUtils.isNotBlank(keyStorePin) ) {
+					ksPwd = keyStorePin.toCharArray();
+				}
+				is = new ByteArrayInputStream ( keyStoreBytes );
+				keyStore = KeyStore.getInstance ( "jks" );
+				keyStore.load ( is, ksPwd );
+			} catch(Exception e) {
+				if ( e.getCause() instanceof UnrecoverableKeyException ) {
+					processError(resp, e, "skds.error.keyStorePinWrong");
+				} else {
+					processError(resp, e, "skds.error.keyStoreUnavailable");
+				}
+				keyStore = null;
+			}
+		}
+		
+		String[] hexCertificateChain = null;
+		String hexPrivateKey = null;
+		if ( keyStore != null ) {
+			try {
+				KeyStore.PrivateKeyEntry privateKeyEntry = (KeyStore.PrivateKeyEntry) 
+						keyStore.getEntry(userAlias, new PasswordProtection(ksPwd));
+				X509Certificate[] certificateChain = TemplateUtils.Cast.cast ( 
+						X509Certificate.class, privateKeyEntry.getCertificateChain() );
+				PrivateKey privateKey = privateKeyEntry.getPrivateKey();
+				
+				hexCertificateChain = X509Utils.rawX509CertificatesToHex(certificateChain);
+				hexPrivateKey = X509Utils.privateKeyToHex(privateKey);
+				resp.resultCodeToString(ResultCode.SUCCESS);
+			} catch ( Exception e ) {
+				processError(resp, e, "skds.error.keyStoreUserNotFound");
+			}
+		}
+		resp.setCertificateChain ( hexCertificateChain );
+		resp.setPrivateKey ( hexPrivateKey );
 		return resp;
 	}
 	

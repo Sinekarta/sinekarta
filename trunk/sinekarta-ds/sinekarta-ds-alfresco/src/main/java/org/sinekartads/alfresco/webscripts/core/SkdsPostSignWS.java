@@ -52,7 +52,7 @@ public class SkdsPostSignWS
 			PostSignResponseDTO	postSignResp;
 			SignCategory 	 	signCategory;
 			SignatureService 	signatureService;
-			String			 	contentHex;
+			String			 	contentBase64;
 			
 			for ( DocumentDTO document : documents ) {
 				signatures 		= document.getSignatures ( );
@@ -64,11 +64,11 @@ public class SkdsPostSignWS
 				
 				try {
 					// Retrieve the content
-					contentHex = loadFromNode ( document.getBaseDocument() );
+					contentBase64 = loadFromNode ( document.getBaseDocument() );
 							
 					// Perform the post-sign phase
 					try {
-						String base64Resp = signatureService.postSign ( signedSignature.toBase64(), contentHex );
+						String base64Resp = signatureService.postSign ( signedSignature.toBase64(), contentBase64 );
 						postSignResp = BaseDTO.deserializeBase64 ( PostSignResponseDTO.class, base64Resp );
 						finalizedSignature = extractResult ( SignatureDTO.class, base64Resp );
 					} catch(Exception e) {

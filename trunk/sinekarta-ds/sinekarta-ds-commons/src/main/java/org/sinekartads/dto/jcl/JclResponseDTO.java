@@ -14,8 +14,6 @@ public class JclResponseDTO extends BaseDTO {
 	private String result;
 	private String resultCode;
 	private String errorMessage;
-	private String errorType;
-	private String error;
 	
 	public ResultCode resultCodeFromString() {
 		return ResultCode.valueOf(resultCode);
@@ -41,21 +39,6 @@ public class JclResponseDTO extends BaseDTO {
 		this.resultCode = resultCode;
 	}
 
-	public String getError() {
-		return error;
-	}
-
-	public void setError(String error) {
-		this.error = error;
-	}
-	
-	public String getErrorType() {
-		return errorType;
-	}
-
-	public void setErrorType(String errorType) {
-		this.errorType = errorType;
-	}
 
 	public String getErrorMessage() {
 		return errorMessage;

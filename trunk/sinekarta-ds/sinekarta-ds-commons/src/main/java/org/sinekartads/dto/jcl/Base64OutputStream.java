@@ -5,19 +5,19 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
 
-import org.sinekartads.util.HexUtils;
+import org.apache.commons.codec.binary.Base64;
 
-public class HexOutputStream extends OutputStream implements Serializable {
+public class Base64OutputStream extends OutputStream implements Serializable {
 
 	private static final long serialVersionUID = 327182581224029989L;
 	
 	
-	public HexOutputStream ( ) {
+	public Base64OutputStream ( ) {
 		baos = new ByteArrayOutputStream ( );
 	}
 	
 	private ByteArrayOutputStream baos;
-	private String hex;
+	private String base64;
 	
 	public void close() {
 		try {
@@ -45,23 +45,23 @@ public class HexOutputStream extends OutputStream implements Serializable {
 			throw new RuntimeException(e);
 		} finally {
 			byte[] buf = baos.toByteArray();
-			hex = HexUtils.encodeHex(buf);
+			base64 = Base64.encodeBase64String(buf);
 		}
 	}
 	
 	public void write(int b) {
 		baos.write(b);
 		byte[] buf = baos.toByteArray();
-		hex = HexUtils.encodeHex(buf);
+		base64 = Base64.encodeBase64String(buf);
 	}
 	
 	public void write(byte[] b, int off, int len) {
 		baos.write(b, off, len);
 		byte[] buf = baos.toByteArray();
-		hex = HexUtils.encodeHex(buf);
+		base64 = Base64.encodeBase64String(buf);
 	}
 	
-	public String getHex() {
-		return hex;
+	public String getBase64() {
+		return base64;
 	}
 }

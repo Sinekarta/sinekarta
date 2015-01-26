@@ -18,21 +18,21 @@ public enum KeyStoreType {
 		this.provider = provider;
 	}
 	
-	public static KeyStoreType getInstance(String typeDescriptor) {
-		if(StringUtils.isBlank(typeDescriptor)) {
+	public static KeyStoreType getInstance(String type) {
+		if(StringUtils.isBlank(type)) {
 			return null;
 		}
 		for(KeyStoreType item : KeyStoreType.values()) {
-			if(StringUtils.equalsIgnoreCase(item.extension, typeDescriptor)) {
+			if(StringUtils.equalsIgnoreCase(item.type, type)) {
 				return item;
 			}
 		}
 		for(KeyStoreType item : KeyStoreType.values()) {
-			if(StringUtils.equalsIgnoreCase(item.name(), typeDescriptor)) {
+			if(StringUtils.equalsIgnoreCase(item.name(), type)) {
 				return item;
 			}
 		}
-		throw new IllegalArgumentException("invalid keystore type: " + typeDescriptor);
+		throw new IllegalArgumentException("invalid keystore type: " + type);
 	}
 	
 	public String getExtension() {

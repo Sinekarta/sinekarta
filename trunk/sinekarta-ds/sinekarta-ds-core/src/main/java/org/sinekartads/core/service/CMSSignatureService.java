@@ -45,7 +45,7 @@ import org.sinekartads.asn1.ASN1Parser.ASN1ParseException;
 import org.sinekartads.asn1.ASN1Utils;
 import org.sinekartads.core.CoreConfiguration;
 import org.sinekartads.core.cms.BouncyCastleUtils;
-import org.sinekartads.core.cms.CMSSignedDataProxyGenerator;
+import org.sinekartads.core.cms.ExtCMSSignedDataGenerator;
 import org.sinekartads.core.cms.MarkedData;
 import org.sinekartads.model.domain.CMSSignatureInfo;
 import org.sinekartads.model.domain.DigestInfo;
@@ -69,6 +69,58 @@ import org.sinekartads.model.oid.SignatureAlgorithm;
 import org.sinekartads.model.oid.SinekartaDsObjectIdentifiers;
 import org.springframework.util.Assert;
 
+/**
+ * <p>
+ * Implementation of SignatureService protocol for the CAdES signature.<br/>
+ * The products of the signature are *p7m files which embed the cryptography information and 
+ * the original document bytes. If a timeStamp is required the *p7m enveloped will be added
+ * to a *tsd file containing the timeStamp token returned by the TimeStamp Authority. 
+ * In order to grant that the digest obtained by the preSign phase will match with the envelope
+ * created by the postSign, the SignatureDTO must carry the signingTime information from the 
+ * first step to the second one.
+ * </p>
+ * <br>
+ * <h3>CAdES signature architecture</h3>
+ * <p>
+ * The CAdES signature is applied by CMSSignatureService with the support of the classes located
+ * into the org.sinekartads.core.cms package. 
+ * Many of them are named with the prefix "Ext", intending that they have been built specifically 
+ * to forge CMS envelopes with an externally evaluated digital signature. Those classes will work 
+ * together with the CMSProvider which use SHA256WithRSAProxySignature and DummyPrivateKey to 
+ * simulate the envelope digital signature evaluation, in order to extract the evaluated digest. 
+ * Their specific behavior will be analyzed afterwards.
+ * The class MarkedData is demanded to generate and parse *tsd files when the service is manipulating
+ * marked signatures. Moreover there are other classes which offer convenient protocols for the BouncyCastle 
+ * entities manipulation such as NoFilterSelector, which select all the entities inside a CertStore  
+ * and BouncyCastleUtils that simplify the interaction with X509CertificateHolders. 
+ * The other classes are duplicates for original BouncyCastle's classes. It has been necessary to copy 
+ * them in this package since some other classes needed to access to some of their methods with package
+ * visibility.
+ * </p><br>
+ * <h3>CAdES signature process</h3>
+ * <br><p>
+ * The CMSSignatureService interacts with {@link ExtCMSSignedDataGenerator}. This perform the envelope generation
+ * with an embedded instance of BouncyCastle's CMSSignedDataGenerator that operate using the CMSProvider. 
+ * The aim of this operation is to allow the normal BouncyCastle behavior obtaining a valid CAdES envelope, 
+ * but the usage of the {@link CMSProvider} allow to intercept the evaluated digest that needs to be signed 
+ * externally. In the same way the custom provider will receive externally the digitalSignature value 
+ * and return it during the postSign phase.
+ * </p><p>
+ * The signer information are obtained with the embedCertificateChain method, that evaluate the DER
+ * structure holding the signing certificate chain and the attributes that will be added to the 
+ * envelope. In this phase the {@link ExtSignedAttributeTableGenerator} will save (preSign) and load externally
+ * (postSign) the signingTime and set the other signature properties received by the SignatureDTO. 
+ * All of these fields are sent by the CMSSignatureService to the {@link ExtCMSSignedDataGenerator}, 
+ * and are then forwarded to the ExtSignedAttributeTableGenerator by stepping through the whole 
+ * SignedInfo generation hierarchy.
+ * </p><p>
+ * When the SignatureDTO contains a timeStamp request, the CMSSignatureService use the {@link TimeStampService}
+ * in order to gain the timeStamp. The {@link MarkedData} implementation join then its DER structure with
+ * the CMSSignedData in a *tsd file. 
+ * </p>
+ * 		
+ * @author adeprato
+ */
 public class CMSSignatureService 
 		extends AbstractSignatureService < SignCategory,
 										   SignDisposition.CMS,
@@ -77,14 +129,20 @@ public class CMSSignatureService
 	private static final Logger tracer = Logger.getLogger(CMSSignatureService.class);
 
 	private static final JcaX509CertificateConverter certHolderConverter = 
-			new JcaX509CertificateConverter().setProvider ( 
-					CoreConfiguration.getInstance().getProviderName() );
+			new JcaX509CertificateConverter().setProvider ( CoreConfiguration.getInstance().getProviderName() );
 
 	
 	// -----
 	// --- Pre-Sign phase
 	// -
 	
+	/**
+	 * PreSign implementation for the CAdES signature.
+	 * The process involves the enveloping of the certificate chain and the other signature
+	 * properties by means of the ExtCMSSignedDataGenerator. After that the generator creates the signature 
+	 * DER structure and obtain the digest from the CMSProvider. The SignatureDTO is then updated with
+	 * the digest and the signingTime and sent to the client side
+	 */
 	public DigestSignature < SignCategory, 
 							 SignDisposition.CMS, 
 							 VerifyResult, 		
@@ -115,13 +173,14 @@ public class CMSSignatureService
 		
 		// Evaluate the digestInfo as digestAlgorithm.evalDigest( <content + certificate.chain> )  
 		DigestInfo digestInfo;
+		
 		if( !digestAlgorithm.matchesWith(DigestAlgorithm.SHA256) ) {
 			// TODO configure the generator to use other signAlgorithms and digestAlgorithms
 			throw new IllegalArgumentException("only SHA256 is currently supported");
 		}
 		try {
 			CMSProcessable processable = new CMSProcessableByteArray ( IOUtils.toByteArray(contentIs) );
-			CMSSignedDataProxyGenerator generator = new CMSSignedDataProxyGenerator ( );
+			ExtCMSSignedDataGenerator generator = new ExtCMSSignedDataGenerator ( );
 			generator.setLocation(chainSignature.getLocation());
 			generator.setReason(chainSignature.getReason());
 			generator.embedCertificateChain ( trustedChain );
@@ -148,6 +207,13 @@ public class CMSSignatureService
 	// --- Post-Sign phase
 	// -
 	
+	/**
+	 * PostSign implementation for the CAdES signature.
+	 * The method starts repeating the steps used during the preSign phase, with the difference that the
+	 * signingTime and the digitalSignature carried by the SignatureDTO are now added to the generator.
+	 * If the SignatureDTO requires a timeStamp, the service ask the TimeStamp Authority for the timeStampToken,
+	 * and create a MarkedData which embeds the token and the generated CMSSignatureService.
+	 */
 	@Override
 	public FinalizedSignature < SignCategory, 
 							 	SignDisposition.CMS, 
@@ -165,9 +231,7 @@ public class CMSSignatureService
 																			throws SignatureException, IOException 			{
 		
 		// Receive a signedSignature, the content to be signed and some outputStreams for storing the sign products to;  
-		//			the digitalSignature has already been generated externally in some way
-		// Depending by the signature disposition, the needed outputStreams must have been provided or some assertions will 
-		//			fail: use throw-away ByteArrayOutputStreams instances if you are not interested to save any sign product
+		//			the digitalSignature value has already been generated externally in some way
 		Assert.notNull ( signedSignature );
 		Assert.notNull ( contentIs );
 		
@@ -199,7 +263,7 @@ public class CMSSignatureService
 		// Embed the content and the certificate chain into the signedData
 		byte[] signedDataEnc = null;
 		try {
-			CMSSignedDataProxyGenerator generator = new CMSSignedDataProxyGenerator();
+			ExtCMSSignedDataGenerator generator = new ExtCMSSignedDataGenerator();
 			generator.setLocation(signedSignature.getLocation());
 			generator.setReason(signedSignature.getReason());
 			generator.setSigningTime(signedSignature.getSigningTime());
@@ -271,7 +335,6 @@ public class CMSSignatureService
 	// -----
 	// --- TimeStamp application
 
-	@SuppressWarnings({ "unchecked", "rawtypes", "resource" })
 	@Override
 	public TimeStampInfo doApplyTimeStamp (
 					TsRequestInfo tsRequest,
@@ -424,50 +487,25 @@ public class CMSSignatureService
 	// -----
 	// --- Verification
 	// -
-
-//	public VerifyInfo verify (
-//			InputStream contentIs,
-//			InputStream envelopeIs ) 
-//					throws 	CertificateException,
-//							SignatureException,
-//							TSPException, 
-//							IOException {
-//		
-//		// DETACHED signature disposition, ATTRIBUTE timeStamp disposition or no timeStamp 
-//		return verify(contentIs, null, envelopeIs, null);
-//	}
-//	
-//	public VerifyInfo verify (
-//			InputStream contentIs,
-//			InputStream tsResponseIs,
-//			InputStream envelopeIs ) 
-//					throws 	CertificateException,
-//							SignatureException,
-//							TSPException, 
-//							IOException {
-//		
-//		// DETACHED signature disposition, DETACHED timeStamp disposition
-//		return verify(contentIs, tsResponseIs, envelopeIs, null);
-//	}
-//	
-//	public VerifyInfo verify ( 
-//			InputStream envelopeIs, 
-//			OutputStream contentOs ) 
-//					throws 	CertificateException,
-//							SignatureException,
-//							TSPException, 
-//							IOException {
-//		
-//		// EMBEDDED signature disposition, ENVELOPING or ATTRIBUTE timeStamp disposition
-//		return verify(null, null, envelopeIs, contentOs);
-//	}
 	
+	/**
+	 * The verification process receives a DER encoded file and tries to parse it in the known formats.
+	 * At first the service attempts the parsing as MarkedData. On success (*tsd file) the CMSSignedData 
+	 * and the external TimeStamp are provided by the resulting MarkedData object.
+	 * If the parsing fails, the service tries to generate a CMSSignedData from the whole file. If the 
+	 * envelope contains a detached data, the CMSSignedData will be verified against the content received 
+	 * as first parameter.
+	 * The verification is performed then on each SignerInformation provided by the signerData against a 
+	 * SignerInformationVerifier built on the relative certificate. Moreover, the service search for any
+	 * other timeStamp, stored as a unsigned attribute, and verifies it with the TimeStampService.
+	 * After the enveloped verification, the method returns an object which describes all the signatures
+	 * that have been found with the relative timeStamps.
+	 */
 	@Override
 	public VerifyInfo doVerify ( 
 			InputStream contentIs,
 			InputStream tsResponseIs,
 			InputStream envelopeIs,
-			VerifyResult requiredSecurityLevel,
 			OutputStream contentOs ) 
 					throws 	CertificateException,
 							SignatureException,
@@ -477,7 +515,6 @@ public class CMSSignatureService
 		//			need to be provided, use a ByteArrayOutputStream if you are note interested to store the content 
 		Assert.notNull ( envelopeIs );
 		Assert.notNull ( contentOs );
-		Assert.notNull ( requiredSecurityLevel );
 		
 		
 		// Prepare the signature variables
@@ -519,13 +556,6 @@ public class CMSSignatureService
 		MarkedData markedData = null;
 		CMSSignedData signedData = null;
 		SignCategory signatureType;
-		// ---------------------------------------------------------------------------------
-		// --- FIXME signatureDisposition currently frozen --------------------------------
-		// ---------------------------------------------------------------------------------
-		// --- To re-enable it just defroze the assignment code and restore it into the 
-		// --- SignatureInfo constructor
-//		SignDisposition.CMS signatureDisposition;
-		// ----------------------------------------------------------------------------------
 		
 		TimeStampToken rawTimeStampToken = null;
 		TimeStampInfo externalTimeStamp = null;
@@ -576,7 +606,7 @@ public class CMSSignatureService
 					content = IOUtils.toByteArray ( contentIs );
 		            signedData = new CMSSignedData ( new CMSProcessableByteArray(content), envelope );
 //		            signatureDisposition = SignDisposition.CMS.DETACHED;
-				} catch (CMSException cmse) {
+				} catch (Exception cmse) {
 					throw new IllegalArgumentException ( "unable to load a cms signature from the envelope" );
 				}
 			}
@@ -697,8 +727,8 @@ public class CMSSignatureService
             // Verify the digital signature and choose the appropriated verifyResult
             try {
             	SignerInformationVerifier verifier = BouncyCastleUtils.buildVerifierFor ( certHolder );
-            	if ( signer.verify(certHolderConverter.getCertificate(certHolder), "BC") ) {
-//            	if ( signer.verify(verifier) ) {
+//            	if ( signer.verify(certHolderConverter.getCertificate(certHolder), "BC") ) {
+            	if ( signer.verify(verifier) ) {
         			securityLevel = minLevel ( securityLevel, VerifyResult.VALID );
             	} else {
             		securityLevel = VerifyResult.INVALID;
@@ -720,9 +750,7 @@ public class CMSSignatureService
 		verifyInfo.setMinSecurityLevel(minSecurityLevel);
 		
 		// Write the signedContent to the contentOs, if any
-		if ( securityLevel.compareTo(requiredSecurityLevel) >= 0 ) { 
-			IOUtils.copy( new ByteArrayInputStream(content), contentOs );
-		}
+		IOUtils.copy( new ByteArrayInputStream(content), contentOs );
 		
 		return verifyInfo;
 	}
