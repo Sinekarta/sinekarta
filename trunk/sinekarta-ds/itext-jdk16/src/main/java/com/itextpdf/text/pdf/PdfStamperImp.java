@@ -296,10 +296,14 @@ class PdfStamperImp extends PdfWriter {
             }
         }
         
+        // -------------------------------------------------------------------------------------
+        // --- SKDSFIX 
+        // -
         PdfDate date = extSignDate;
         if ( date == null  ) {
         	extSignDate = date = new PdfDate();
         }
+        // -------------------------------------------------------------------------------------
         newInfo.put(PdfName.MODDATE, date);
         newInfo.put(PdfName.PRODUCER, new PdfString(producer, PdfObject.TEXT_UNICODE));
         if (append) {
@@ -405,6 +409,9 @@ class PdfStamperImp extends PdfWriter {
             }
         }
 
+        // -------------------------------------------------------------------------------------
+        // --- SKDSFIX 
+        // -
         PdfIndirectReference encryption = null;
         PdfObject fileID = extFileID;
         if ( fileID == null ) {
@@ -429,6 +436,7 @@ class PdfStamperImp extends PdfWriter {
 	        }
 	        extFileID = fileID;
         }
+        // -------------------------------------------------------------------------------------
         PRIndirectReference iRoot = (PRIndirectReference)reader.trailer.get(PdfName.ROOT);
         PdfIndirectReference root = new PdfIndirectReference(0, getNewObjectNumber(reader, iRoot.getNumber(), 0));
         // write the cross-reference table of the body
@@ -1792,6 +1800,9 @@ class PdfStamperImp extends PdfWriter {
         }
     }
 
+    // -------------------------------------------------------------------------------------
+    // --- SKDSFIX 
+    // -
     private PdfDate extSignDate;
     private PdfObject extFileID;
 
@@ -1810,4 +1821,5 @@ class PdfStamperImp extends PdfWriter {
 	public void setExtSignDate(PdfDate extSignDate) {
 		this.extSignDate = extSignDate;
 	}
+	// -------------------------------------------------------------------------------------
 }
