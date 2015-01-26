@@ -60,6 +60,21 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
 /**
+ * *** SKDSFIX ************************************************************
+ * <p>This class is a modification of the original XMLSignature of apache.
+ * 
+ * <p>This update introduce the method {@link #digest(Key)} which performs
+ * the same steps of the original {@link #sign(Key)} method, but using
+ * {@link DigesterOutputStream} in order to store the digest of the document
+ * being signed.
+ * 
+ * <p>On the other hand, {@link #sign(Key)} applies the digital signature
+ * with a proxed SignatureAlgorithm which returns instead the externally
+ * set signature value 
+ * ************************************************************************
+ * 
+ * 
+ * 
  * Handles <code>&lt;ds:Signature&gt;</code> elements.
  * This is the main class that deals with creating and verifying signatures.
  *
@@ -359,7 +374,6 @@ public final class ExtXMLSignature extends SignatureElementProxy {
                 Constants.NamespaceSpecNS, "xmlns:" + xmlnsDsPrefix, Constants.SignatureSpecNS
             );
         }
-//        addReturnToSelf();
         XMLUtils.addReturnToElement(getElement());
 
         // skds - Extract the signatureAlgorithm from the SignatureMethod element
@@ -369,17 +383,13 @@ public final class ExtXMLSignature extends SignatureElementProxy {
             new SignedInfo(getDocument(), SignatureMethodElem, CanonicalizationMethodElem);
 
         getElement().appendChild(this.signedInfo.getElement());
-//        appendSelf(this.signedInfo);
-//        addReturnToSelf();
         XMLUtils.addReturnToElement(getElement());
 
         // create an empty SignatureValue; this is filled by setSignatureValueElement
         signatureValueElement = 
             XMLUtils.createElementInSignatureSpace(getDocument(), Constants._TAG_SIGNATUREVALUE);
 
-//        appendSelf(signatureValueElement);
         getElement().appendChild(signatureValueElement);
-//        addReturnToSelf();
         XMLUtils.addReturnToElement(getElement());
     }
     
@@ -646,73 +656,6 @@ public final class ExtXMLSignature extends SignatureElementProxy {
     public int getObjectLength() {
         return this.length(Constants.SignatureSpecNS, Constants._TAG_OBJECT);
     }
-    
-
-    /**
-     * Digests all References in the SignedInfo, calculates the signature value 
-     * and sets it in the SignatureValue Element.
-     *
-     * @param signingKey the {@link java.security.PrivateKey} or 
-     * {@link javax.crypto.SecretKey} that is used to sign.
-     * @throws XMLSignatureException
-     */
-//    public byte[] digest(Key signingKey) throws XMLSignatureException {
-//
-//        if (signingKey instanceof PublicKey) {
-//            throw new IllegalArgumentException(
-//                I18n.translate("algorithms.operationOnlyVerification")
-//            );
-//        }
-//
-//        DigesterOutputStream digesterOs = null;
-//        try {
-//            //Create a SignatureAlgorithm object
-//            SignedInfo si = this.getSignedInfo();
-//            SignatureAlgorithm sa = getSignatureAlgorithm ( );
-//            OutputStream ubso = null;
-//            digesterOs = new DigesterOutputStream(sa);
-//            try {
-//                // initialize SignatureAlgorithm for signing
-//                sa.initSign(signingKey);        
-//
-//                // generate digest values for all References in this SignedInfo with exception of the target object
-//                SignedInfo signedInfo = getSignedInfo();
-//                for (int i = 0; i < signedInfo.getLength(); i++) {
-//                    // update the cached Reference object, the Element content is automatically updated
-//                    Reference currentRef = signedInfo.item(i);
-//                    currentRef.generateDigestValue();
-//                }
-//                ubso = new UnsyncBufferedOutputStream(digesterOs);
-//                // get the canonicalized bytes from SignedInfo
-//                si.signInOctetStream(ubso);
-//            } catch (XMLSecurityException ex) {
-//                throw ex;
-//            } finally {
-//                if (ubso != null) {
-//                    try {
-//                        ubso.close();
-//                    } catch (IOException ex) {
-//                        if (log.isDebugEnabled()) {
-//                            log.debug(ex.getMessage(), ex);
-//                        }
-//                    }
-//                }
-//            }
-//            
-//            // set them on the SignatureValue element
-//            this.setSignatureValueElement(sa.sign());
-//        } catch (XMLSignatureException ex) {
-//            throw ex;
-//        } catch (CanonicalizationException ex) {
-//            throw new XMLSignatureException("empty", ex);
-//        } catch (InvalidCanonicalizerException ex) {
-//            throw new XMLSignatureException("empty", ex);
-//        } catch (XMLSecurityException ex) {
-//            throw new XMLSignatureException("empty", ex);
-//        }
-//        
-//        return digesterOs.getDigest();
-//    }
     
     /**
      * Digests all References in the SignedInfo, calculates the signature value 

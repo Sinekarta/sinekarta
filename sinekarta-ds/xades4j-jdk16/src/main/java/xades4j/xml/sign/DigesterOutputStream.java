@@ -28,8 +28,11 @@ import org.apache.xml.security.algorithms.SignatureAlgorithm;
 import org.apache.xml.security.signature.XMLSignatureException;
 
 /**
- * @author raul
- *
+ * This class is used by ExtOutputStream instead of the original SignerOutputStream
+ * of apache. It involves the same operation but when it digests of the bytes that are 
+ * being sent to the nested SignatureAlgorithm. The {@link #getDigest()} returns the 
+ * digest of the all bytes that have been received.
+ * @author adeprato
  */
 public class DigesterOutputStream extends ByteArrayOutputStream {
 	

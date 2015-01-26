@@ -31,27 +31,11 @@ import xades4j.providers.SigningKeyException;
 import xades4j.verification.UnexpectedJCAException;
 
 /**
- * A ExtKeyStore-based implementation of {@code KeyingDataProvider}. The keystore is
- * loaded on first access (thread-safe).
- * <p>
- * The following procedure is done to get the signing certificate:
- * <ol>
- *  <li>Get all the X509Certificates in private key entries</li>
- *  <li>Invoke the supplied {@code SigningCertSelector} to choose the certificate and thus the entry</li>
- *  <li>Get the entry alias matching the selected certificate</li>
- *  <li>Get the certificate chain for that entry</li>
- * </ol>
- * <p>
- * The following procedure is done to get the signing key:
- * <ol>
- *  <li>Get the entry alias matching the provided certificate</li>
- *  <li>Get the protection to access that entry</li>
- *  <li>Return the entry's private key</li>
- * </ol>
- *
- * @see FileSystemExtKeyStoreKeyingDataProvider
- * @see PKCS11ExtKeyStoreKeyingDataProvider
- * @author Luís
+ * <p>This class represent a provider for the externally generated certificate chain.
+ * <p>When the signer requires a privateKey to evaluate the digital signature, it
+ * provides a throw-away private key which will allow to proceed with the signing 
+ * process. 
+ * @author adeprato
  */
 public class ExtKeyringDataProvider implements KeyingDataProvider
 {

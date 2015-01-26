@@ -4,6 +4,12 @@ import org.w3c.dom.Node;
 
 import xades4j.XAdES4jException;
 
+/**
+ * Extension of the XadesSigner protocol which allows the signers to
+ * evaluate the digest and exchange the signatureId and digitalSignature
+ * information.
+ * @author amommo
+ */
 public interface XadesSignerExt extends XadesSigner {
 
 	public byte[] digest(
