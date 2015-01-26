@@ -40,6 +40,10 @@ import org.bouncycastle.x509.X509CollectionStoreParameters;
 import org.bouncycastle.x509.X509Store;
 import org.bouncycastle.x509.X509V2AttributeCertificate;
 
+//--- SKDSFIX
+// class imported into the project since involved during the signature process
+// but some of its method had a locked visibily outside the bouncycastle package
+
 class CMSSignedHelper
 {
     static final CMSSignedHelper INSTANCE = new CMSSignedHelper();

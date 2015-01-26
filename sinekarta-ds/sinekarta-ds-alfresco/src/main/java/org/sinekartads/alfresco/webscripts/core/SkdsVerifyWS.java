@@ -59,8 +59,7 @@ public class SkdsVerifyWS
 					signatureService = getSignatureService ( SignCategory.CMS );
 					String hexResp = signatureService.verify ( contentHex, 
 															   tsResponse, 
-															   envelope, 
-															   minSecurityLevel );
+															   envelope);
 					verifyResp = BaseDTO.deserializeHex ( VerifyResponseDTO.class, hexResp );
 					verifyResults = extractResult ( VerifyDTO.class, hexResp );
 				} catch (Exception e) {
@@ -73,8 +72,7 @@ public class SkdsVerifyWS
 					signatureService = getSignatureService ( SignCategory.PDF );
 					String hexResp = signatureService.verify ( contentHex, 
 															   tsResponse, 
-															   envelope, 
-															   minSecurityLevel );
+															   envelope );
 					verifyResp = BaseDTO.deserializeHex ( VerifyResponseDTO.class, hexResp );
 					verifyResults = extractResult ( VerifyDTO.class, hexResp );
 				} catch (Exception e) {
@@ -87,8 +85,7 @@ public class SkdsVerifyWS
 					signatureService = getSignatureService ( SignCategory.XML );
 					String hexResp = signatureService.verify ( contentHex, 
 															   tsResponse, 
-															   envelope, 
-															   minSecurityLevel );
+															   envelope );
 					verifyResp = BaseDTO.deserializeHex ( VerifyResponseDTO.class, hexResp );
 					verifyResults = extractResult ( VerifyDTO.class, hexResp );
 				} catch (Exception e) {

@@ -44,6 +44,10 @@ import org.bouncycastle.util.io.Streams;
 import org.bouncycastle.util.io.TeeInputStream;
 import org.bouncycastle.util.io.TeeOutputStream;
 
+// --- SKDSFIX
+// class imported into the project since involved during the signature process
+// but some of its method had a locked visibily outside the bouncycastle package
+
 class CMSUtils
 {
 	private static final Runtime RUNTIME = Runtime.getRuntime();

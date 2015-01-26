@@ -1,6 +1,5 @@
 package org.sinekartads.dto.response;
 
-import org.sinekartads.dto.domain.KeyStoreDTO;
 
 public abstract class SkdsKeyStoreResponse extends BaseResponse {
 	
@@ -10,15 +9,25 @@ public abstract class SkdsKeyStoreResponse extends BaseResponse {
 		
 		private static final long serialVersionUID = -862553768962627L;
 		
-		private KeyStoreDTO keyStore;
-		
-		public KeyStoreDTO getKeyStore() {
-			return keyStore;
+		private String ksRef;
+		private String aliases[];
+
+		public String getKsRef() {
+			return ksRef;
 		}
 
-		public void setKeyStore(KeyStoreDTO keyStore) {
-			this.keyStore = keyStore;
+		public void setKsRef(String ksRef) {
+			this.ksRef = ksRef;
 		}
+
+		public String[] getAliases() {
+			return aliases;
+		}
+
+		public void setAliases(String aliases[]) {
+			this.aliases = aliases;
+		}
+		
 	}
 	
 	
@@ -26,19 +35,10 @@ public abstract class SkdsKeyStoreResponse extends BaseResponse {
 		
 		private static final long serialVersionUID = -4633957048037327402L;
 		
-		private String certificate;
 		private String[] certificateChain;
 		private String privateKey;
 		
-		
-		
-		public String getCertificate() {
-			return certificate;
-		}
 
-		public void setCertificate(String certificate) {
-			this.certificate = certificate;
-		}
 		
 		public String[] getCertificateChain() {
 			return certificateChain;

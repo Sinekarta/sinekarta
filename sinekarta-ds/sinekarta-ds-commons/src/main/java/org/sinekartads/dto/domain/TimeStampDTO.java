@@ -182,7 +182,7 @@ public class TimeStampDTO extends BaseDTO {
     	}
 	}
 	
-	public byte[] encTimeStampTokenFromHex() throws CertificateException {
+	public byte[] encTimeStampTokenFromHex() {
 		byte[] encTimeStampToken = null;
 		try {
 			if(hexTimeStampToken != null) {

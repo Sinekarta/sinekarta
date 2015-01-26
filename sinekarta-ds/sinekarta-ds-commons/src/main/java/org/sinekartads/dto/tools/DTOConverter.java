@@ -523,20 +523,15 @@ public class DTOConverter {
 		
 		if ( BaseDTO.isEmpty(dto) )						 							return null;
 		UntrustedTimeStamp untrustedTimeStamp = null;
-		try {
-			untrustedTimeStamp = new TimeStampInfo ( 
-					dto.signAlgorithmFromString(),
-					dto.digestAlgorithmFromString(),
-					toDigestInfo(dto.getMessageImprint()),
+		untrustedTimeStamp = new TimeStampInfo ( 
+				dto.signAlgorithmFromString(),
+				dto.digestAlgorithmFromString(),
+				toDigestInfo(dto.getMessageImprint()),
 //					toCertificateInfo(dto.getCertificate()),
-					X509Utils.rawX509CertificatesFromHex(dto.getHexCertificateChain()),
-					dto.digitalSignatureFromHex(),
-					dto.verifyResultFromString(),
-					dto.encTimeStampTokenFromHex() );
-		} catch (CertificateException e) {
-			// never thrown, using the TsTokenDTO protocol the certificate has to be correct
-			throw new RuntimeException(e);
-		}
+				X509Utils.rawX509CertificatesFromHex(dto.getHexCertificateChain()),
+				dto.digitalSignatureFromHex(),
+				dto.verifyResultFromString(),
+				dto.encTimeStampTokenFromHex() );
 		
 		untrustedTimeStamp.setSigningTime	( dto.signingTimeFromString() );
 		untrustedTimeStamp.setReason		( dto.getReason() );

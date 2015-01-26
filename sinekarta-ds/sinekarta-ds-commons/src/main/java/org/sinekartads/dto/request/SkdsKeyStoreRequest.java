@@ -1,8 +1,5 @@
 package org.sinekartads.dto.request;
 
-import org.sinekartads.dto.domain.KeyStoreDTO;
-
-
 public abstract class SkdsKeyStoreRequest extends BaseRequest {
 
 	private static final long serialVersionUID = -4080940702371830719L;
@@ -27,18 +24,27 @@ public abstract class SkdsKeyStoreRequest extends BaseRequest {
 
 		private static final long serialVersionUID = 431722588450348169L;
 		
-		private KeyStoreDTO keyStore;
+		private String ksRef;
+		private String ksPin;
 		private String userAlias;	
 		private String userPassword;	
-
-		public KeyStoreDTO getKeyStore() {
-			return keyStore;
-		}
-
-		public void setKeyStore(KeyStoreDTO keyStore) {
-			this.keyStore = keyStore;
-		}
 		
+		public String getKsRef() {
+			return ksRef;
+		}
+
+		public void setKsRef(String ksRef) {
+			this.ksRef = ksRef;
+		}
+
+		public String getKsPin() {
+			return ksPin;
+		}
+
+		public void setKsPin(String ksPin) {
+			this.ksPin = ksPin;
+		}
+
 		public String getUserAlias() {
 			return userAlias;
 		}

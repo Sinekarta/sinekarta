@@ -51,7 +51,7 @@ public class SkdsPreSignWS
 			SignatureDTO	 	digestSignature;
 			SignCategory 	 	signCategory;
 			SignatureService 	signatureService;
-			String 			 	contentHex;
+			String 			 	contentBase64;
 			
 			for ( DocumentDTO document : documents ) {
 				signatures 		= document.getSignatures ( );
@@ -63,11 +63,11 @@ public class SkdsPreSignWS
 				
 				try {
 					// Retrieve the content
-					contentHex = loadFromNode ( document.getBaseDocument() );
+					contentBase64 = loadFromNode ( document.getBaseDocument() );
 					
 					// Perform the pre-sign phase
 					try {
-						String responseBase64 = signatureService.preSign(chainSignature.toBase64(), contentHex);
+						String responseBase64 = signatureService.preSign(chainSignature.toBase64(), contentBase64);
 						digestSignature = extractResult ( SignatureDTO.class, responseBase64 );
 					} catch(Exception e) {
 						tracer.error("error during the pre sign phase", e);

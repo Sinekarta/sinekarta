@@ -217,12 +217,12 @@ public class TimeStampService {
 						timeStampInfo.getMessageImprintAlgOID() );
 				try {
 					digestAlgorithm.validate(tsContent, timeStampInfo.getMessageImprintDigest());
+					verifyResult = TimeStampVerifyResult.VALID;
 				} catch(GeneralSecurityException e) {
 					verifyResult = TimeStampVerifyResult.INVALID;
 				} 
 			}
 
-			verifyResult = TimeStampVerifyResult.VALID;
 		} catch (TSPException e) {
 			verifyResult = TimeStampVerifyResult.INVALID;
 		} catch (CertificateException e) {

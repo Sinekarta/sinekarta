@@ -11,10 +11,8 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sinekartads.alfresco.webscripts.BaseAlfrescoWS;
-import org.sinekartads.dto.domain.KeyStoreDTO;
 import org.sinekartads.dto.request.SkdsKeyStoreRequest.SkdsKeyStoreOpenRequest;
 import org.sinekartads.dto.response.SkdsKeyStoreResponse.SkdsKeyStoreOpenResponse;
-import org.sinekartads.model.domain.KeyStoreType;
 import org.sinekartads.util.TemplateUtils;
 import org.springframework.extensions.webscripts.Cache;
 import org.springframework.extensions.webscripts.Status;
@@ -54,20 +52,15 @@ public class SkdsKeyStoreOpenWS
 
 		String keyStorePin = req.getKeyStorePin();
 		KeyStore keyStore = null;
-		KeyStoreType type = null;
 		if ( keyStoreBytes != null ) {
 			try {
 				char[] ksPwd = null;
 				if ( StringUtils.isNotBlank(keyStorePin) ) {
 					ksPwd = keyStorePin.toCharArray();
 				}
-				KeyStoreType[] types = KeyStoreType.values(); 
-				for ( int i=0; i<types.length && keyStore == null; i++ ) {
-					is = new ByteArrayInputStream ( keyStoreBytes );
-					type = types[i];
-					keyStore = KeyStore.getInstance ( type.getType(), type.getProvider() );
-					keyStore.load ( is, ksPwd );
-				}
+				is = new ByteArrayInputStream ( keyStoreBytes );
+				keyStore = KeyStore.getInstance ( "jks" );
+				keyStore.load ( is, ksPwd );
 			} catch(Exception e) {
 				if ( e.getCause() instanceof UnrecoverableKeyException ) {
 					processError(resp, e, "skds.error.keyStorePinWrong");
@@ -80,15 +73,9 @@ public class SkdsKeyStoreOpenWS
 			
 		if ( keyStore != null ) {
 			try {
-				KeyStoreDTO ksDto = new KeyStoreDTO();
 				if ( keyStore != null ) {
-					ksDto.setName(keyStoreName);
-					ksDto.setPin(keyStorePin);
-					ksDto.setType(type.getType());
-					ksDto.setProvider(type.getProvider());
-					ksDto.setAliases ( TemplateUtils.Conversion.enumerationToArray(keyStore.aliases()) );
-					ksDto.setReference(keyStoreRef.toString());
-					resp.setKeyStore(ksDto);
+					resp.setKsRef(keyStoreRef.toString());
+					resp.setAliases(TemplateUtils.Conversion.enumerationToArray(keyStore.aliases()));
 				} 
 			} catch(Exception e) {
 				processError(resp, e, "skds.error.internalServerError");
