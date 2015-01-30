@@ -1,0 +1,11 @@
+org/sinekartads/integration/BaseIntegrationTC.class
+org/sinekartads/integration/xml/SignXMLwithSmartCardAndDTO.class
+org/sinekartads/integration/xml/SignXMLonAlfresco.class
+org/sinekartads/integration/cms/ExtractASN1TC.class
+org/sinekartads/integration/cms/SignCMSonAlfresco.class
+org/sinekartads/integration/pdf/PDFVerify.class
+org/sinekartads/integration/pdf/SignPDFonAlfresco.class
+org/sinekartads/certificate/CreateCertificateTC.class
+org/sinekartads/certificate/X509CertificateGenerator.class
+org/sinekartads/integration/pdf/SignPDFwithSmartCardAndDTO.class
+org/sinekartads/integration/cms/SignCMSwithSmartCardAndDTO.class

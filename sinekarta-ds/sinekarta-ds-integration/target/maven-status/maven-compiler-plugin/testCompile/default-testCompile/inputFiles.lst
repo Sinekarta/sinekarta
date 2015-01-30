@@ -1,0 +1,15 @@
+/jenia2.0/sinekarta-ds/workspace-amp/sinekarta-ds/sinekarta-ds-integration/src/test/java/org/sinekartads/integration/xml/XAdESTest.java
+/jenia2.0/sinekarta-ds/workspace-amp/sinekarta-ds/sinekarta-ds-integration/src/test/java/org/sinekartads/integration/xml/SignXMLwithSmartCardAndDTO.java
+/jenia2.0/sinekarta-ds/workspace-amp/sinekarta-ds/sinekarta-ds-integration/src/test/java/org/sinekartads/integration/cms/SignCMSwithSmartCardAndDTO.java
+/jenia2.0/sinekarta-ds/workspace-amp/sinekarta-ds/sinekarta-ds-integration/src/test/java/org/sinekartads/integration/pdf/SignPDFonAlfresco.java
+/jenia2.0/sinekarta-ds/workspace-amp/sinekarta-ds/sinekarta-ds-integration/src/test/java/org/sinekartads/integration/BaseIntegrationTC.java
+/jenia2.0/sinekarta-ds/workspace-amp/sinekarta-ds/sinekarta-ds-integration/src/test/java/org/sinekartads/verification/j4ops/J4OpsValidation.java
+/jenia2.0/sinekarta-ds/workspace-amp/sinekarta-ds/sinekarta-ds-integration/src/test/java/org/sinekartads/integration/cms/AbstractCMSSignatureServiceTest.java
+/jenia2.0/sinekarta-ds/workspace-amp/sinekarta-ds/sinekarta-ds-integration/src/test/java/org/sinekartads/integration/pdf/PDFVerify.java
+/jenia2.0/sinekarta-ds/workspace-amp/sinekarta-ds/sinekarta-ds-integration/src/test/java/org/sinekartads/integration/cms/ExtractASN1TC.java
+/jenia2.0/sinekarta-ds/workspace-amp/sinekarta-ds/sinekarta-ds-integration/src/test/java/org/sinekartads/integration/pdf/PDFTools.java
+/jenia2.0/sinekarta-ds/workspace-amp/sinekarta-ds/sinekarta-ds-integration/src/test/java/org/sinekartads/integration/cms/SignCMSonAlfresco.java
+/jenia2.0/sinekarta-ds/workspace-amp/sinekarta-ds/sinekarta-ds-integration/src/test/java/org/sinekartads/certificate/X509CertificateGenerator.java
+/jenia2.0/sinekarta-ds/workspace-amp/sinekarta-ds/sinekarta-ds-integration/src/test/java/org/sinekartads/certificate/CreateCertificateTC.java
+/jenia2.0/sinekarta-ds/workspace-amp/sinekarta-ds/sinekarta-ds-integration/src/test/java/org/sinekartads/integration/xml/SignXMLonAlfresco.java
+/jenia2.0/sinekarta-ds/workspace-amp/sinekarta-ds/sinekarta-ds-integration/src/test/java/org/sinekartads/integration/pdf/SignPDFwithSmartCardAndDTO.java

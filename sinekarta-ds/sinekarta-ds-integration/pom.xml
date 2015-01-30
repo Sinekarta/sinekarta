@@ -20,6 +20,18 @@
 			<version>4.3.6</version>
 		</dependency>
 
+
+		<!-- alfresco -->
+		<dependency>
+			<groupId>org.alfresco</groupId>
+			<artifactId>alfresco-repository</artifactId>
+			<exclusions>
+				<exclusion>
+	           		<groupId>xml-apis</groupId>
+  					<artifactId>xmlParserAPIs</artifactId>
+	            </exclusion>
+			</exclusions>
+		</dependency>
 	
 		<!-- sinekarta modules -->
 		<dependency>
@@ -35,6 +47,7 @@
 			<artifactId>sinekarta-ds-applet</artifactId>
 		</dependency>
 	</dependencies>
+	
 
 	<build>
 		<plugins>

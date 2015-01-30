@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><p:FatturaElettronica xmlns:p="http://www.fatturapa.gov.it/sdi/fatturapa/v1.0" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" versione="1.0">
+	<FatturaElettronicaHeader>
+		<DatiTrasmissione>
+			<IdTrasmittente>
+				<IdPaese>IT</IdPaese>
+				<IdCodice>01234567890</IdCodice>
+			</IdTrasmittente>
+			<ProgressivoInvio>00001</ProgressivoInvio>
+			<FormatoTrasmissione>SDI10</FormatoTrasmissione>
+			<CodiceDestinatario>AAAAAA</CodiceDestinatario>
+			<ContattiTrasmittente>
+				<Telefono>060601</Telefono>
+				<Email>prova@mail.it</Email>
+			</ContattiTrasmittente>
+		</DatiTrasmissione>
+		<CedentePrestatore>
+			<DatiAnagrafici>
+				<IdFiscaleIVA>
+					<IdPaese>IT</IdPaese>
+					<IdCodice>01234567890</IdCodice>
+				</IdFiscaleIVA>
+				<Anagrafica>
+					<Denominazione>Societa' alpha S.r.l.</Denominazione>
+				</Anagrafica>
+				<RegimeFiscale>RF01</RegimeFiscale>
+			</DatiAnagrafici>
+			<Sede>
+				<Indirizzo>Via Roma</Indirizzo>
+				<CAP>00166</CAP>
+				<Comune>Roma</Comune>
+				<Provincia>RM</Provincia>
+				<Nazione>IT</Nazione>
+			</Sede>
+			<StabileOrganizzazione>
+				<Indirizzo>Piazza Garibaldi</Indirizzo>
+				<CAP>00100</CAP>
+				<Comune>Roma</Comune>
+				<Provincia>RM</Provincia>
+				<Nazione>IT</Nazione>
+			</StabileOrganizzazione>
+		</CedentePrestatore>
+		<CessionarioCommittente>
+			<DatiAnagrafici>
+				<CodiceFiscale>09876543210</CodiceFiscale>
+				<Anagrafica>
+					<Denominazione>Societa beta' S.r.l.</Denominazione>
+				</Anagrafica>
+			</DatiAnagrafici>
+			<Sede>
+				<Indirizzo>Via Milano</Indirizzo>
+				<CAP>00100</CAP>
+				<Comune>Roma</Comune>
+				<Provincia>RM</Provincia>
+				<Nazione>IT</Nazione>
+			</Sede>
+		</CessionarioCommittente>
+		<SoggettoEmittente>CC</SoggettoEmittente>
+	</FatturaElettronicaHeader>
+	<FatturaElettronicaBody>
+		<DatiGenerali>
+			<DatiGeneraliDocumento>
+				<TipoDocumento>TD01</TipoDocumento>
+				<Divisa>EUR</Divisa>
+				<Data>2012-11-27</Data>
+				<Numero>00001</Numero>
+				<Art73>SI</Art73>
+			</DatiGeneraliDocumento>
+			<DatiOrdineAcquisto>
+				<RiferimentoNumeroLinea>1</RiferimentoNumeroLinea>
+				<IdDocumento>123</IdDocumento>
+				<CodiceCUP>123abc</CodiceCUP>
+				<CodiceCIG>456def</CodiceCIG>
+			</DatiOrdineAcquisto>
+			<DatiContratto>
+				<RiferimentoNumeroLinea>1</RiferimentoNumeroLinea>
+				<IdDocumento>123</IdDocumento>
+				<Data>2012-09-01</Data>
+				<NumItem>5</NumItem>
+				<CodiceCUP>123abc</CodiceCUP>
+				<CodiceCIG>456def</CodiceCIG>
+			</DatiContratto>
+			<DatiConvenzione>
+				<RiferimentoNumeroLinea>1</RiferimentoNumeroLinea>
+				<IdDocumento>123</IdDocumento>
+				<Data>2012-09-01</Data>
+				<NumItem>5</NumItem>
+				<CodiceCUP>123abc</CodiceCUP>
+				<CodiceCIG>456def</CodiceCIG>
+			</DatiConvenzione>
+			<DatiRicezione>
+				<RiferimentoNumeroLinea>1</RiferimentoNumeroLinea>
+				<IdDocumento>123</IdDocumento>
+				<Data>2012-09-01</Data>
+				<NumItem>5</NumItem>
+				<CodiceCUP>123abc</CodiceCUP>
+				<CodiceCIG>456def</CodiceCIG>
+			</DatiRicezione>
+			<DatiTrasporto>
+				<DatiAnagraficiVettore>
+					<IdFiscaleIVA>
+						<IdPaese>IT</IdPaese>
+						<IdCodice>24681012141</IdCodice>
+					</IdFiscaleIVA>
+					<Anagrafica>
+						<Denominazione>Trasporto spa</Denominazione>
+					</Anagrafica>
+				</DatiAnagraficiVettore>
+				<DataOraConsegna>2012-10-22T16:46:12.000+02:00</DataOraConsegna>
+			</DatiTrasporto>
+		</DatiGenerali>
+		<DatiBeniServizi>
+			<DettaglioLinee>
+				<NumeroLinea>1</NumeroLinea>
+				<Descrizione>BADGES MAGNETICI - PVC laminato bianco</Descrizione>
+				<PrezzoUnitario>3.00000000</PrezzoUnitario>
+				<PrezzoTotale>3.00</PrezzoTotale>
+				<AliquotaIVA>22.00</AliquotaIVA>
+			</DettaglioLinee>
+			<DatiRiepilogo>
+				<AliquotaIVA>22.00</AliquotaIVA>
+				<ImponibileImporto>3.00</ImponibileImporto>
+				<Imposta>0.66</Imposta>
+			</DatiRiepilogo>
+		</DatiBeniServizi>
+		<DatiPagamento>
+			<CondizioniPagamento>TP01</CondizioniPagamento>
+			<DettaglioPagamento>
+				<ModalitaPagamento>MP01</ModalitaPagamento>
+				<DataScadenzaPagamento>2012-12-31</DataScadenzaPagamento>
+				<ImportoPagamento>3.66</ImportoPagamento>
+			</DettaglioPagamento>
+		</DatiPagamento>
+	</FatturaElettronicaBody>
+<ds:Signature Id="xmldsig-6a85bd73-2d6c-4ec7-a3a5-e7e7bba7a0b8">
+<ds:SignedInfo>
+<ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+<ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>
+<ds:Reference URI="#xmldsig-6a85bd73-2d6c-4ec7-a3a5-e7e7bba7a0b8-keyinfo">
+<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+<ds:DigestValue>Tccc9Ib5ggBEvEjXPLfhgNYsW/LAmaVNm+dQ3T63EBw=</ds:DigestValue>
+</ds:Reference>
+<ds:Reference Id="xmldsig-6a85bd73-2d6c-4ec7-a3a5-e7e7bba7a0b8-ref0" URI="">
+<ds:Transforms>
+<ds:Transform Algorithm="http://www.w3.org/2002/06/xmldsig-filter2"><dsig-xpath:XPath xmlns:dsig-xpath="http://www.w3.org/2002/06/xmldsig-filter2" Filter="subtract">/descendant::ds:Signature</dsig-xpath:XPath></ds:Transform>
+</ds:Transforms>
+<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+<ds:DigestValue>A7v4tc6KYEndD0ymdMrRxRMQc+BdNaWdqXd7ReINpwU=</ds:DigestValue>
+</ds:Reference>
+<ds:Reference Type="http://uri.etsi.org/01903#SignedProperties" URI="#xmldsig-6a85bd73-2d6c-4ec7-a3a5-e7e7bba7a0b8-signedprops">
+<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+<ds:DigestValue>IfzsgVedL8ZeEi74fhdv41w2nrLKmkMdobPveFlfjPM=</ds:DigestValue>
+</ds:Reference>
+</ds:SignedInfo>
+<ds:SignatureValue Id="xmldsig-6a85bd73-2d6c-4ec7-a3a5-e7e7bba7a0b8-sigvalue">
+0EfF7SOefR7+cTUKVsk/wIYtXg21MdyDQisHIyh/pYqh+BON4oLZI7aQSj7gxAzuUcKv7aofSk5f
+cEQYYTyTidAXXCtR/leWTtuxnnWlZLqo+/hz+cxPC/zEB6FdstJH2JImLahhHlz4qsEZMx8IxFXY
+191svwLnIgmcVc0o0ahR0wUpGYK4d60UfZ9ajBI4nDv8SPxq33yjwhADrFWeX1/6XL0u3+bVP7li
+LoM5NC12qOmgmZCD4rdvGp/CSD+z55sYhx1OVCTkARnodaTCqeav/7JxihBjlvcx3QdBTeE/h6yK
+XWLanx63wvykhydBUku7NY5auoNvEf1W1GH9iA==
+</ds:SignatureValue>
+<ds:KeyInfo Id="xmldsig-6a85bd73-2d6c-4ec7-a3a5-e7e7bba7a0b8-keyinfo">
+<ds:X509Data>
+<ds:X509Certificate>
+MIIF7zCCBNegAwIBAgIDL2SMMA0GCSqGSIb3DQEBCwUAMIGDMQswCQYDVQQGEwJJVDEVMBMGA1UE
+CgwMSU5GT0NFUlQgU1BBMRQwEgYDVQQFEwswNzk0NTIxMTAwNjEiMCAGA1UECwwZQ2VydGlmaWNh
+dG9yZSBBY2NyZWRpdGF0bzEjMCEGA1UEAwwaSW5mb0NlcnQgRmlybWEgUXVhbGlmaWNhdGEwHhcN
+MTMwMjExMDczMzA4WhcNMTYwMjExMDAwMDAwWjCBojELMAkGA1UEBhMCSVQxFTATBgNVBAoMDE5P
+TiBQUkVTRU5URTEWMBQGA1UEBAwNVEVTU0FSTyBQT1JUQTEPMA0GA1UEKgwGQU5EUkVBMRwwGgYD
+VQQFExNJVDpUU1NORFI3MUwxOEIzOTNSMRYwFAYDVQQuEw0yMDEwMTExMjU1NzE4MR0wGwYDVQQD
+DBRBbmRyZWEgVGVzc2FybyBQb3J0YTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAOqa
+a1GQCvbATVflq+t9lHn/JUJrJpqWbs7Q6jjOIoY15E8OoSParx1wZcqv9owfTGrapkt2wgUTgC0U
+dIEZXsROqanULoibzcfrca5+bylhfcbNPiSMJt/CBhFjaU9q4iS7jgcCHMgfiMdCQAwiA7s0lRVk
+jsLayahWvuW1UF3vQOikG2IcCjBTotE+rb/cmwUFnFqLdmXG4z4p7hAmrGvs+foD/E6WBMj6zVW0
+8pMXK+lUZ33XLki8HzGih9/VX8SJLftdwKQHsZOfGomZPFyvoQctW2R2UyiikbnEiCH4Srep24tN
+oxetdwu+oLEd+holGjHD5R+I04E38DzFbkkCAwEAAaOCAkkwggJFMAkGA1UdEwQCMAAwZAYDVR0g
+BF0wWzBPBgYrTCQBAQEwRTBDBggrBgEFBQcCARY3aHR0cDovL3d3dy5maXJtYS5pbmZvY2VydC5p
+dC9kb2N1bWVudGF6aW9uZS9tYW51YWxpLnBocDAIBgYrTBgBAQIwLwYIKwYBBQUHAQMEIzAhMAgG
+BgQAjkYBATALBgYEAI5GAQMCARQwCAYGBACORgEEMCgGA1UdCQQhMB8wHQYIKwYBBQUHCQExERgP
+MTk3MTA3MTgwMDAwMDBaME4GCCsGAQUFBwEBBEIwQDA+BggrBgEFBQcwAYYyaHR0cDovL29jc3Au
+aW5mb2NlcnQuaXQvT0NTUFNlcnZlcl9JQ0UvT0NTUFNlcnZsZXQwDgYDVR0PAQH/BAQDAgZAMCUG
+A1UdEgQeMByBGmZpcm1hLmRpZ2l0YWxlQGluZm9jZXJ0Lml0MB8GA1UdIwQYMBaAFDD8IXx80nxt
+vIzDuhNQ93qgK8W2MIGvBgNVHR8EgacwgaQwgaGggZ6ggZuGgZhsZGFwOi8vbGRhcC5pbmZvY2Vy
+dC5pdC9jbiUzZEluZm9DZXJ0JTIwRmlybWElMjBRdWFsaWZpY2F0YSUyMENSTDAyLG91JTNkQ2Vy
+dGlmaWNhdG9yZSUyMEFjY3JlZGl0YXRvLG8lM2RJTkZPQ0VSVCUyMFNQQSxjJTNkSVQ/Y2VydGlm
+aWNhdGVSZXZvY2F0aW9uTGlzdDAdBgNVHQ4EFgQUHvz/Ut8OL5yZtrnpwi0e+OIe774wDQYJKoZI
+hvcNAQELBQADggEBAGMg9zxQSXlILzUu86457p3VeWCnmbnXruMfVorctRHxv5bdVELpkYx/6xvf
+YwxbqCNC+MP9R6+LE+2JNpBLq/gFXJI6EZZvhdTdCPcN21sLP2gSqLvGqTCZmX9VKQxeTF4I/i2l
+koVgk6s0xRw994e3HO6ZajF/JGnZ/9VT/e7ZPRyJl8lWI+VLnaBT6cN0IrYRi/Xab06CkqNjH1hG
+3p/5STpPzsBoFKOm3Fxb8Wfro29mPw5K3H24xSVKk1Npt3A2z1TGjMqip+XOzwE9pMbfzo+Xfc+/
+CtiAMUNSZ+tkP3K1orPSvo4N5aRCqaiNa2JzdmdYckOCQOmB20PqFCM=
+</ds:X509Certificate>
+</ds:X509Data>
+</ds:KeyInfo>
+<ds:Object><xades:QualifyingProperties xmlns:xades="http://uri.etsi.org/01903/v1.3.2#" Target="#xmldsig-6a85bd73-2d6c-4ec7-a3a5-e7e7bba7a0b8"><xades:SignedProperties xmlns:ns5="http://uri.etsi.org/01903/v1.4.1#" Id="xmldsig-6a85bd73-2d6c-4ec7-a3a5-e7e7bba7a0b8-signedprops"><xades:SignedSignatureProperties><xades:SigningTime>2015-01-22T11:16:41.119+01:00</xades:SigningTime><xades:SigningCertificate><xades:Cert><xades:CertDigest><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><ds:DigestValue>nCgDr31xbiTcB/10XNdMRyU7KxjtvDiKunro4Oy/WtM=</ds:DigestValue></xades:CertDigest><xades:IssuerSerial><ds:X509IssuerName>CN=InfoCert Firma Qualificata, OU=Certificatore Accreditato, SERIALNUMBER=07945211006, O=INFOCERT SPA, C=IT</ds:X509IssuerName><ds:X509SerialNumber>3105932</ds:X509SerialNumber></xades:IssuerSerial></xades:Cert></xades:SigningCertificate><xades:SignatureProductionPlace><xades:City>Topolinia</xades:City></xades:SignatureProductionPlace></xades:SignedSignatureProperties><xades:SignedDataObjectProperties><xades:CommitmentTypeIndication><xades:CommitmentTypeId><xades:Identifier>http://uri.etsi.org/01903/v1.2.2#ProofOfOrigin</xades:Identifier><xades:Description>Signed by SineKarta</xades:Description></xades:CommitmentTypeId><xades:AllSignedDataObjects/></xades:CommitmentTypeIndication></xades:SignedDataObjectProperties></xades:SignedProperties></xades:QualifyingProperties></ds:Object>
+</ds:Signature></p:FatturaElettronica>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.sinekartads.integration.cms.AbstractCMSSignatureServiceTest" time="0.602" tests="1" errors="0" skipped="0" failures="1">
+  <properties>
+    <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
+    <property name="sun.boot.library.path" value="/opt/alfresco-4.2.e/java/jre/lib/amd64"/>
+    <property name="java.vm.version" value="23.25-b01"/>
+    <property name="java.vm.vendor" value="Oracle Corporation"/>
+    <property name="java.vendor.url" value="http://java.oracle.com/"/>
+    <property name="path.separator" value=":"/>
+    <property name="guice.disable.misplaced.annotation.check" value="true"/>
+    <property name="java.vm.name" value="Java HotSpot(TM) 64-Bit Server VM"/>
+    <property name="file.encoding.pkg" value="sun.io"/>
+    <property name="user.country" value="IT"/>
+    <property name="sun.java.launcher" value="SUN_STANDARD"/>
+    <property name="sun.os.patch.level" value="unknown"/>
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
+    <property name="user.dir" value="/jenia2.0/sinekarta-ds/workspace-amp/sinekarta-ds"/>
+    <property name="java.runtime.version" value="1.7.0_25-b15"/>
+    <property name="java.awt.graphicsenv" value="sun.awt.X11GraphicsEnvironment"/>
+    <property name="java.endorsed.dirs" value="/opt/alfresco-4.2.e/java/jre/lib/endorsed"/>
+    <property name="os.arch" value="amd64"/>
+    <property name="java.io.tmpdir" value="/tmp"/>
+    <property name="line.separator" value="&#10;"/>
+    <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
+    <property name="os.name" value="Linux"/>
+    <property name="classworlds.conf" value="/jenia2.0/sinekarta-ds/workspace-amp/.metadata/.plugins/org.eclipse.m2e.launching/launches/m2conf5818664194840414458.tmp"/>
+    <property name="sun.jnu.encoding" value="UTF-8"/>
+    <property name="java.library.path" value="/opt/alfresco-4.2.e/java/jre/lib/amd64/server:/opt/alfresco-4.2.e/java/jre/lib/amd64:/opt/alfresco-4.2.e/java/jre/../lib/amd64:/usr/lib/jvm/java-6-oracle/jre/lib/amd64/server:/usr/lib/jvm/java-6-oracle/jre/lib/amd64:/usr/lib/jvm/java-6-oracle/jre/../lib/amd64:/usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib"/>
+    <property name="java.specification.name" value="Java Platform API Specification"/>
+    <property name="java.class.version" value="51.0"/>
+    <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
+    <property name="os.version" value="3.13.0-44-generic"/>
+    <property name="user.home" value="/home/adeprato"/>
+    <property name="user.timezone" value="Europe/Rome"/>
+    <property name="java.awt.printerjob" value="sun.print.PSPrinterJob"/>
+    <property name="file.encoding" value="UTF-8"/>
+    <property name="java.specification.version" value="1.7"/>
+    <property name="user.name" value="adeprato"/>
+    <property name="java.class.path" value="/home/adeprato/eclipse/configuration/org.eclipse.osgi/bundles/532/1/.cp/jars/plexus-classworlds-2.4.jar"/>
+    <property name="java.vm.specification.version" value="1.7"/>
+    <property name="sun.arch.data.model" value="64"/>
+    <property name="java.home" value="/opt/alfresco-4.2.e/java/jre"/>
+    <property name="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher -B -s /home/adeprato/.m2/settings-sinekarta.xml install"/>
+    <property name="java.specification.vendor" value="Oracle Corporation"/>
+    <property name="user.language" value="it"/>
+    <property name="awt.toolkit" value="sun.awt.X11.XToolkit"/>
+    <property name="java.vm.info" value="mixed mode"/>
+    <property name="java.version" value="1.7.0_25"/>
+    <property name="java.ext.dirs" value="/opt/alfresco-4.2.e/java/jre/lib/ext:/usr/java/packages/lib/ext"/>
+    <property name="securerandom.source" value="file:/dev/./urandom"/>
+    <property name="sun.boot.class.path" value="/opt/alfresco-4.2.e/java/jre/lib/resources.jar:/opt/alfresco-4.2.e/java/jre/lib/rt.jar:/opt/alfresco-4.2.e/java/jre/lib/sunrsasign.jar:/opt/alfresco-4.2.e/java/jre/lib/jsse.jar:/opt/alfresco-4.2.e/java/jre/lib/jce.jar:/opt/alfresco-4.2.e/java/jre/lib/charsets.jar:/opt/alfresco-4.2.e/java/jre/lib/jfr.jar:/opt/alfresco-4.2.e/java/jre/classes"/>
+    <property name="java.vendor" value="Oracle Corporation"/>
+    <property name="maven.home" value="/jenia2.0/sinekarta-ds/workspace-amp/sinekarta-ds/EMBEDDED"/>
+    <property name="file.separator" value="/"/>
+    <property name="java.vendor.url.bug" value="http://bugreport.sun.com/bugreport/"/>
+    <property name="maven.bootclasspath" value="/home/adeprato/eclipse/configuration/org.eclipse.osgi/bundles/532/1/.cp/jars/plexus-classworlds-2.4.jar"/>
+    <property name="sun.cpu.endian" value="little"/>
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
+    <property name="sun.desktop" value="gnome"/>
+    <property name="sun.cpu.isalist" value=""/>
+  </properties>
+  <testcase name="testCMSSignature" classname="org.sinekartads.integration.cms.AbstractCMSSignatureServiceTest" time="0.602">
+    <failure type="java.lang.AssertionError:">java.lang.AssertionError: 
+	at org.junit.Assert.fail(Assert.java:91)
+	at org.junit.Assert.assertTrue(Assert.java:43)
+	at org.junit.Assert.assertTrue(Assert.java:54)
+	at org.sinekartads.integration.cms.AbstractCMSSignatureServiceTest.testCMSSignature(AbstractCMSSignatureServiceTest.java:150)
+</failure>
+  </testcase>
+</testsuite>
