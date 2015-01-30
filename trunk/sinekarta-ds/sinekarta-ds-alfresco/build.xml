@@ -32,7 +32,7 @@
 	<property name="alfresco.mmt.path" 		value="/opt/alfresco-4.2.f/bin/alfresco-mmt.jar" />
 	
 	<!-- direct installation, test and consultation -->
-	<property name="work.dir" 				value="../../work" />
+	<property name="work.dir" 				value="/jenia2.0/work" />
 	<property name="alfresco.fresh.warname"	value=".alfresco-original.war" />
 	<property name="alfresco.work.dirname"	value="alfresco" />
 	
