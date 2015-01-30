@@ -85,7 +85,7 @@ public class SignCMSwithSmartCardAndDTO extends BaseIntegrationTC {
 					FileUtils.readFileToByteArray ( 
 							getTestResource ( SOURCE_FILE ) ) );
 			boolean applyMark = false;
-			boolean useFakeSmartCard = false;
+			boolean useFakeSmartCard = true;
 			String driver;
 			String scPin;
 			if ( useFakeSmartCard ) {

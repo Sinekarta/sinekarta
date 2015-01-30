@@ -59,10 +59,12 @@ import org.sinekartads.dto.domain.TimeStampRequestDTO;
 import org.sinekartads.dto.domain.VerifyDTO;
 import org.sinekartads.dto.request.BaseRequest;
 import org.sinekartads.dto.request.SkdsDocumentDetailsRequest;
+import org.sinekartads.dto.request.SkdsFindRefByNameRequest;
 import org.sinekartads.dto.request.SkdsSignRequest.SkdsPostSignRequest;
 import org.sinekartads.dto.request.SkdsSignRequest.SkdsPreSignRequest;
 import org.sinekartads.dto.response.BaseResponse;
 import org.sinekartads.dto.response.SkdsDocumentDetailsResponse;
+import org.sinekartads.dto.response.SkdsFindRefByNameResponse;
 import org.sinekartads.dto.response.SkdsSignResponse.SkdsPostSignResponse;
 import org.sinekartads.dto.response.SkdsSignResponse.SkdsPreSignResponse;
 import org.sinekartads.integration.BaseIntegrationTC;
@@ -84,10 +86,11 @@ public class SignPDFonAlfresco extends BaseIntegrationTC {
 	
 	static Logger tracer = Logger.getLogger(SignPDFonAlfresco.class);
 	
-	private static final String SOURCE_REF 		= "workspace://SpacesStore/4f1fe6b3-eca6-4247-b298-79111af62834"; 
+	private static final String SOURCE_NAME 		= "pippo.pdf"; 
 	
 	private static final int 	PORT = 8080;
 	private static final String HOST_NAME = "localhost";
+//	private static final String HOST_NAME = "jeniasrv014.jenia.it";
 	private static final String USER = "admin";
 	private static final String PWD = "admin";
 	
@@ -183,10 +186,26 @@ public class SignPDFonAlfresco extends BaseIntegrationTC {
 				throw e;
 			}
 			
+			// FindRefByName
+			String sourceRef = null;
+			try {
+				SkdsFindRefByNameRequest req = new SkdsFindRefByNameRequest();
+				req.setName(SOURCE_NAME);
+				SkdsFindRefByNameResponse findResp = postJsonRequest ( req, SkdsFindRefByNameResponse.class );
+				if ( ResultCode.valueOf(findResp.getResultCode()) == ResultCode.SUCCESS ) {
+					sourceRef = findResp.getNodeRef();
+				} else {
+					throw new Exception(findResp.getMessage());
+				}
+			} catch(Exception e) {
+				tracer.error("error during the pre sign phase", e);
+				throw e;
+			}
+			
 			// DocumentDetails
 			try {
 				SkdsDocumentDetailsRequest req = new SkdsDocumentDetailsRequest();
-				req.setNodeRefs ( new String[] {SOURCE_REF} );
+				req.setNodeRefs ( new String[] {sourceRef} );
 				detailsResp = postJsonRequest ( req, SkdsDocumentDetailsResponse.class );
 				if ( ResultCode.valueOf(detailsResp.getResultCode()) == ResultCode.SUCCESS ) {
 					documents = detailsResp.documentsFromBase64();

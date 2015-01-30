@@ -84,8 +84,8 @@ public class SignPDFwithSmartCardAndDTO extends BaseIntegrationTC {
 			String contentHex = Base64.encodeBase64String (
 					FileUtils.readFileToByteArray ( 
 							getTestResource ( SOURCE_FILE ) ) );
-			boolean applyMark = true;
-			boolean useFakeSmartCard = false;
+			boolean applyMark = false;
+			boolean useFakeSmartCard = true;
 			String driver;
 			String scPin;
 			if ( useFakeSmartCard ) {

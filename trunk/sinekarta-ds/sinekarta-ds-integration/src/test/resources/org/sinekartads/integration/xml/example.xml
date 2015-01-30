@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns2:SignedPetition ?
+	xmlns:ns2="http://signit.no-ip.org/SignIt/Petition">
+
+	<ns2:Petition id="Petition">
+		<ns2:Title>Cras scelerisque adipiscing semper</ns2:Title>
+		<ns2:Description>Vestibulum sed orci felis, eget mattis justo. Sed id
+			tincidunt augue. Vivamus scelerisque molestie lacinia. Pellentesque
+			habitant morbi tristique senectus et netus et malesuada fames ac
+			turpis egestas. Sed vitae sapien nec purus adipiscing faucibus sed a
+			metus. Duis sed tellus orci. </ns2:Description>
+		<ns2:Content>Content</ns2:Content>
+	</ns2:Petition>
+	<ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
+		Id="xmldsig-6a461be2-52bf-4b93-a7ae-6ac0fa888e52">
+		<ds:SignedInfo ? xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+			<ds:CanonicalizationMethod ?
+				Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"
+				xmlns:ds="http://www.w3.org/2000/09/xmldsig#" />
+			<ds:SignatureMethod ?
+				Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"
+				xmlns:ds="http://www.w3.org/2000/09/xmldsig#" />
+			<ds:Reference Id="xmldsig-6a461be2-52bf-4b93-a7ae-6ac0fa888e52-ref0"
+				URI="" xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+				<ds:Transforms xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+					<ds:Transform
+						Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"
+						xmlns:ds="http://www.w3.org/2000/09/xmldsig#" />
+				</ds:Transforms>
+				<ds:DigestMethod ?
+					Algorithm="http://www.w3.org/2001/04/xmlenc#sha256" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" />
+				<ds:DigestValue ? xmlns:ds="http://www.w3.org/2000/09/xmldsig#">9LWC1ncpr9oeay40uZFK8YSq0qpuuxh6mxGzNvOlf7M=
+				</ds:DigestValue>
+			</ds:Reference>
+			<ds:Reference Type="http://uri.etsi.org/01903#SignedProperties"
+				URI="#xmldsig-6a461be2-52bf-4b93-a7ae-6ac0fa888e52-signedprops"
+				xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+				<ds:DigestMethod ?
+					Algorithm="http://www.w3.org/2001/04/xmlenc#sha256" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" />
+				<ds:DigestValue ? xmlns:ds="http://www.w3.org/2000/09/xmldsig#">LpE4gG2zEkymjSXaNlQ6GxedV/MgiCJ+D+Z+YHAj8DU=
+				</ds:DigestValue>
+			</ds:Reference>
+		</ds:SignedInfo>
+		<ds:SignatureValue ?
+			Id="xmldsig-6a461be2-52bf-4b93-a7ae-6ac0fa888e52-sigvalue" xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+			uWk5Xp6DJoESHJ4o60a96TZH0SuwT/7WnWiKv2g5+TAcsmtqYA6LWIlR1qO4nuhpqXrnqg4N2im/
+			prRZ4hP8kiSo0C6hjaMNpHoZJi1HkEjJUp2KWbSxxIPRNSvq8yBGnVl1qr9mezStGKFXCbzxgd+r
+			T/xvEd1bAX3McobZ3Kc= </ds:SignatureValue>
+		<ds:KeyInfo ? xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+			<ds:X509Data ? xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+				<ds:X509Certificate ?
+					xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+					MIICWDCCAcGgAwIBAgIJAJKvMpGqkErPMA0GCSqGSIb3DQEBBQUAMEUxCzAJBgNVBAYTAkFVMRMw
+					EQYDVQQIDApTb21lLVN0YXRlMSEwHwYDVQQKDBhJbnRlcm5ldCBXaWRnaXRzIFB0eSBMdGQwHhcN
+					MTExMDI1MTM0MjAxWhcNMTIxMDI0MTM0MjAxWjBFMQswCQYDVQQGEwJBVTETMBEGA1UECAwKU29t
+					ZS1TdGF0ZTEhMB8GA1UECgwYSW50ZXJuZXQgV2lkZ2l0cyBQdHkgTHRkMIGfMA0GCSqGSIb3DQEB
+					AQUAA4GNADCBiQKBgQDgP0BwD5KYgt/ZUt2rDFkr41bGcbsSI7pSuG4+rvRziroIriqZQHZQjW/x
+					R3BFM7Wgb4ccIbmSZmKtD4Xo2pHcwNkELVfCIJoN9xHROX31JO3zDR1KjzXCd5dJKwf1UM5SMJ6n
+					+wgxknDf6cdFBPiU4yF/g7nKKNeAezIpr4SJdQIDAQABo1AwTjAdBgNVHQ4EFgQU6PMqVni1tXLc
+					iLH59m/vmOsbugAwHwYDVR0jBBgwFoAU6PMqVni1tXLciLH59m/vmOsbugAwDAYDVR0TBAUwAwEB
+					/zANBgkqhkiG9w0BAQUFAAOBgQBhnR2VEOvaQTKs9c7AWG4iEHvvtOBPEpaY8HFBuoUJfQNZkzZq
+					UD4pQz7klzl4gicmpr+GuzF930GuaG4cePNSCD+aFHDUWZIy81DdfkC3QY4uuU0GI/IIktGodHVU
+					nmOb0Cq8Z6woPUV6HLs64+3BN2/EJP46Ts+BKJ2g1iYBig==
+				</ds:X509Certificate>
+			</ds:X509Data>
+		</ds:KeyInfo>
+		<ds:Object xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+			<xades:QualifyingProperties ?
+				xmlns:xades="http://uri.etsi.org/01903/v1.3.2#" xmlns:xades141="http://uri.etsi.org/01903/v1.4.1#"
+				Target="#xmldsig-6a461be2-52bf-4b93-a7ae-6ac0fa888e52">
+				<xades:SignedProperties
+					Id="xmldsig-6a461be2-52bf-4b93-a7ae-6ac0fa888e52-signedprops">
+					<xades:SignedSignatureProperties>
+						<xades:SigningTime>2011-12-01T16:14:43.443Z</xades:SigningTime>
+						<xades:SigningCertificate>
+							<xades:Cert>
+								<xades:CertDigest>
+									<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256" />
+									<ds:DigestValue>qaFi5DdOw3+ogiqRMMmXG9q8KFiesNjxrKMQya+pexQ=
+									</ds:DigestValue>
+								</xades:CertDigest>
+								<xades:IssuerSerial>
+									<ds:X509IssuerName>O=Internet Widgits Pty
+										Ltd,ST=Some-State,C=AU</ds:X509IssuerName>
+									<ds:X509SerialNumber>10569722451675073231</ds:X509SerialNumber>
+								</xades:IssuerSerial>
+							</xades:Cert>
+						</xades:SigningCertificate>
+					</xades:SignedSignatureProperties>
+					<xades:SignedDataObjectProperties>
+						<xades:CommitmentTypeIndication>
+							<xades:CommitmentTypeId>
+								<xades:Identifier>http://uri.etsi.org/01903/v1.2.2#ProofOfOrigin</xades:Identifier>
+								<xades:Description>Indicates that the signer recognizes to have
+									created, approved and sent the signed data object</xades:Description>
+							</xades:CommitmentTypeId>
+							<xades:AllSignedDataObjects></xades:AllSignedDataObjects>
+						</xades:CommitmentTypeIndication>
+					</xades:SignedDataObjectProperties>
+				</xades:SignedProperties>
+			</xades:QualifyingProperties>
+		</ds:Object>
+	</ds:Signature>
+</ns2:SignedPetition>
