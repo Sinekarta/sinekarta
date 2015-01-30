@@ -26,10 +26,8 @@ import org.sinekartads.dto.domain.TimeStampRequestDTO;
 import org.sinekartads.dto.request.SkdsDocumentDetailsRequest;
 import org.sinekartads.dto.response.SkdsDocumentDetailsResponse;
 import org.sinekartads.dto.share.SignWizardDTO;
-import org.sinekartads.model.client.SignatureClient.SignatureClientType;
 import org.sinekartads.model.domain.SignatureType.SignCategory;
 import org.sinekartads.share.util.AlfrescoException;
-import org.sinekartads.util.HexUtils;
 
 public class SkdsSignInitWS extends BaseSignController {
 	
@@ -44,11 +42,6 @@ public class SkdsSignInitWS extends BaseSignController {
 		
 		
 		signWizard.setNodeRefs(nodeRefs);	
-		
-		// Generate a random hex sessionId and use it to instantiate the signatureClients
-		String sessionId = HexUtils.randomHex(16);
-		clientFactory.createSignatureClients ( sessionId );
-		signWizard.setSessionId(sessionId);
 		
 		// Retrieve from the repository-tier the document details
 		SkdsDocumentDetailsRequest ddreq = new SkdsDocumentDetailsRequest();
@@ -116,7 +109,7 @@ public class SkdsSignInitWS extends BaseSignController {
 		signWizard.setScDriverDescriptions(conf.getDriverDescriptions());
 		
 		// set KEYSTORE as default clientType
-		signWizard.setClientType(SignatureClientType.KEYSTORE.name());
+		signWizard.setClientType("KEYSTORE");
 	}
 	
 	@Override

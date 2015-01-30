@@ -28,11 +28,11 @@
 	<property name="project.package" 		value="org/sinekartads" />
 	
 	<!-- alfresco environment localitions -->
-	<property name="alfresco.sdk.path" 		value="/jenia2.0/alfresco-sdk/alfresco-community-sdk-4.2.e" />
-	<property name="alfresco.mmt.path" 		value="/opt/alfresco-4.2.e/bin/alfresco-mmt.jar" />
+	<property name="alfresco.sdk.path" 		value="/jenia2.0/alfresco-sdk/alfresco-community-sdk-4.2.f" />
+	<property name="alfresco.mmt.path" 		value="/opt/alfresco-4.2.f/bin/alfresco-mmt.jar" />
 	
 	<!-- direct installation, test and consultation -->
-	<property name="work.dir" 				value="../../work" />
+	<property name="work.dir" 				value="/jenia2.0/work" />
 	<property name="share.fresh.warname"	value=".share-original.war" />
 	<property name="share.work.dirname"		value="share" />
 	

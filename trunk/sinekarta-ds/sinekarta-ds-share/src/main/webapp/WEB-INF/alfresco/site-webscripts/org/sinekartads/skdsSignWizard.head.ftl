@@ -824,7 +824,7 @@
 					html = '';
 					for ( j=0; j<errors.length; j++ ) {
 						html += '<span class="skds-data-caption"></span>';
-						html += '<span class="skds-data-input, skds-error">' + errors[j] + '</span>';
+						html += '<span class="skds-data-input, skds-error">' + errors[j] + '</span><br/>';
 					}
 					document.getElementById('${htmlid}-'+field+'-error').innerHTML = html;
 				}

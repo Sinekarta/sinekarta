@@ -24,11 +24,6 @@
     	<property name="resources" value="alfresco/web-extension/sinekarta-ds-share/skds-share.properties" />
     </bean>
     
-   	<bean id="clientFactory" 
-	      class="org.sinekartads.share.client.ShareClientFactory">
-    	<property name="connectorService" 	ref="connector.service" />
-    </bean>
-    
  	<bean id="webscript.org.sinekartads.skdsHelloWorld.get" parent="webscript"
 	      class="org.sinekartads.share.webscripts.SkdsHelloWorldWS">
 		<property name="connectorService" 	ref="connector.service" />

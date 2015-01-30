@@ -16,10 +16,12 @@
  */
 package org.sinekartads.share.webscripts.sign;
 
-import org.sinekartads.dto.domain.SignatureDTO;
+import org.apache.commons.lang.StringUtils;
+import org.sinekartads.dto.request.SkdsKeyStoreRequest.SkdsKeyStoreReadRequest;
+import org.sinekartads.dto.response.SkdsKeyStoreResponse.SkdsKeyStoreReadResponse;
 import org.sinekartads.dto.share.SignWizardDTO;
-import org.sinekartads.model.client.KeyStoreClient.KeyStoreClientCtrl;
 import org.sinekartads.share.util.AlfrescoException;
+import org.sinekartads.share.util.JavaWebscriptTools;
 
 public class SkdsSignCallKeyStoreReadWS extends BaseSignController {
 	
@@ -28,14 +30,32 @@ public class SkdsSignCallKeyStoreReadWS extends BaseSignController {
 			SignWizardDTO dto ) 
 					throws AlfrescoException {
 		
-		SignatureDTO signature = dto.getSignature();
-		String sessionId = dto.getSessionId();
-		KeyStoreClientCtrl keyStoreClient = clientFactory.getKeyStoreCtrl ( sessionId );
-		
-		String ksUserAlias = dto.getKsUserAlias();
-		String ksUserPassword = dto.getKsUserPassword();
-		signature.setHexCertificateChain ( 
-				keyStoreClient.selectIdentity(ksUserAlias, ksUserPassword) );
+		String[] hexCertificateChain = null;
+		String hexPrivateKey = "";
+		if ( StringUtils.isNotBlank(dto.getKsUserAlias()) ) {
+			try {
+				SkdsKeyStoreReadRequest ksrreq = new SkdsKeyStoreReadRequest();
+				ksrreq.setKsPin(dto.getKsPin());
+				ksrreq.setKsRef(dto.getKsRef());
+				ksrreq.setUserAlias(dto.getKsUserAlias());
+				ksrreq.setUserPassword(dto.getKsUserPassword());
+				SkdsKeyStoreReadResponse ksrresp = JavaWebscriptTools.postJsonRequest ( 
+						ksrreq, SkdsKeyStoreReadResponse.class, connectorService );
+				hexCertificateChain = ksrresp.getCertificateChain();
+				hexPrivateKey = ksrresp.getPrivateKey();
+			} catch(AlfrescoException e) {
+				String errorMessage = e.getMessage();
+				if ( StringUtils.equals(errorMessage, "skds.error.keyStorePinWrong") ) {
+					addFieldError(dto, "ksPin", errorMessage);
+				} else if ( StringUtils.equals(errorMessage, "skds.error.keyStoreUserNotFound") ) {
+					addFieldError(dto, "ksUserAlias", errorMessage);
+				} else {
+					processError(dto, e);
+				}
+			}
+		}
+		dto.getSignature().setHexCertificateChain(hexCertificateChain);
+		dto.setKsHexPrivateKey(hexPrivateKey);
 	}
 
 	@Override
