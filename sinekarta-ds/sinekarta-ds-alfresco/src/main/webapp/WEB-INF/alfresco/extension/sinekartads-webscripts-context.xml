@@ -65,4 +65,12 @@
         </property>
 	</bean>	
 	
+	<bean id="webscript.org.sinekartads.skdsFindRefByName.post" parent="webscript"
+	      class="org.sinekartads.alfresco.webscripts.document.SkdsFindRefByNameWS">
+    	<property name="serviceRegistry">
+            <ref bean="ServiceRegistry" />
+        </property>
+        <property name="repository" ref="repositoryHelper" />
+	</bean>
+	
 </beans>
