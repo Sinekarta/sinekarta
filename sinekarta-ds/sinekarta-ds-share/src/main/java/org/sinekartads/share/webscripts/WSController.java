@@ -81,7 +81,7 @@ public abstract class WSController<DTO extends WizardDTO> extends BaseWS {
 	// -
 
 	// LABELS - dictionary of the system labels, have to be declared into the bundle in any format
-	public static final String MANDATORY  	  = "error.mandatory";
+	public static final String MANDATORY  	  = "skds.error.mandatory";
 	
 	// ERRORS - dictionary of the known errors, have to be declared into the bundle
 	//		Any error into sineKarta platform is expected to appear with the form error.<type>, such as
