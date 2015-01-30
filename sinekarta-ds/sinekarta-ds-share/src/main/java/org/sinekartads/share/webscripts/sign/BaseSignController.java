@@ -17,7 +17,6 @@
 package org.sinekartads.share.webscripts.sign;
 
 import org.sinekartads.dto.share.SignWizardDTO;
-import org.sinekartads.model.client.SignatureClientFactory;
 import org.sinekartads.share.webscripts.WSController;
 
 public abstract class BaseSignController extends WSController<SignWizardDTO> {
@@ -35,8 +34,6 @@ public abstract class BaseSignController extends WSController<SignWizardDTO> {
 	protected static final int STEP_PRESIGN  = 6;
 	protected static final int STEP_POSTSIGN = 7;
 	protected static final int STEP_RESULTS	 = 8;
-	
-	SignatureClientFactory clientFactory = SignatureClientFactory.getInstance();
 	
 	@Override
 	protected String[] getWizardForms() {

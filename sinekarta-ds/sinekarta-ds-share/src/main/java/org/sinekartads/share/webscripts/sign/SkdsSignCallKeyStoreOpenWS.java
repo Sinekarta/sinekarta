@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 - 2012 Jenia Software.
+< * Copyright (C) 2010 - 2012 Jenia Software.
  *
  * This file is part of Sinekarta
  *
@@ -16,9 +16,12 @@
  */
 package org.sinekartads.share.webscripts.sign;
 
+import org.apache.commons.lang3.StringUtils;
+import org.sinekartads.dto.request.SkdsKeyStoreRequest.SkdsKeyStoreOpenRequest;
+import org.sinekartads.dto.response.SkdsKeyStoreResponse.SkdsKeyStoreOpenResponse;
 import org.sinekartads.dto.share.SignWizardDTO;
-import org.sinekartads.model.client.KeyStoreClient.KeyStoreClientCtrl;
 import org.sinekartads.share.util.AlfrescoException;
+import org.sinekartads.share.util.JavaWebscriptTools;
 
 public class SkdsSignCallKeyStoreOpenWS extends BaseSignController {
 	
@@ -26,11 +29,26 @@ public class SkdsSignCallKeyStoreOpenWS extends BaseSignController {
 	protected void processData (
 			SignWizardDTO dto ) 
 					throws AlfrescoException {
-		
-		String sessionId = dto.getSessionId();
-		String keyStorePin = dto.getKsPin();
-		KeyStoreClientCtrl keyStoreClient = clientFactory.getKeyStoreCtrl ( sessionId );
-		dto.setKsAliases ( keyStoreClient.openKeyStore(keyStorePin) );
+
+		String ksRef = null;
+		String[] ksAliases = null;
+		try {
+			SkdsKeyStoreOpenRequest ksoreq = new SkdsKeyStoreOpenRequest();
+			ksoreq.setKeyStorePin(dto.getKsPin());
+			SkdsKeyStoreOpenResponse ksoresp = JavaWebscriptTools.postJsonRequest ( 
+					ksoreq, SkdsKeyStoreOpenResponse.class, connectorService );
+			ksAliases = ksoresp.getAliases();
+			ksRef = ksoresp.getKsRef();
+		} catch(AlfrescoException e) {
+			String errorMessage = e.getMessage();
+			if ( StringUtils.equals(errorMessage, "skds.error.keyStorePinWrong") ) {
+				addFieldError(dto, "ksPin", getMessage(errorMessage));
+			} else {
+				processError(dto, e);
+			}
+		}
+		dto.setKsRef(ksRef);
+		dto.setKsAliases(ksAliases);
 	}
 
 	@Override

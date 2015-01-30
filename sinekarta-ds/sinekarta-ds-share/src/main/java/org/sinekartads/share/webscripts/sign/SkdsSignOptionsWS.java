@@ -42,17 +42,17 @@ public class SkdsSignOptionsWS extends BaseSignController {
 		
 		if ( tsSelection == TsSelection.CUSTOM ) {
 			if ( StringUtils.isBlank(tsUrl) ) {
-				wizardData.addFieldError("tsUrl", getMessage("error.mandatory") );
+				wizardData.addFieldError("tsUrl", getMessage("skds.error.mandatory") );
 			}
 			if ( StringUtils.isBlank(tsUsername) && StringUtils.isNotBlank(tsPassword) ) {
-				wizardData.addFieldError("tsUrl", getMessage("error.wrongAnonymousUser") );
+				wizardData.addFieldError("tsUsername", getMessage("error.wrongAnonymousUser") );
 			}
 		}
 		
 		// Load the parameters from the form POST 
 		for(DocumentDTO document : documents) {
 			if ( StringUtils.isBlank(document.getDestName()) ) {
-				wizardData.addFieldError("destName", getMessage("error.mandatory") );
+				wizardData.addFieldError("destName", getMessage("skds.error.mandatory") );
 			}
 		}
 	}

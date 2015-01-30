@@ -18,7 +18,6 @@ package org.sinekartads.share.webscripts.sign;
 
 import org.sinekartads.dto.domain.SignatureDTO;
 import org.sinekartads.dto.share.SignWizardDTO;
-import org.sinekartads.model.client.SmartCardClient.SmartCardClientCtrl;
 import org.sinekartads.share.util.AlfrescoException;
 
 public class SkdsSignSetDigitalSignatureWS extends BaseSignController {
@@ -30,9 +29,9 @@ public class SkdsSignSetDigitalSignatureWS extends BaseSignController {
 		
 		int LAST = dto.getDocuments()[0].getSignatures().length - 1;
 		SignatureDTO signature = dto.getDocuments()[0].getSignatures()[LAST];
-		String sessionId = dto.getSessionId();
-		SmartCardClientCtrl keyStoreClient = clientFactory.getSmartCardCtrl( sessionId );
-		keyStoreClient.setDigitalSignature ( signature.digitalSignatureFromHex() );
+//		String sessionId = dto.getSessionId();
+//		SmartCardClientCtrl keyStoreClient = clientFactory.getSmartCardCtrl( sessionId );
+//		keyStoreClient.setDigitalSignature ( signature.digitalSignatureFromHex() );
 	}
 
 	@Override

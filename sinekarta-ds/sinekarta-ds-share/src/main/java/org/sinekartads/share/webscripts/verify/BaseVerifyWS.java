@@ -17,7 +17,6 @@
 package org.sinekartads.share.webscripts.verify;
 
 import org.sinekartads.dto.share.VerifyWizardDTO;
-import org.sinekartads.model.client.SignatureClientFactory;
 import org.sinekartads.share.webscripts.WSController;
 
 public abstract class BaseVerifyWS extends WSController<VerifyWizardDTO> {
@@ -27,8 +26,6 @@ public abstract class BaseVerifyWS extends WSController<VerifyWizardDTO> {
 	};
 	protected static final int STEP_INIT 	= 0;
 	protected static final int STEP_RESULTS	= 1;
-	
-	SignatureClientFactory clientFactory = SignatureClientFactory.getInstance();
 	
 	protected String[] getWizardForms() {
 		return WIZARD_FORMS;
