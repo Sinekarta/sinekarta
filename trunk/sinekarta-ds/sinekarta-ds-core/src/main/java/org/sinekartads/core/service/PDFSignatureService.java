@@ -553,7 +553,8 @@ public class PDFSignatureService
 					// Evaluate the securityLevel
 		            Calendar cal = pdfPkCs7.getSignDate();
 		            Certificate[] pkc = pdfPkCs7.getCertificates();
-					boolean verified = pdfPkCs7.verify() && StringUtils.isBlank ( CertificateVerification.verifyCertificate((X509Certificate)pkc[0], new ArrayList<CRL>(), cal) );
+					boolean verified = pdfPkCs7.verify() && StringUtils.isBlank ( 
+							CertificateVerification.verifyCertificate((X509Certificate)pkc[0], new ArrayList<CRL>(), cal) );
 					if ( verified ) { 
 						signVerifyResult = minLevel ( signVerifyResult, VerifyResult.VALID );
 					} else {
