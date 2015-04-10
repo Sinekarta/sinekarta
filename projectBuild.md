@@ -72,9 +72,32 @@ You can find these artifact as result of build process :
   * sinekarta-ds/sinekarta-ds-alfresco/target/dist/sinekarta-ds-alfresco.amp - amp to be installed into alfresco
   * sinekarta-ds/sinekarta-ds-share/target/dist/sinekarta-ds-share.amp - amp to be installed into share
 
-To install amps into alfresco and share war, please refer to alfresco-mmt tool documentation.
-
 You also have a full version of alfresco.war and share.war "amped" into work directory.
+
+##Installing the AMP files##
+An AMP file is installed using the Module Management Tool. This tool applies the AMP file to the target WAR file and also provides the ability to uninstall the module, and list currently installed modules.
+
+It can be installed in one of two ways:
+ * Using the Module Management Tool (MMT) bin/alfresco-mmt.jar directly
+ * Using the "apply amps" script bin/apply_amps.sh
+
+The steps needed to using the MMT directly are:
+ *  Change into the root of your Alfresco installation;
+ *  Before installing the AMP it is wise to first preview any changes that might be made, without actually installing the module. This can be done with the `-preview` option:
+```
+   java -jar bin/alfresco-mmt.jar install sinekarta-ds-alfresco.amp tomcat/webapps/alfresco.war -preview
+   java -jar bin/alfresco-mmt.jar install sinekarta-ds-share.amp tomcat/webapps/share.war -preview
+```
+ * Now install the AMP:
+```
+   java -jar bin/alfresco-mmt.jar install sinekarta-ds-alfresco.amp tomcat/webapps/alfresco.war
+   java -jar bin/alfresco-mmt.jar install sinekarta-ds-share.amp tomcat/webapps/share.war
+```
+ * Verify that the AMP is installed:
+```
+   java -jar bin/alfresco-mmt.jar list tomcat/webapps/alfresco.war
+   java -jar bin/alfresco-mmt.jar list tomcat/webapps/share.war
+```
 
 ## Launch Alfresco ##
 
