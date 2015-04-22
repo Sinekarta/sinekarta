@@ -14,3 +14,7 @@ End users will be able to digitally sign their documents by using a local keysto
 even a Smartcard reader or USB signature token. 
 The signing process will take place directly inside the browser, without the need to download the document, 
 sign it and upload it again to Alfresco. 
+
+Download latest release : 
+alfresco plugin : https://github.com/Sinekarta/sinekarta/releases/download/v3.0/sinekarta-ds-alfresco.amp
+share plugin : https://github.com/Sinekarta/sinekarta/releases/download/v3.0/sinekarta-ds-share.amp
