@@ -16,5 +16,7 @@ The signing process will take place directly inside the browser, without the nee
 sign it and upload it again to Alfresco. 
 
 Download latest release : 
+
 alfresco plugin : https://github.com/Sinekarta/sinekarta/releases/download/v3.0/sinekarta-ds-alfresco.amp
+
 share plugin : https://github.com/Sinekarta/sinekarta/releases/download/v3.0/sinekarta-ds-share.amp
